@@ -1,0 +1,68 @@
+@import "tailwindcss";
+
+/* Catppuccin Macchiatto theme colors */
+:root {
+  /* Light mode */
+  --background: #f5f5f5;
+  --foreground: #1e1e2e;
+  --catppuccin-text: #cdd6f4;
+  --catppuccin-subtext1: #bac2de;
+  --catppuccin-subtext0: #a6adc8;
+  --catppuccin-overlay2: #9399b2;
+  --catppuccin-overlay1: #7f849c;
+  --catppuccin-overlay0: #6c7086;
+  --catppuccin-surface2: #585b70;
+  --catppuccin-surface1: #45475a;
+  --catppuccin-surface0: #313244;
+  --catppuccin-base: #1e1e2e;
+  --catppuccin-mantle: #181825;
+  --catppuccin-crust: #11111b;
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --font-sans: var(--font-geist-sans);
+  --font-mono: var(--font-geist-mono);
+  /* Catppuccin colors */
+  --color-catppuccin-rosewater: #f5e0dc;
+  --color-catppuccin-flamingo: #f2cdcd;
+  --color-catppuccin-pink: #f5c2e7;
+  --color-catppuccin-mauve: #cba6f7;
+  --color-catppuccin-red: #f38ba8;
+  --color-catppuccin-maroon: #eba0ac;
+  --color-catppuccin-peach: #fab387;
+  --color-catppuccin-yellow: #f9e2af;
+  --color-catppuccin-green: #a6e3a1;
+  --color-catppuccin-teal: #94e2d5;
+  --color-catppuccin-sky: #89dceb;
+  --color-catppuccin-sapphire: #74c7ec;
+  --color-catppuccin-blue: #89b4fa;
+  --color-catppuccin-lavender: #b4befe;
+  --color-catppuccin-text: var(--catppuccin-text);
+  --color-catppuccin-subtext1: var(--catppuccin-subtext1);
+  --color-catppuccin-subtext0: var(--catppuccin-subtext0);
+  --color-catppuccin-overlay2: var(--catppuccin-overlay2);
+  --color-catppuccin-overlay1: var(--catppuccin-overlay1);
+  --color-catppuccin-overlay0: var(--catppuccin-overlay0);
+  --color-catppuccin-surface2: var(--catppuccin-surface2);
+  --color-catppuccin-surface1: var(--catppuccin-surface1);
+  --color-catppuccin-surface0: var(--catppuccin-surface0);
+  --color-catppuccin-base: var(--catppuccin-base);
+  --color-catppuccin-mantle: var(--catppuccin-mantle);
+  --color-catppuccin-crust: var(--catppuccin-crust);
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    /* Dark mode - Catppuccin Macchiatto */
+    --background: var(--catppuccin-base);
+    --foreground: var(--catppuccin-text);
+  }
+}
+
+body {
+  background: var(--background);
+  color: var(--foreground);
+  font-family: Arial, Helvetica, sans-serif;
+}
