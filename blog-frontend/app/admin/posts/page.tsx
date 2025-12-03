@@ -2,7 +2,7 @@
 
 import React, { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { fetchPosts } from '@/services/api';
+import { fetchPosts, deletePost } from '@/services/api';
 import { Post } from '@/types';
 import Link from 'next/link';
 
@@ -10,6 +10,7 @@ export default function AdminPosts() {
   const router = useRouter();
   const [posts, setPosts] = useState<Post[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [isDeleting, setIsDeleting] = useState<number | null>(null);
 
   useEffect(() => {
     // 检查登录状态
@@ -34,6 +35,23 @@ export default function AdminPosts() {
 
     getPosts();
   }, []);
+
+  // 删除文章处理函数
+  const handleDelete = async (postId: number) => {
+    if (confirm('确定要删除这篇文章吗？')) {
+      setIsDeleting(postId);
+      try {
+        await deletePost(postId);
+        // 更新文章列表
+        setPosts(posts.filter(post => post.id !== postId));
+      } catch (error) {
+        console.error('删除文章失败:', error);
+        alert('删除文章失败，请重试');
+      } finally {
+        setIsDeleting(null);
+      }
+    }
+  };
 
   if (isLoading) {
     return (
@@ -140,8 +158,12 @@ export default function AdminPosts() {
                         >
                           查看
                         </Link>
-                        <button className="text-red-600 hover:text-red-900 dark:text-catppuccin-red dark:hover:text-catppuccin-maroon">
-                          删除
+                        <button 
+                          className={`text-red-600 hover:text-red-900 dark:text-catppuccin-red dark:hover:text-catppuccin-maroon ${isDeleting === post.id ? 'opacity-50 cursor-not-allowed' : ''}`}
+                          onClick={() => handleDelete(post.id)}
+                          disabled={isDeleting === post.id}
+                        >
+                          {isDeleting === post.id ? '删除中...' : '删除'}
                         </button>
                       </td>
                     </tr>

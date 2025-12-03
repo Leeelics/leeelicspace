@@ -70,7 +70,7 @@ export const updatePost = async (postId: number, postData: { title?: string; con
 
 // 删除文章
 export const deletePost = async (postId: number): Promise<void> => {
-  const response = await fetch(`${API_BASE_URL}/posts/${postId}`, {
+  const response = await fetch(`${API_BASE_URL}/posts/${postId}?secret=admin-secret`, {
     method: 'DELETE',
   });
   if (!response.ok) {

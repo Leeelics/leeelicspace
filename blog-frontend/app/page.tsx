@@ -3,8 +3,8 @@ import { Post } from '@/types';
 import Link from 'next/link';
 
 export default async function Home({ searchParams }: { searchParams?: Promise<{ page?: string; tag?: string }> }) {
-  // 解包 searchParams Promise
-  const resolvedSearchParams = await searchParams;
+  // 处理 searchParams - 在Next.js 16中，searchParams是Promise，需要await解包
+  const resolvedSearchParams = await searchParams || {};
   const page = parseInt(resolvedSearchParams?.page || '1');
   const tag = resolvedSearchParams?.tag || undefined;
   

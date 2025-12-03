@@ -19,9 +19,11 @@
   --catppuccin-crust: #11111b;
 }
 
-@theme inline {
+/* Tailwind CSS v4 theme definition */
+@theme {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
+
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
   /* Catppuccin colors */
@@ -53,16 +55,327 @@
   --color-catppuccin-crust: var(--catppuccin-crust);
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    /* Dark mode - Catppuccin Macchiatto */
-    --background: var(--catppuccin-base);
-    --foreground: var(--catppuccin-text);
-  }
+/* Dark mode */
+.dark {
+  --background: #11111b;
+  --foreground: #cdd6f4;
+  --catppuccin-text: #cdd6f4;
+  --catppuccin-subtext1: #bac2de;
+  --catppuccin-subtext0: #a6adc8;
+  --catppuccin-overlay2: #9399b2;
+  --catppuccin-overlay1: #7f849c;
+  --catppuccin-overlay0: #6c7086;
+  --catppuccin-surface2: #585b70;
+  --catppuccin-surface1: #45475a;
+  --catppuccin-surface0: #313244;
+  --catppuccin-base: #1e1e2e;
+  --catppuccin-mantle: #181825;
+  --catppuccin-crust: #11111b;
 }
 
-body {
-  background: var(--background);
+/* Catppuccin theme specific styles */
+.catppuccin {
+  --background: var(--catppuccin-crust);
+  --foreground: var(--catppuccin-text);
+  background-color: var(--background);
   color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+}
+
+/* 基础元素样式重置 */
+.catppuccin body {
+  background-color: var(--catppuccin-crust) !important;
+  color: var(--catppuccin-text) !important;
+}
+
+/* 白色背景元素 */
+.catppuccin .bg-white {
+  background-color: var(--catppuccin-base) !important;
+  border-color: var(--catppuccin-surface1) !important;
+}
+
+.catppuccin .bg-gray-50 {
+  background-color: var(--catppuccin-surface0) !important;
+}
+
+.catppuccin .bg-gray-100 {
+  background-color: var(--catppuccin-surface0) !important;
+}
+
+.catppuccin .bg-gray-200 {
+  background-color: var(--catppuccin-surface1) !important;
+}
+
+.catppuccin .bg-gray-300 {
+  background-color: var(--catppuccin-surface2) !important;
+}
+
+/* 文本颜色 */
+.catppuccin .text-gray-900 {
+  color: var(--catppuccin-text) !important;
+}
+
+.catppuccin .text-gray-800 {
+  color: var(--catppuccin-subtext1) !important;
+}
+
+.catppuccin .text-gray-700 {
+  color: var(--catppuccin-subtext0) !important;
+}
+
+.catppuccin .text-gray-600 {
+  color: var(--catppuccin-overlay0) !important;
+}
+
+.catppuccin .text-gray-500 {
+  color: var(--catppuccin-overlay1) !important;
+}
+
+.catppuccin .text-gray-400 {
+  color: var(--catppuccin-overlay2) !important;
+}
+
+/* 边框颜色 */
+.catppuccin .border-gray-200 {
+  border-color: var(--catppuccin-surface1) !important;
+}
+
+.catppuccin .border-gray-300 {
+  border-color: var(--catppuccin-surface2) !important;
+}
+
+.catppuccin .border-gray-400 {
+  border-color: var(--catppuccin-overlay0) !important;
+}
+
+/* 悬停效果 */
+.catppuccin .hover\:bg-gray-100:hover {
+  background-color: var(--catppuccin-surface0) !important;
+}
+
+.catppuccin .hover\:bg-gray-200:hover {
+  background-color: var(--catppuccin-surface1) !important;
+}
+
+.catppuccin .hover\:bg-gray-300:hover {
+  background-color: var(--catppuccin-surface2) !important;
+}
+
+/* 管理后台特定样式 */
+.catppuccin .dark\:bg-catppuccin-base {
+  background-color: var(--catppuccin-base) !important;
+}
+
+.catppuccin .dark\:bg-catppuccin-surface0 {
+  background-color: var(--catppuccin-surface0) !important;
+}
+
+.catppuccin .dark\:bg-catppuccin-surface1 {
+  background-color: var(--catppuccin-surface1) !important;
+}
+
+.catppuccin .dark\:border-catppuccin-surface1 {
+  border-color: var(--catppuccin-surface1) !important;
+}
+
+.catppuccin .dark\:border-catppuccin-surface2 {
+  border-color: var(--catppuccin-surface2) !important;
+}
+
+.catppuccin .dark\:text-catppuccin-text {
+  color: var(--catppuccin-text) !important;
+}
+
+.catppuccin .dark\:text-catppuccin-subtext0 {
+  color: var(--catppuccin-subtext0) !important;
+}
+
+.catppuccin .dark\:text-catppuccin-blue {
+  color: var(--color-catppuccin-blue) !important;
+}
+
+.catppuccin .dark\:hover\:text-catppuccin-blue:hover {
+  color: var(--color-catppuccin-blue) !important;
+}
+
+/* 确保Tailwind v4主题变量被正确应用 */
+.catppuccin {
+  --color-gray-50: var(--catppuccin-surface0);
+  --color-gray-100: var(--catppuccin-surface0);
+  --color-gray-200: var(--catppuccin-surface1);
+  --color-gray-300: var(--catppuccin-surface2);
+  --color-gray-400: var(--catppuccin-overlay0);
+  --color-gray-500: var(--catppuccin-overlay1);
+  --color-gray-600: var(--catppuccin-overlay0);
+  --color-gray-700: var(--catppuccin-subtext0);
+  --color-gray-800: var(--catppuccin-subtext1);
+  --color-gray-900: var(--catppuccin-text);
+  --color-white: var(--catppuccin-base);
+}
+
+/* 基础样式重置 */
+body {
+  margin: 0;
+  padding: 0;
+  font-family: var(--font-sans);
+  background-color: var(--background);
+  color: var(--foreground);
+  transition: background-color 0.3s, color 0.3s;
+}
+
+/* 代码块样式 */
+pre {
+  background-color: var(--catppuccin-surface0);
+  border-radius: 0.5rem;
+  padding: 1rem;
+  overflow-x: auto;
+  font-family: var(--font-mono);
+  font-size: 0.875rem;
+  line-height: 1.5;
+}
+
+code {
+  font-family: var(--font-mono);
+  font-size: 0.875rem;
+  background-color: var(--catppuccin-surface0);
+  padding: 0.2rem 0.4rem;
+  border-radius: 0.25rem;
+}
+
+pre code {
+  background-color: transparent;
+  padding: 0;
+}
+
+/* 链接样式 */
+a {
+  color: var(--color-catppuccin-blue);
+  text-decoration: none;
+  transition: color 0.2s;
+}
+
+a:hover {
+  color: var(--color-catppuccin-lavender);
+  text-decoration: underline;
+}
+
+/* 列表样式 */
+ul, ol {
+  padding-left: 1.5rem;
+}
+
+li {
+  margin-bottom: 0.5rem;
+}
+
+/* 标题样式 */
+h1, h2, h3, h4, h5, h6 {
+  margin-top: 1.5rem;
+  margin-bottom: 1rem;
+  font-weight: 600;
+  line-height: 1.25;
+}
+
+h1 {
+  font-size: 2rem;
+}
+
+h2 {
+  font-size: 1.5rem;
+}
+
+h3 {
+  font-size: 1.25rem;
+}
+
+/* 段落样式 */
+p {
+  margin-bottom: 1rem;
+}
+
+/* 图片样式 */
+img {
+  max-width: 100%;
+  height: auto;
+  border-radius: 0.5rem;
+  margin: 1rem 0;
+}
+
+/* 引用样式 */
+blockquote {
+  border-left: 4px solid var(--color-catppuccin-blue);
+  padding-left: 1rem;
+  margin: 1rem 0;
+  font-style: italic;
+  color: var(--catppuccin-subtext0);
+}
+
+/* 表格样式 */
+table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 1rem 0;
+}
+
+table, th, td {
+  border: 1px solid var(--catppuccin-surface1);
+}
+
+th, td {
+  padding: 0.5rem;
+  text-align: left;
+}
+
+th {
+  background-color: var(--catppuccin-surface0);
+  font-weight: 600;
+}
+
+/* 代码高亮主题 */
+.hljs {
+  background: var(--catppuccin-surface0) !important;
+  color: var(--catppuccin-text) !important;
+}
+
+.hljs-keyword, .hljs-selector-tag, .hljs-literal, .hljs-section, .hljs-link {
+  color: var(--color-catppuccin-pink) !important;
+}
+
+.hljs-function .hljs-keyword {
+  color: var(--color-catppuccin-mauve) !important;
+}
+
+.hljs-string, .hljs-title, .hljs-section, .hljs-attribute, .hljs-literal, .hljs-template-tag, .hljs-template-variable, .hljs-type, .hljs-addition {
+  color: var(--color-catppuccin-green) !important;
+}
+
+.hljs-comment, .hljs-quote {
+  color: var(--catppuccin-overlay1) !important;
+}
+
+.hljs-deletion, .hljs-variable {
+  color: var(--color-catppuccin-red) !important;
+}
+
+.hljs-number {
+  color: var(--color-catppuccin-peach) !important;
+}
+
+.hljs-built_in, .hljs-builtin-name, .hljs-bullet, .hljs-code {
+  color: var(--color-catppuccin-yellow) !important;
+}
+
+.hljs-tag, .hljs-name, .hljs-selector-id, .hljs-selector-class, .hljs-selector-attr, .hljs-selector-pseudo {
+  color: var(--color-catppuccin-blue) !important;
+}
+
+.hljs-meta {
+  color: var(--color-catppuccin-teal) !important;
+}
+
+.hljs-emphasis {
+  font-style: italic !important;
+}
+
+.hljs-strong {
+  font-weight: bold !important;
 }
