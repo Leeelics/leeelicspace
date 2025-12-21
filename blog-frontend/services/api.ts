@@ -2,8 +2,8 @@ import { Post, PostResponse } from '@/types';
 
 const API_BASE_URL = 'http://localhost:5001/api';
 
-// 获取所有文章，支持分页和标签筛选
-export const fetchPosts = async (page: number = 1, perPage: number = 5, tag?: string): Promise<PostResponse> => {
+// 获取所有文章，支持分页、标签筛选和关键词搜索
+export const fetchPosts = async (page: number = 1, perPage: number = 5, tag?: string, search?: string): Promise<PostResponse> => {
   const params = new URLSearchParams({
     page: page.toString(),
     per_page: perPage.toString(),
@@ -11,6 +11,10 @@ export const fetchPosts = async (page: number = 1, perPage: number = 5, tag?: st
   
   if (tag) {
     params.append('tag', tag);
+  }
+  
+  if (search) {
+    params.append('search', search);
   }
   
   const response = await fetch(`${API_BASE_URL}/posts?${params}`);

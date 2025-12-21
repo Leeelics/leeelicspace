@@ -2,14 +2,15 @@ import { fetchPosts, fetchTags } from '@/services/api';
 import { Post } from '@/types';
 import Link from 'next/link';
 
-export default async function Home({ searchParams }: { searchParams?: Promise<{ page?: string; tag?: string }> }) {
+export default async function Home({ searchParams }: { searchParams?: Promise<{ page?: string; tag?: string; search?: string }> }) {
   // 处理 searchParams - 在Next.js 16中，searchParams是Promise，需要await解包
   const resolvedSearchParams = await searchParams || {};
   const page = parseInt(resolvedSearchParams?.page || '1');
   const tag = resolvedSearchParams?.tag || undefined;
+  const search = resolvedSearchParams?.search || undefined;
   
   const [postsResponse, tags] = await Promise.all([
-    fetchPosts(page, 5, tag),
+    fetchPosts(page, 5, tag, search),
     fetchTags()
   ]);
 
@@ -24,7 +25,7 @@ export default async function Home({ searchParams }: { searchParams?: Promise<{ 
         <h2 className="text-lg font-semibold mb-3 text-gray-800 dark:text-catppuccin-subtext1">标签</h2>
         <div className="flex flex-wrap gap-2">
           <Link
-            href="/"
+            href={search ? `/?search=${search}` : "/"}
             className={`px-3 py-1 rounded-full text-sm font-medium transition-colors ${!tag 
               ? 'bg-blue-600 text-white' 
               : 'bg-gray-200 text-gray-700 hover:bg-gray-300 dark:bg-catppuccin-surface0 dark:text-catppuccin-subtext0 dark:hover:bg-catppuccin-surface1'}`}
@@ -34,7 +35,7 @@ export default async function Home({ searchParams }: { searchParams?: Promise<{ 
           {tags.map((t) => (
             <Link
               key={t}
-              href={`/?tag=${t}`}
+              href={`/?tag=${t}${search ? `&search=${search}` : ''}`}
               className={`px-3 py-1 rounded-full text-sm font-medium transition-colors ${tag === t 
                 ? 'bg-blue-600 text-white' 
                 : 'bg-gray-200 text-gray-700 hover:bg-gray-300 dark:bg-catppuccin-surface0 dark:text-catppuccin-subtext0 dark:hover:bg-catppuccin-surface1'}`}
@@ -79,7 +80,7 @@ export default async function Home({ searchParams }: { searchParams?: Promise<{ 
       <div className="mt-8 flex justify-center">
         <nav className="flex items-center space-x-2">
           <Link
-            href={`/?${new URLSearchParams({ page: (page - 1).toString(), ...(tag ? { tag } : {}) })}`}
+            href={`/?${new URLSearchParams({ page: (page - 1).toString(), ...(tag ? { tag } : {}), ...(search ? { search } : {}) })}`}
             className={`px-4 py-2 rounded-lg border ${page === 1 
               ? 'cursor-not-allowed opacity-50 border-gray-300 text-gray-500 dark:border-catppuccin-surface1 dark:text-catppuccin-overlay0' 
               : 'border-gray-300 hover:bg-gray-100 dark:border-catppuccin-surface1 dark:hover:bg-catppuccin-surface0'}`}
@@ -93,7 +94,7 @@ export default async function Home({ searchParams }: { searchParams?: Promise<{ 
           </span>
           
           <Link
-            href={`/?${new URLSearchParams({ page: (page + 1).toString(), ...(tag ? { tag } : {}) })}`}
+            href={`/?${new URLSearchParams({ page: (page + 1).toString(), ...(tag ? { tag } : {}), ...(search ? { search } : {}) })}`}
             className={`px-4 py-2 rounded-lg border ${page === pagination.total_pages 
               ? 'cursor-not-allowed opacity-50 border-gray-300 text-gray-500 dark:border-catppuccin-surface1 dark:text-catppuccin-overlay0' 
               : 'border-gray-300 hover:bg-gray-100 dark:border-catppuccin-surface1 dark:hover:bg-catppuccin-surface0'}`}
