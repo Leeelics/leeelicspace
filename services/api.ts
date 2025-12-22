@@ -1,7 +1,10 @@
 import { Post, PostResponse } from '@/types';
 
-// 使用相对路径，自动适配开发和生产环境
-const API_BASE_URL = '/api';
+// 根据环境使用不同的API基础URL
+// 在服务器端使用完整URL，在客户端使用相对路径
+const API_BASE_URL = process.env.NODE_ENV === 'production' 
+  ? 'https://your-production-domain.com/api' 
+  : 'http://localhost:3000/api';
 
 // 获取所有文章，支持分页、标签筛选和关键词搜索
 export const fetchPosts = async (page: number = 1, perPage: number = 5, tag?: string, search?: string): Promise<PostResponse> => {

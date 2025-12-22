@@ -1,4 +1,3 @@
-import { fetchPosts, fetchTags } from '@/services/api';
 import { Post } from '@/types';
 import Link from 'next/link';
 
@@ -9,12 +8,20 @@ export default async function Home({ searchParams }: { searchParams?: Promise<{ 
   const tag = resolvedSearchParams?.tag || undefined;
   const search = resolvedSearchParams?.search || undefined;
   
-  const [postsResponse, tags] = await Promise.all([
-    fetchPosts(page, 5, tag, search),
-    fetchTags()
+  // 直接使用fetch函数获取数据，避免URL解析问题
+  const [postsResponse, tagsResponse] = await Promise.all([
+    fetch(`http://localhost:3000/api/posts?page=${page}&per_page=5${tag ? `&tag=${tag}` : ''}${search ? `&search=${search}` : ''}`),
+    fetch('http://localhost:3000/api/tags')
   ]);
 
-  const { posts, pagination } = postsResponse;
+  if (!postsResponse.ok || !tagsResponse.ok) {
+    throw new Error('Failed to fetch data');
+  }
+
+  const postsResponseData = await postsResponse.json();
+  const tags = await tagsResponse.json();
+  
+  const { posts, pagination } = postsResponseData;
 
   return (
     <div className="max-w-4xl mx-auto">
@@ -32,13 +39,13 @@ export default async function Home({ searchParams }: { searchParams?: Promise<{ 
           >
             全部
           </Link>
-          {tags.map((t) => (
+          {tags.map((t: string) => (
             <Link
               key={t}
               href={`/?tag=${t}${search ? `&search=${search}` : ''}`}
               className={`px-3 py-1 rounded-full text-sm font-medium transition-colors ${tag === t 
-                ? 'bg-blue-600 text-white' 
-                : 'bg-gray-200 text-gray-700 hover:bg-gray-300 dark:bg-catppuccin-surface0 dark:text-catppuccin-subtext0 dark:hover:bg-catppuccin-surface1'}`}
+              ? 'bg-blue-600 text-white' 
+              : 'bg-gray-200 text-gray-700 hover:bg-gray-300 dark:bg-catppuccin-surface0 dark:text-catppuccin-subtext0 dark:hover:bg-catppuccin-surface1'}`}
             >
               {t}
             </Link>
