@@ -67,25 +67,19 @@ export default function RootLayout({
                     </form>
                   </div>
                   {/* 导航链接 */}
-                  <nav className="flex items-center space-x-4">
-                    <Link
-                      href="/"
-                      className="text-gray-600 hover:text-gray-900 px-3 py-2 rounded-md text-sm font-medium dark:text-catppuccin-subtext0 dark:hover:text-catppuccin-text"
-                    >
-                      首页
-                    </Link>
-                    <Link
-                      href="/admin/login"
-                      className="text-gray-600 hover:text-gray-900 px-3 py-2 rounded-md text-sm font-medium dark:text-catppuccin-subtext0 dark:hover:text-catppuccin-text"
-                    >
-                      管理后台
-                    </Link>
-                    <Link
-                      href="/projects"
-                      className="text-gray-600 hover:text-gray-900 px-3 py-2 rounded-md text-sm font-medium dark:text-catppuccin-subtext0 dark:hover:text-catppuccin-text"
-                    >
-                      个人项目
-                    </Link>
+                    <nav className="flex items-center space-x-4">
+                      <Link
+                        href="/"
+                        className="text-gray-600 hover:text-gray-900 px-3 py-2 rounded-md text-sm font-medium dark:text-catppuccin-subtext0 dark:hover:text-catppuccin-text"
+                      >
+                        首页
+                      </Link>
+                      <Link
+                        href="/projects"
+                        className="text-gray-600 hover:text-gray-900 px-3 py-2 rounded-md text-sm font-medium dark:text-catppuccin-subtext0 dark:hover:text-catppuccin-text"
+                      >
+                        个人项目
+                      </Link>
                     {/* RSS订阅 */}
                     <Link
                       href="/api/rss"

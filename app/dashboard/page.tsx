@@ -11,13 +11,13 @@ export default function AdminDashboard() {
     // 检查登录状态
     const isLoggedIn = localStorage.getItem('adminLoggedIn') === 'true';
     if (!isLoggedIn) {
-      router.push('/admin/login');
+      router.push('/dashboard/login');
     }
   }, [router]);
 
   const handleLogout = () => {
     localStorage.removeItem('adminLoggedIn');
-    router.push('/admin/login');
+    router.push('/dashboard/login');
   };
 
   return (
@@ -50,25 +50,25 @@ export default function AdminDashboard() {
               <h2 className="text-lg font-semibold mb-4 text-gray-900 dark:text-catppuccin-text">管理菜单</h2>
               <nav className="space-y-2">
                 <Link
-                  href="/admin"
+                  href="/dashboard"
                   className="block px-4 py-2 text-gray-700 bg-gray-50 rounded-lg hover:bg-gray-100 dark:bg-catppuccin-surface1 dark:text-catppuccin-text dark:hover:bg-catppuccin-surface0"
                 >
                   仪表板
                 </Link>
                 <Link
-                  href="/admin/posts"
+                  href="/dashboard/posts"
                   className="block px-4 py-2 text-gray-700 bg-gray-50 rounded-lg hover:bg-gray-100 dark:bg-catppuccin-surface1 dark:text-catppuccin-text dark:hover:bg-catppuccin-surface0"
                 >
                   文章管理
                 </Link>
                 <Link
-                  href="/admin/create"
+                  href="/dashboard/create"
                   className="block px-4 py-2 text-gray-700 bg-gray-50 rounded-lg hover:bg-gray-100 dark:bg-catppuccin-surface1 dark:text-catppuccin-text dark:hover:bg-catppuccin-surface0"
                 >
                   撰写文章
                 </Link>
                 <Link
-                  href="/admin/settings"
+                  href="/dashboard/settings"
                   className="block px-4 py-2 text-gray-700 bg-gray-50 rounded-lg hover:bg-gray-100 dark:bg-catppuccin-surface1 dark:text-catppuccin-text dark:hover:bg-catppuccin-surface0"
                 >
                   网站设置
@@ -142,7 +142,7 @@ export default function AdminDashboard() {
                     查看、编辑和删除您的博客文章
                   </p>
                   <Link
-                    href="/admin/posts"
+                    href="/dashboard/posts"
                     className="inline-block mt-4 text-sm font-medium text-blue-700 hover:text-blue-900 dark:text-blue-400 dark:hover:text-blue-300"
                   >
                     管理文章 →
@@ -155,7 +155,7 @@ export default function AdminDashboard() {
                     创建新的博客文章，支持Markdown格式
                   </p>
                   <Link
-                    href="/admin/create"
+                    href="/dashboard/create"
                     className="inline-block mt-4 text-sm font-medium text-green-700 hover:text-green-900 dark:text-green-400 dark:hover:text-green-300"
                   >
                     撰写文章 →

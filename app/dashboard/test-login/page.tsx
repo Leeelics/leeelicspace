@@ -27,7 +27,7 @@ export default function TestLogin() {
       localStorage.setItem('adminLoggedIn', 'true');
       console.log('设置登录状态后:', localStorage.getItem('adminLoggedIn'));
       setTimeout(() => {
-        router.push('/admin');
+        router.push('/dashboard');
       }, 1000);
     };
 
@@ -36,7 +36,7 @@ export default function TestLogin() {
       localStorage.removeItem('adminLoggedIn');
       console.log('登出后:', localStorage.getItem('adminLoggedIn'));
       setTimeout(() => {
-        router.push('/admin/login');
+        router.push('/dashboard/login');
       }, 1000);
     };
   }, [router]);
@@ -49,7 +49,7 @@ export default function TestLogin() {
         <button
           onClick={() => {
             localStorage.setItem('adminLoggedIn', 'true');
-            router.push('/admin');
+            router.push('/dashboard');
           }}
           className="px-4 py-2 bg-blue-600 text-white rounded-lg"
         >
@@ -58,7 +58,7 @@ export default function TestLogin() {
         <button
           onClick={() => {
             localStorage.removeItem('adminLoggedIn');
-            router.push('/admin/login');
+            router.push('/dashboard/login');
           }}
           className="px-4 py-2 bg-red-600 text-white rounded-lg"
         >
@@ -66,7 +66,7 @@ export default function TestLogin() {
         </button>
         <button
           onClick={() => {
-            router.push('/admin/login');
+            router.push('/dashboard/login');
           }}
           className="px-4 py-2 bg-gray-600 text-white rounded-lg"
         >

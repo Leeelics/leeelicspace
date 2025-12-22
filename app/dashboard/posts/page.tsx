@@ -16,7 +16,7 @@ export default function AdminPosts() {
     // 检查登录状态
     const isLoggedIn = localStorage.getItem('adminLoggedIn') === 'true';
     if (!isLoggedIn) {
-      router.push('/admin/login');
+      router.push('/dashboard/login');
     }
   }, [router]);
 
@@ -95,7 +95,7 @@ export default function AdminPosts() {
           <div className="flex justify-between items-center mb-6">
             <h2 className="text-xl font-bold text-gray-900 dark:text-catppuccin-text">文章管理</h2>
             <Link
-              href="/admin/create"
+              href="/dashboard/create"
               className="px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded-lg shadow-sm hover:bg-blue-700 dark:bg-catppuccin-blue dark:hover:bg-catppuccin-lavender"
             >
               撰写新文章

@@ -14,7 +14,7 @@ export default function AdminSettings() {
     // 检查登录状态
     const isLoggedIn = localStorage.getItem('adminLoggedIn') === 'true';
     if (!isLoggedIn) {
-      router.push('/admin/login');
+      router.push('/dashboard/login');
     }
 
     // 从localStorage获取当前主题
@@ -48,7 +48,7 @@ export default function AdminSettings() {
             </div>
             <div className="flex items-center space-x-4">
               <button
-                onClick={() => router.push('/admin')}
+                onClick={() => router.push('/dashboard')}
                 className="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg shadow-sm hover:bg-gray-50 dark:bg-catppuccin-surface1 dark:border-catppuccin-surface2 dark:text-catppuccin-text dark:hover:bg-catppuccin-surface0"
               >
                 返回控制台

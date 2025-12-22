@@ -26,7 +26,7 @@ export default function AdminLogin() {
       if (username === 'admin' && password === 'admin-secret') {
         // 保存登录状态到localStorage
         localStorage.setItem('adminLoggedIn', 'true');
-        router.push('/admin');
+        router.push('/dashboard');
       } else {
         setError('用户名或密码错误');
       }

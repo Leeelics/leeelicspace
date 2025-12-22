@@ -19,7 +19,7 @@ export default function AdminCreatePost() {
     // 检查登录状态
     const isLoggedIn = localStorage.getItem('adminLoggedIn') === 'true';
     if (!isLoggedIn) {
-      router.push('/admin/login');
+      router.push('/dashboard/login');
     }
   }, [router]);
 
@@ -44,7 +44,7 @@ export default function AdminCreatePost() {
         tags: tagsArray,
         secret: 'admin-secret' // 添加权限验证参数
       });
-      router.push('/admin/posts');
+      router.push('/dashboard/posts');
     } catch (error: any) {
       console.error('创建文章失败:', error);
       setError('创建文章失败，请重试');
@@ -64,7 +64,7 @@ export default function AdminCreatePost() {
             </div>
             <div className="flex items-center space-x-4">
               <button
-                onClick={() => router.push('/admin')}
+                onClick={() => router.push('/dashboard')}
                 className="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg shadow-sm hover:bg-gray-50 dark:bg-catppuccin-surface1 dark:border-catppuccin-surface2 dark:text-catppuccin-text dark:hover:bg-catppuccin-surface0"
               >
                 返回控制台
@@ -177,7 +177,7 @@ export default function AdminCreatePost() {
             <div className="flex justify-end space-x-3">
               <button
                 type="button"
-                onClick={() => router.push('/admin/posts')}
+                onClick={() => router.push('/dashboard/posts')}
                 className="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg shadow-sm hover:bg-gray-50 dark:bg-catppuccin-surface1 dark:border-catppuccin-surface2 dark:text-catppuccin-text dark:hover:bg-catppuccin-surface0"
                 disabled={isSubmitting}
               >
