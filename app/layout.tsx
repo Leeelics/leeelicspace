@@ -88,7 +88,7 @@ export default function RootLayout({
                     </Link>
                     {/* RSS订阅 */}
                     <Link
-                      href="http://localhost:5001/rss"
+                      href="/api/rss"
                       target="_blank"
                       rel="noopener noreferrer"
                       className="flex items-center justify-center w-8 h-8 rounded-full text-gray-600 hover:text-orange-600 dark:text-catppuccin-subtext0 dark:hover:text-catppuccin-orange"

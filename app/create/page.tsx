@@ -144,14 +144,13 @@ export default function CreatePost() {
             {/* 预览 */}
             <div className={`${showPreview ? 'lg:col-span-2' : ''} border border-gray-300 rounded-lg p-4 bg-gray-50 dark:bg-catppuccin-surface0 dark:border-catppuccin-surface2 overflow-auto max-h-[600px]`}>
               <h3 className="text-lg font-semibold mb-4 dark:text-catppuccin-text">{title || '预览'}</h3>
-              <ReactMarkdown 
-                remarkPlugins={[remarkGfm]} 
-                wrapperProps={{
-                  className: "prose prose-lg max-w-none dark:prose-invert"
-                }}
-              >
-                {content || '开始输入Markdown内容查看预览...'}
-              </ReactMarkdown>
+              <div className="prose prose-lg max-w-none dark:prose-invert">
+                <ReactMarkdown 
+                  remarkPlugins={[remarkGfm]} 
+                >
+                  {content || '开始输入Markdown内容查看预览...'}
+                </ReactMarkdown>
+              </div>
             </div>
           </div>
         </div>

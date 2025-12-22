@@ -9,8 +9,7 @@ import ArticleOutline from '@/components/ArticleOutline';
 // 获取文章数据
 async function getPost(postId: string) {
   try {
-    const postIdNum = parseInt(postId);
-    const postData = await fetchPost(postIdNum);
+    const postData = await fetchPost(postId);
     return postData;
   } catch (err) {
     console.error('Error loading post:', err);

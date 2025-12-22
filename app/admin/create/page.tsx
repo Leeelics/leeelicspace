@@ -161,14 +161,13 @@ export default function AdminCreatePost() {
                   /* 预览区域 - Obsidian风格 */
                   <div className="p-6 max-h-[600px] overflow-auto bg-white dark:bg-catppuccin-surface0">
                     <h3 className="text-xl font-semibold mb-4 text-gray-900 dark:text-catppuccin-text">{title || '预览'}</h3>
-                    <ReactMarkdown 
-                      remarkPlugins={[remarkGfm]} 
-                      wrapperProps={{
-                        className: "prose prose-lg max-w-none dark:prose-invert"
-                      }}
-                    >
-                      {content || '开始输入Markdown内容查看预览...'}
-                    </ReactMarkdown>
+                    <div className="prose prose-lg max-w-none dark:prose-invert">
+                      <ReactMarkdown 
+                        remarkPlugins={[remarkGfm]} 
+                      >
+                        {content || '开始输入Markdown内容查看预览...'}
+                      </ReactMarkdown>
+                    </div>
                   </div>
                 )}
               </div>

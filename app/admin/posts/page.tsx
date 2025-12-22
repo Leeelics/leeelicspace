@@ -10,7 +10,7 @@ export default function AdminPosts() {
   const router = useRouter();
   const [posts, setPosts] = useState<Post[]>([]);
   const [isLoading, setIsLoading] = useState(true);
-  const [isDeleting, setIsDeleting] = useState<number | null>(null);
+  const [isDeleting, setIsDeleting] = useState<string | null>(null);
 
   useEffect(() => {
     // 检查登录状态
@@ -37,7 +37,7 @@ export default function AdminPosts() {
   }, []);
 
   // 删除文章处理函数
-  const handleDelete = async (postId: number) => {
+  const handleDelete = async (postId: string) => {
     if (confirm('确定要删除这篇文章吗？')) {
       setIsDeleting(postId);
       try {
