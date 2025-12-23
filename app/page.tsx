@@ -8,10 +8,23 @@ export default async function Home({ searchParams }: { searchParams?: Promise<{ 
   const tag = resolvedSearchParams?.tag || undefined;
   const search = resolvedSearchParams?.search || undefined;
   
-  // 使用相对URL，适应不同的部署环境
+  // 在服务器端渲染时，需要构建完整的URL
+  // 使用环境变量或请求头中的主机信息
+  const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || 
+                 (process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : 'http://localhost:3000');
+  
+  // 构建完整的API URL
+  const postsUrl = new URL('/api/posts', baseUrl);
+  postsUrl.searchParams.set('page', page.toString());
+  postsUrl.searchParams.set('per_page', '5');
+  if (tag) postsUrl.searchParams.set('tag', tag);
+  if (search) postsUrl.searchParams.set('search', search);
+  
+  const tagsUrl = new URL('/api/tags', baseUrl);
+  
   const [postsResponse, tagsResponse] = await Promise.all([
-    fetch(`/api/posts?page=${page}&per_page=5${tag ? `&tag=${tag}` : ''}${search ? `&search=${search}` : ''}`),
-    fetch('/api/tags')
+    fetch(postsUrl.toString()),
+    fetch(tagsUrl.toString())
   ]);
 
   if (!postsResponse.ok || !tagsResponse.ok) {
