@@ -1,4 +1,4 @@
-import { v4 as uuidv4 } from 'uuid';
+import { v4 as uuidv4 } from "uuid";
 
 // 生成短哈希ID的函数
 export async function generateShortId(title: string): Promise<string> {
@@ -122,13 +122,7 @@ class PostStore {
   // 获取单篇文章
   async getPostById(id: string) {
     await this.initialize();
-    // 支持同时处理整数ID和字符串ID
-    try {
-      const intId = parseInt(id);
-      return this.posts.find(p => p.id === id || p.id === intId.toString()) || null;
-    } catch {
-      return this.posts.find(p => p.id === id) || null;
-    }
+    return this.posts.find(p => p.id === id) || null;
   }
 
   // 创建新文章
@@ -184,6 +178,19 @@ class PostStore {
       return new Date(b.updated_at).getTime() - new Date(a.updated_at).getTime();
     });
   }
+
+    // 批量修复所有文章 id（如有缺失或格式不正确则重新生成）
+    async repairAllPostIds() {
+      await this.initialize();
+      for (const post of this.posts) {
+        // id 不是 8 位 hash 或为空时，重新生成
+        if (!post.id || typeof post.id !== 'string' || post.id.length !== 8 || /[^a-f0-9]/i.test(post.id)) {
+          post.id = await generateShortId(post.title);
+          post.updated_at = new Date().toISOString();
+        }
+      }
+      return this.posts;
+    }
 }
 
 // 导出单例实例
