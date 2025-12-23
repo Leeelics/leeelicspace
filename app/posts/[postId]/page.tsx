@@ -7,58 +7,46 @@ import MarkdownRenderer from '@/components/MarkdownContent';
 import ArticleOutline from '@/components/ArticleOutline';
 
 // 主页面组件 - 服务器组件
+
 export default async function PostDetail({ params }: { params: Promise<{ postId: string }> }) {
   try {
-    // 解析 params Promise
     const { postId } = await params;
-    
-    // 获取文章数据
-    try {
-      const response = await fetch(`http://localhost:3000/api/posts/${postId}`);
-      if (!response.ok) {
-        throw new Error('Failed to fetch post');
-      }
-      const post = await response.json();
-      
-      return (
-        <div className="max-w-6xl mx-auto px-4 py-8">
-          <div className="mb-8">
-            <h1 className="text-3xl font-bold mb-4 text-gray-900 dark:text-catppuccin-text">{post.title}</h1>
-            <div className="text-sm text-gray-500 mb-6 dark:text-catppuccin-overlay0">
-              创建于: {new Date(post.created_at).toLocaleString()}
-              {post.updated_at !== post.created_at && (
-                <span className="ml-2">更新于: {new Date(post.updated_at).toLocaleString()}</span>
-              )}
-            </div>
-            
-            {/* 标签 */}
-            <div className="flex flex-wrap gap-2 mb-8">
-              {post.tags.map((tag: string) => (
-                <span key={tag} className="px-3 py-1 bg-gray-100 text-gray-700 rounded-full text-sm dark:bg-catppuccin-surface0 dark:text-catppuccin-subtext0">
-                  {tag}
-                </span>
-              ))}
-            </div>
+    const post = await fetchPost(postId);
+    if (!post) {
+      throw new Error('未找到文章');
+    }
+    return (
+      <div className="max-w-6xl mx-auto px-4 py-8">
+        <div className="mb-8">
+          <h1 className="text-3xl font-bold mb-4 text-gray-900 dark:text-catppuccin-text">{post.title}</h1>
+          <div className="text-sm text-gray-500 mb-6 dark:text-catppuccin-overlay0">
+            创建于: {new Date(post.created_at).toLocaleString()}
+            {post.updated_at !== post.created_at && (
+              <span className="ml-2">更新于: {new Date(post.updated_at).toLocaleString()}</span>
+            )}
           </div>
-          
-          {/* 文章内容和大纲 - 按用户要求的布局 */}
-          <div className="flex flex-col lg:flex-row gap-8">
-            {/* 左侧：文章内容（区域1） */}
-            <div className="w-full lg:w-3/4">
-              <MarkdownRenderer content={post.content} />
-            </div>
-            
-            {/* 右侧：文章大纲（区域2） */}
-            <div className="w-full lg:w-1/4">
-              <ArticleOutline content={post.content} />
-            </div>
+          {/* 标签 */}
+          <div className="flex flex-wrap gap-2 mb-8">
+            {post.tags.map((tag: string) => (
+              <span key={tag} className="px-3 py-1 bg-gray-100 text-gray-700 rounded-full text-sm dark:bg-catppuccin-surface0 dark:text-catppuccin-subtext0">
+                {tag}
+              </span>
+            ))}
           </div>
         </div>
-      );
-    } catch (err) {
-      console.error('Error loading post:', err);
-      throw err;
-    }
+        {/* 文章内容和大纲 - 按用户要求的布局 */}
+        <div className="flex flex-col lg:flex-row gap-8">
+          {/* 左侧：文章内容（区域1） */}
+          <div className="w-full lg:w-3/4">
+            <MarkdownRenderer content={post.content} />
+          </div>
+          {/* 右侧：文章大纲（区域2） */}
+          <div className="w-full lg:w-1/4">
+            <ArticleOutline content={post.content} />
+          </div>
+        </div>
+      </div>
+    );
   } catch (error) {
     return (
       <div className="max-w-6xl mx-auto px-4 py-8">

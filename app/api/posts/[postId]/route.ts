@@ -1,5 +1,5 @@
-import { NextRequest, NextResponse } from 'next/server';
-import { postStore } from '../../data';
+import { NextRequest, NextResponse } from "next/server";
+import { postStore } from "../../data";
 
 // 获取单篇文章
 export async function GET(request: NextRequest, { params }: { params: Promise<{ postId: string }> }) {
@@ -16,11 +16,11 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
 }
 
 // 更新文章
-export async function PUT(request: NextRequest, { params }: { params: Promise<{ postId: string }> }) {
+export async function PUT(request: NextRequest, { params }: { params: { postId: string } }) {
   try {
     // 获取请求体
     const data = await request.json();
-    const { postId } = await params;
+    const { postId } = params;
     
     // 简单的权限验证（实际项目中应使用更安全的方式）
     if (data.secret !== 'admin-secret') {
@@ -44,12 +44,12 @@ export async function PUT(request: NextRequest, { params }: { params: Promise<{ 
 }
 
 // 删除文章
-export async function DELETE(request: NextRequest, { params }: { params: Promise<{ postId: string }> }) {
+export async function DELETE(request: NextRequest, { params }: { params: { postId: string } }) {
   try {
     // 获取权限验证参数
     const searchParams = request.nextUrl.searchParams;
     const secret = searchParams.get('secret') || request.headers.get('X-Secret');
-    const { postId } = await params;
+    const { postId } = params;
     
     // 简单的权限验证（实际项目中应使用更安全的方式）
     if (secret !== 'admin-secret') {
