@@ -1,10 +1,7 @@
 import { Post, PostResponse } from '@/types';
 
-// 根据环境使用不同的API基础URL
-// 在服务器端使用完整URL，在客户端使用相对路径
-const API_BASE_URL = process.env.NODE_ENV === 'production' 
-  ? 'https://your-production-domain.com/api' 
-  : 'http://localhost:3000/api';
+// 使用相对URL，适应不同的部署环境
+// 在Next.js中，相对URL会自动使用当前域名
 
 // 获取所有文章，支持分页、标签筛选和关键词搜索
 export const fetchPosts = async (page: number = 1, perPage: number = 5, tag?: string, search?: string): Promise<PostResponse> => {
@@ -30,7 +27,7 @@ export const fetchPosts = async (page: number = 1, perPage: number = 5, tag?: st
 
 // 获取单篇文章
 export const fetchPost = async (postId: string): Promise<Post> => {
-  const response = await fetch(`${API_BASE_URL}/posts/${postId}`);
+  const response = await fetch(`/api/posts/${postId}`);
   if (!response.ok) {
     throw new Error('Failed to fetch post');
   }
@@ -39,7 +36,7 @@ export const fetchPost = async (postId: string): Promise<Post> => {
 
 // 获取所有标签
 export const fetchTags = async (): Promise<string[]> => {
-  const response = await fetch(`${API_BASE_URL}/tags`);
+  const response = await fetch('/api/tags');
   if (!response.ok) {
     throw new Error('Failed to fetch tags');
   }
@@ -48,7 +45,7 @@ export const fetchTags = async (): Promise<string[]> => {
 
 // 创建新文章
 export const createPost = async (postData: { title: string; content: string; tags?: string[]; secret?: string }): Promise<Post> => {
-  const response = await fetch(`${API_BASE_URL}/posts`, {
+  const response = await fetch('/api/posts', {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
@@ -63,7 +60,7 @@ export const createPost = async (postData: { title: string; content: string; tag
 
 // 更新文章
 export const updatePost = async (postId: string, postData: { title?: string; content?: string; tags?: string[]; secret?: string }): Promise<Post> => {
-  const response = await fetch(`${API_BASE_URL}/posts/${postId}`, {
+  const response = await fetch(`/api/posts/${postId}`, {
     method: 'PUT',
     headers: {
       'Content-Type': 'application/json',
@@ -78,7 +75,7 @@ export const updatePost = async (postId: string, postData: { title?: string; con
 
 // 删除文章
 export const deletePost = async (postId: string): Promise<void> => {
-  const response = await fetch(`${API_BASE_URL}/posts/${postId}?secret=admin-secret`, {
+  const response = await fetch(`/api/posts/${postId}?secret=admin-secret`, {
     method: 'DELETE',
   });
   if (!response.ok) {

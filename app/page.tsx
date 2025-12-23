@@ -8,10 +8,10 @@ export default async function Home({ searchParams }: { searchParams?: Promise<{ 
   const tag = resolvedSearchParams?.tag || undefined;
   const search = resolvedSearchParams?.search || undefined;
   
-  // 直接使用fetch函数获取数据，避免URL解析问题
+  // 使用相对URL，适应不同的部署环境
   const [postsResponse, tagsResponse] = await Promise.all([
-    fetch(`http://localhost:3000/api/posts?page=${page}&per_page=5${tag ? `&tag=${tag}` : ''}${search ? `&search=${search}` : ''}`),
-    fetch('http://localhost:3000/api/tags')
+    fetch(`/api/posts?page=${page}&per_page=5${tag ? `&tag=${tag}` : ''}${search ? `&search=${search}` : ''}`),
+    fetch('/api/tags')
   ]);
 
   if (!postsResponse.ok || !tagsResponse.ok) {

@@ -7,12 +7,17 @@ export async function GET() {
     // 获取排序后的文章
     const sortedPosts = await postStore.getSortedPosts();
     
+    // 获取当前域名（适配不同的部署环境）
+    const baseUrl = process.env.VERCEL_URL 
+      ? `https://${process.env.VERCEL_URL}` 
+      : process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000';
+    
     // 创建RSS XML内容
     let rssContent = `<?xml version="1.0" encoding="utf-8"?>
 <rss version="2.0">
   <channel>
     <title>我的博客</title>
-    <link>http://localhost:3000</link>
+    <link>${baseUrl}</link>
     <description>使用Next.js构建的个人博客</description>`;
     
     // 添加文章项
@@ -34,7 +39,7 @@ export async function GET() {
       rssContent += `
     <item>
       <title>${post.title.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')}</title>
-      <link>http://localhost:3000/posts/${post.id}</link>
+      <link>${baseUrl}/posts/${post.id}</link>
       <description><![CDATA[${description}]]></description>
       <pubDate>${pubDate}</pubDate>
       <guid isPermaLink="false">${post.id}</guid>
