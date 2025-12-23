@@ -1,5 +1,5 @@
-import { NextRequest, NextResponse } from 'next/server';
-import { postStore } from '../data';
+import { NextRequest, NextResponse } from "next/server";
+import { postStore } from "../data";
 
 // 获取所有文章，支持分页、标签筛选和关键词搜索
 export async function GET(request: NextRequest) {
