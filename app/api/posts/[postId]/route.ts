@@ -16,11 +16,11 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
 }
 
 // 更新文章
-export async function PUT(request: NextRequest, { params }: { params: { postId: string } }) {
+export async function PUT(request: NextRequest, { params }: { params: Promise<{ postId: string }> }) {
   try {
     // 获取请求体
     const data = await request.json();
-    const { postId } = params;
+    const { postId } = await params;
     
     // 简单的权限验证（实际项目中应使用更安全的方式）
     if (data.secret !== 'admin-secret') {
@@ -44,12 +44,12 @@ export async function PUT(request: NextRequest, { params }: { params: { postId: 
 }
 
 // 删除文章
-export async function DELETE(request: NextRequest, { params }: { params: { postId: string } }) {
+export async function DELETE(request: NextRequest, { params }: { params: Promise<{ postId: string }> }) {
   try {
     // 获取权限验证参数
     const searchParams = request.nextUrl.searchParams;
     const secret = searchParams.get('secret') || request.headers.get('X-Secret');
-    const { postId } = params;
+    const { postId } = await params;
     
     // 简单的权限验证（实际项目中应使用更安全的方式）
     if (secret !== 'admin-secret') {

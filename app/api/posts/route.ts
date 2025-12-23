@@ -1,4 +1,4 @@
-import { NextRequest, NextResponse } from "next/server";
+import { type NextRequest, NextResponse } from "next/server";
 import { postStore } from "../data";
 
 // 获取所有文章，支持分页、标签筛选和关键词搜索
@@ -6,8 +6,8 @@ export async function GET(request: NextRequest) {
   try {
     // 获取查询参数
     const searchParams = request.nextUrl.searchParams;
-    const page = parseInt(searchParams.get('page') || '1');
-    const per_page = parseInt(searchParams.get('per_page') || '5');
+    const page = parseInt(searchParams.get('page') || '1', 10);
+    const per_page = parseInt(searchParams.get('per_page') || '5', 10);
     const tag = searchParams.get('tag');
     const search = searchParams.get('search');
     
