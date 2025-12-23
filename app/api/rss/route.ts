@@ -1,5 +1,5 @@
-import { NextResponse } from 'next/server';
-import { postStore } from '../data';
+import { NextResponse } from "next/server";
+import { postStore } from "../data";
 
 // RSS订阅功能
 export async function GET() {
