@@ -21,7 +21,7 @@ export const fetchPosts = async (page: number = 1, perPage: number = 5, tag?: st
     params.append('search', search);
   }
   
-  const response = await fetch(`${API_BASE_URL}/posts?${params}`);
+  const response = await fetch(`/api/posts?${params}`);
   if (!response.ok) {
     throw new Error('Failed to fetch posts');
   }
