@@ -1,0 +1,49 @@
+[
+  {
+    "id": "chhe2rui",
+    "title": "欢迎来到我的博客",
+    "content": "这是我的第一篇博客文章，使用Next.js构建。\n\n我将在这个博客中分享我的学习心得、技术笔记和生活感悟。希望能对大家有所帮助。",
+    "tags": [
+      "技术",
+      "博客"
+    ],
+    "created_at": "2025-12-24T01:17:20.418Z",
+    "updated_at": "2025-12-24T01:17:20.418Z"
+  },
+  {
+    "id": "ptae2160",
+    "title": "Next.js 16 新特性介绍",
+    "content": "Next.js 16 带来了许多令人兴奋的新特性，包括：\n\n- Turbopack 构建速度提升\n- React 19 支持\n- 更好的服务器组件支持\n- 改进的开发体验\n\n这些新特性让Next.js在构建现代Web应用时更加高效和便捷。",
+    "tags": [
+      "Next.js",
+      "React",
+      "前端"
+    ],
+    "created_at": "2025-12-24T01:17:20.419Z",
+    "updated_at": "2025-12-24T01:17:20.419Z"
+  },
+  {
+    "id": "h202tkvc",
+    "title": "TypeScript 入门指南",
+    "content": "TypeScript 是 JavaScript 的超集，它添加了静态类型检查。\n\n主要特点：\n- 静态类型检查\n- 更好的IDE支持\n- 代码可维护性提升\n- 更好的团队协作\n\n学习TypeScript可以帮助你编写更可靠、更易于维护的代码。",
+    "tags": [
+      "TypeScript",
+      "JavaScript",
+      "前端"
+    ],
+    "created_at": "2025-12-24T01:17:20.419Z",
+    "updated_at": "2025-12-24T01:17:20.419Z"
+  },
+  {
+    "id": "e8v4swue",
+    "title": "前端性能优化指南",
+    "content": "前端性能优化是提升用户体验的重要手段。以下是一些优化策略：\n\n## 1. 资源加载优化\n\n- 压缩CSS和JavaScript\n- 图片优化（压缩、懒加载、WebP格式）\n- 使用CDN加速资源加载\n\n## 2. 渲染优化\n\n- 减少DOM操作\n- 使用虚拟DOM\n- 优化CSS选择器\n- 使用requestAnimationFrame\n\n通过持续优化，可以显著提升前端应用的性能和用户体验。",
+    "tags": [
+      "前端",
+      "性能优化",
+      "用户体验"
+    ],
+    "created_at": "2025-12-24T01:17:20.419Z",
+    "updated_at": "2025-12-24T01:17:20.419Z"
+  }
+]

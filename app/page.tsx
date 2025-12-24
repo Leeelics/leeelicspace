@@ -1,5 +1,6 @@
 import { Post } from '@/types';
 import Link from 'next/link';
+import { buildApiUrl } from '@/lib/url-helper';
 
 export default async function Home({ searchParams }: { searchParams?: Promise<{ page?: string; tag?: string; search?: string }> }) {
   // 处理 searchParams - 在Next.js 16中，searchParams是Promise，需要await解包
@@ -8,19 +9,14 @@ export default async function Home({ searchParams }: { searchParams?: Promise<{ 
   const tag = resolvedSearchParams?.tag || undefined;
   const search = resolvedSearchParams?.search || undefined;
   
-  // 在服务器端渲染时，需要构建完整的URL
-  // 使用环境变量或请求头中的主机信息
-  const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || 
-                 (process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : 'http://localhost:3000');
-  
   // 构建完整的API URL
-  const postsUrl = new URL('/api/posts', baseUrl);
+  const postsUrl = new URL(buildApiUrl('/api/posts'));
   postsUrl.searchParams.set('page', page.toString());
   postsUrl.searchParams.set('per_page', '5');
   if (tag) postsUrl.searchParams.set('tag', tag);
   if (search) postsUrl.searchParams.set('search', search);
   
-  const tagsUrl = new URL('/api/tags', baseUrl);
+  const tagsUrl = new URL(buildApiUrl('/api/tags'));
   
   const [postsResponse, tagsResponse] = await Promise.all([
     fetch(postsUrl.toString()),

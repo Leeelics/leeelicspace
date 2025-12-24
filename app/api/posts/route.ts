@@ -51,7 +51,24 @@ export async function GET(request: NextRequest) {
       }
     });
   } catch (error) {
-    return NextResponse.json({ error: 'Failed to fetch posts' }, { status: 500 });
+    console.error('API Error Details:', {
+      error: error instanceof Error ? error.message : 'Unknown error',
+      stack: error instanceof Error ? error.stack : 'No stack trace',
+      url: request.url,
+      method: request.method,
+      timestamp: new Date().toISOString(),
+      environment: process.env.NODE_ENV,
+      vercelUrl: process.env.VERCEL_URL,
+      siteUrl: process.env.NEXT_PUBLIC_SITE_URL
+    });
+    
+    return NextResponse.json(
+      { 
+        error: 'Failed to fetch posts',
+        details: process.env.NODE_ENV === 'development' ? error instanceof Error ? error.message : 'Unknown error' : undefined
+      }, 
+      { status: 500 }
+    );
   }
 }
 
@@ -80,6 +97,23 @@ export async function POST(request: NextRequest) {
     
     return NextResponse.json(newPost, { status: 201 });
   } catch (error) {
-    return NextResponse.json({ error: 'Failed to create post' }, { status: 500 });
+    console.error('API POST Error Details:', {
+      error: error instanceof Error ? error.message : 'Unknown error',
+      stack: error instanceof Error ? error.stack : 'No stack trace',
+      url: request.url,
+      method: request.method,
+      timestamp: new Date().toISOString(),
+      environment: process.env.NODE_ENV,
+      vercelUrl: process.env.VERCEL_URL,
+      siteUrl: process.env.NEXT_PUBLIC_SITE_URL
+    });
+    
+    return NextResponse.json(
+      { 
+        error: 'Failed to create post',
+        details: process.env.NODE_ENV === 'development' ? error instanceof Error ? error.message : 'Unknown error' : undefined
+      }, 
+      { status: 500 }
+    );
   }
 }
