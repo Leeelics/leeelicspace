@@ -7,10 +7,13 @@
     "build": "next build",
     "start": "next start",
     "lint": "biome check",
-    "format": "biome format --write"
+    "format": "biome format --write",
+    "test:kv": "node scripts/test-kv-storage.js",
+    "migrate:kv": "node scripts/migrate-to-kv.js"
   },
   "dependencies": {
     "@types/uuid": "^10.0.0",
+    "@vercel/kv": "^3.0.0",
     "next": "^16.1.0",
     "react": "^19.2.3",
     "react-dom": "^19.2.3",

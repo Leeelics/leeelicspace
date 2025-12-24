@@ -1,5 +1,6 @@
 import { type NextRequest, NextResponse } from "next/server";
 import { postStore } from "../data";
+import { isAuthenticated, getAuthDebugInfo } from "@/lib/auth";
 
 // 获取所有文章，支持分页、标签筛选和关键词搜索
 export async function GET(request: NextRequest) {
@@ -10,6 +11,11 @@ export async function GET(request: NextRequest) {
     const per_page = parseInt(searchParams.get('per_page') || '5', 10);
     const tag = searchParams.get('tag');
     const search = searchParams.get('search');
+    
+    console.log('GET /api/posts - Query params:', {
+      page, per_page, tag, search,
+      url: request.url
+    });
     
     // 获取所有文章
     const allPosts = await postStore.getSortedPosts();
@@ -59,7 +65,8 @@ export async function GET(request: NextRequest) {
       timestamp: new Date().toISOString(),
       environment: process.env.NODE_ENV,
       vercelUrl: process.env.VERCEL_URL,
-      siteUrl: process.env.NEXT_PUBLIC_SITE_URL
+      siteUrl: process.env.NEXT_PUBLIC_SITE_URL,
+      storage: 'kv-storage'
     });
     
     return NextResponse.json(
@@ -78,9 +85,15 @@ export async function POST(request: NextRequest) {
     // 获取请求体
     const data = await request.json();
     
-    // 简单的权限验证（实际项目中应使用更安全的方式）
-    if (data.secret !== 'admin-secret') {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    console.log('POST /api/posts - Auth debug:', getAuthDebugInfo(request));
+    
+    // 权限验证
+    if (!isAuthenticated(request)) {
+      console.log('POST /api/posts - Authentication failed');
+      return NextResponse.json({ 
+        error: 'Unauthorized',
+        message: 'Missing or invalid authentication credentials'
+      }, { status: 401 });
     }
     
     // 验证必填字段
@@ -105,7 +118,8 @@ export async function POST(request: NextRequest) {
       timestamp: new Date().toISOString(),
       environment: process.env.NODE_ENV,
       vercelUrl: process.env.VERCEL_URL,
-      siteUrl: process.env.NEXT_PUBLIC_SITE_URL
+      siteUrl: process.env.NEXT_PUBLIC_SITE_URL,
+      storage: 'kv-storage'
     });
     
     return NextResponse.json(

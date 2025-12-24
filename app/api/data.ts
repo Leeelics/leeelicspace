@@ -29,11 +29,11 @@ export interface Post {
   updated_at: string;
 }
 
-// 导入文件存储
-import { FileStorage } from '@/lib/storage';
+// 导入KV存储
+import { kvStorage } from '@/lib/kv-storage';
 
-// 创建文件存储实例（适合Vercel环境）
-const fileStorage = new FileStorage();
+// 使用KV存储（适合Vercel环境）
+const storage = kvStorage;
 
 // 兼容层：提供与原来PostStore相同的接口
 class PostStore {
@@ -44,7 +44,7 @@ class PostStore {
     if (this.initialized) return;
     
     // 检查是否已有数据，如果没有则创建初始数据
-    const existingPosts = await fileStorage.getAllPosts();
+    const existingPosts = await storage.getAllPosts();
     if (existingPosts.length === 0) {
       // 创建初始文章数据
       const initialPosts = [
@@ -72,7 +72,7 @@ class PostStore {
 
       // 创建初始文章
       for (const postData of initialPosts) {
-        await fileStorage.createPost(postData);
+        await storage.createPost(postData);
       }
     }
     
@@ -82,49 +82,49 @@ class PostStore {
   // 获取所有文章
   async getAllPosts() {
     await this.initialize();
-    return fileStorage.getAllPosts();
+    return storage.getAllPosts();
   }
 
   // 获取单篇文章
   async getPostById(id: string) {
     await this.initialize();
-    return fileStorage.getPostById(id);
+    return storage.getPostById(id);
   }
 
   // 创建新文章
   async createPost(postData: Omit<Post, 'id' | 'created_at' | 'updated_at'>) {
     await this.initialize();
-    return fileStorage.createPost(postData);
+    return storage.createPost(postData);
   }
 
   // 更新文章
   async updatePost(id: string, updateData: Partial<Omit<Post, 'id' | 'created_at'>>) {
     await this.initialize();
-    return fileStorage.updatePost(id, updateData);
+    return storage.updatePost(id, updateData);
   }
 
   // 删除文章
   async deletePost(id: string) {
     await this.initialize();
-    return fileStorage.deletePost(id);
+    return storage.deletePost(id);
   }
 
   // 获取所有标签
   async getAllTags() {
     await this.initialize();
-    return fileStorage.getAllTags();
+    return storage.getAllTags();
   }
 
   // 获取排序后的文章
   async getSortedPosts() {
     await this.initialize();
-    return fileStorage.getSortedPosts();
+    return storage.getSortedPosts();
   }
 
   // 批量修复所有文章 id（兼容原有接口）
   async repairAllPostIds() {
     await this.initialize();
-    const posts = await fileStorage.getAllPosts();
+    const posts = await storage.getAllPosts();
     let modified = false;
     
     for (const post of posts) {
@@ -139,7 +139,7 @@ class PostStore {
     if (modified) {
       // 重新保存所有文章
       for (const post of posts) {
-        await fileStorage.updatePost(post.id, post);
+        await storage.updatePost(post.id, post);
       }
     }
     
@@ -147,5 +147,8 @@ class PostStore {
   }
 }
 
-// 导出单例实例
+// 导出单例实例（保持兼容性）
 export const postStore = new PostStore();
+
+// 导出存储实例（兼容原有接口）
+export { postStore } from './data';

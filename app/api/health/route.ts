@@ -1,11 +1,36 @@
 import { NextResponse } from 'next/server';
-import { fileStorage } from '@/lib/storage';
-import { promises as fs } from 'fs';
+import { kvStorage } from '@/lib/kv-storage';
+import { kv } from '@vercel/kv';
 import path from 'path';
+
+interface HealthInfo {
+  status: string;
+  timestamp: string;
+  environment: {
+    node_env?: string;
+    vercel_env?: string;
+    vercel_url?: string;
+    next_public_site_url?: string;
+  };
+  storage: {
+    type: string;
+    writable: boolean;
+    post_count: number;
+    initialized: boolean;
+    error?: string;
+  };
+  auth: {
+    has_api_secret: boolean;
+    using_default_secret: boolean;
+  };
+  memory: {
+    cwd: string;
+  };
+}
 
 export async function GET() {
   try {
-    const healthInfo = {
+    const healthInfo: HealthInfo = {
       status: 'healthy',
       timestamp: new Date().toISOString(),
       environment: {
@@ -15,42 +40,49 @@ export async function GET() {
         next_public_site_url: process.env.NEXT_PUBLIC_SITE_URL,
       },
       storage: {
-        type: 'file-based',
-        data_path: path.join(process.cwd(), 'tmp', 'posts.json'),
-        writable: false,
+        type: 'vercel-kv',
+        writable: true,
         post_count: 0,
+        initialized: false,
+      },
+      auth: {
+        has_api_secret: !!process.env.API_SECRET,
+        using_default_secret: !process.env.API_SECRET
       },
       memory: {
         cwd: process.cwd(),
-        tmp_dir_exists: false,
       }
     };
 
-    // 检查tmp目录是否存在且可写
+    // 检查KV存储状态
     try {
-      const tmpDir = path.join(process.cwd(), 'tmp');
-      await fs.access(tmpDir);
-      healthInfo.memory.tmp_dir_exists = true;
-      
-      // 测试写入权限
-      const testFile = path.join(tmpDir, 'test-write.txt');
-      try {
-        await fs.writeFile(testFile, 'test');
-        await fs.unlink(testFile);
-        healthInfo.storage.writable = true;
-      } catch (writeError) {
-        console.error('Write test failed:', writeError);
-      }
+      const storageInfo = await kvStorage.getStorageInfo();
+      healthInfo.storage.post_count = storageInfo.post_count;
+      healthInfo.storage.initialized = storageInfo.connected;
+      console.log('KV storage info:', storageInfo);
     } catch (error) {
-      console.error('Tmp directory check failed:', error);
+      console.error('KV storage check failed:', error);
+      healthInfo.status = 'degraded';
+      healthInfo.storage.error = error instanceof Error ? error.message : 'Unknown error';
     }
 
-    // 获取文章数量
+    // 测试KV存储写入
     try {
-      const posts = await fileStorage.getAllPosts();
-      healthInfo.storage.post_count = posts.length;
+      const testKey = 'blog:health-check';
+      const testValue = { timestamp: new Date().toISOString() };
+      await kv.set(testKey, testValue);
+      const retrieved = await kv.get(testKey);
+      await kv.del(testKey);
+      
+      if (JSON.stringify(retrieved) === JSON.stringify(testValue)) {
+        healthInfo.storage.writable = true;
+      } else {
+        throw new Error('KV storage read/write test failed');
+      }
     } catch (error) {
-      console.error('Failed to get post count:', error);
+      console.error('KV storage write test failed:', error);
+      healthInfo.storage.writable = false;
+      healthInfo.status = 'degraded';
     }
 
     return NextResponse.json(healthInfo);
