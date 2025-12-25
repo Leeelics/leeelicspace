@@ -3,6 +3,10 @@ import Link from "next/link";
 import { buildApiUrl } from "@/lib/url-helper";
 import { DataErrorDisplay } from "@/components/DataErrorDisplay";
 
+// 标记首页为动态路由，避免 Next.js 在构建时尝试静态预渲染时抛出
+// “Dynamic server usage: ... await searchParams” 的错误。
+export const dynamic = "force-dynamic";
+
 // Next.js 16 App Router pages receive props typed via the global PageProps interface.
 // searchParams is now a Promise<Record<string, string | string[] | undefined>>.
 export default async function Home({ searchParams }: PageProps<"/">) {
