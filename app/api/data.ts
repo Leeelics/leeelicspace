@@ -149,6 +149,3 @@ class PostStore {
 
 // 导出单例实例（保持兼容性）
 export const postStore = new PostStore();
-
-// 导出存储实例（兼容原有接口）
-export { postStore } from './data';

@@ -74,7 +74,8 @@ export class KVStorage {
       for (const id of postIds) {
         const post = await kv.hgetall(`${POSTS_KEY}:${id}`);
         if (post) {
-          posts.push(post as Post);
+          // KV 返回的是 Record<string, unknown>，这里我们信任数据结构并进行显式断言
+          posts.push(post as unknown as Post);
         }
       }
       
@@ -90,7 +91,7 @@ export class KVStorage {
     try {
       console.log('[KV] Getting post by ID:', id);
       const post = await kv.hgetall(`${POSTS_KEY}:${id}`);
-      return post ? (post as Post) : null;
+      return post ? (post as unknown as Post) : null;
     } catch (error) {
       console.error('[KV] Error getting post by ID:', error);
       return null;
@@ -109,8 +110,11 @@ export class KVStorage {
         updated_at: now
       };
 
-      // 存储文章数据
-      await kv.hset(`${POSTS_KEY}:${id}`, newPost);
+      // 存储文章数据（KV 接口要求 Record<string, unknown>）
+      await kv.hset(
+        `${POSTS_KEY}:${id}`,
+        newPost as unknown as Record<string, unknown>,
+      );
       
       // 添加到文章ID集合
       await kv.sadd(POST_IDS_KEY, id);
@@ -145,7 +149,10 @@ export class KVStorage {
         updated_at: new Date().toISOString()
       };
 
-      await kv.hset(`${POSTS_KEY}:${id}`, updatedPost);
+      await kv.hset(
+        `${POSTS_KEY}:${id}`,
+        updatedPost as unknown as Record<string, unknown>,
+      );
       
       // 如果标签有变化，更新标签集合
       if (updateData.tags) {
@@ -157,7 +164,7 @@ export class KVStorage {
         }
         await kv.del(TAGS_KEY);
         if (allTags.size > 0) {
-          await kv.sadd(TAGS_KEY, ...Array.from(allTags));
+          await kv.sadd(TAGS_KEY, Array.from(allTags));
         }
       }
       
@@ -193,7 +200,7 @@ export class KVStorage {
       }
       await kv.del(TAGS_KEY);
       if (allTags.size > 0) {
-        await kv.sadd(TAGS_KEY, ...Array.from(allTags));
+        await kv.sadd(TAGS_KEY, Array.from(allTags));
       }
       
       console.log('[KV] Deleted post:', id);

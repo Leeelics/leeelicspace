@@ -1,9 +1,11 @@
-import { Post } from '@/types';
-import Link from 'next/link';
-import { buildApiUrl } from '@/lib/url-helper';
-import { DataErrorDisplay } from '@/components/DataErrorDisplay';
+import { Post } from "@/types";
+import Link from "next/link";
+import { buildApiUrl } from "@/lib/url-helper";
+import { DataErrorDisplay } from "@/components/DataErrorDisplay";
 
-export default async function Home({ searchParams }: { searchParams?: { page?: string; tag?: string; search?: string } }) {
+// Next.js 16 App Router pages receive props typed via the global PageProps interface.
+// searchParams is now a Promise<Record<string, string | string[] | undefined>>.
+export default async function Home({ searchParams }: PageProps<"/">) {
   // 添加详细的页面加载日志
   console.log('[PAGE] Home component started rendering');
   console.log('[PAGE] Raw searchParams:', searchParams);
@@ -21,11 +23,21 @@ export default async function Home({ searchParams }: { searchParams?: { page?: s
   let errorMessage = '';
   
   try {
-    // 正确处理 searchParams - 在Next.js中，searchParams是同步对象
+    // 正确处理 searchParams - 在 Next.js 16 中为 Promise<Record<...>>
     console.log('[PAGE] Processing searchParams');
-    const page = parseInt(searchParams?.page || '1');
-    const tag = searchParams?.tag || undefined;
-    const search = searchParams?.search || undefined;
+    const resolvedSearchParams = await searchParams;
+    const pageParam = resolvedSearchParams?.page;
+    const tagParam = resolvedSearchParams?.tag;
+    const searchParam = resolvedSearchParams?.search;
+
+    const page = parseInt(
+      Array.isArray(pageParam) ? (pageParam[0] ?? '1') : pageParam ?? '1',
+      10,
+    );
+    const tag = Array.isArray(tagParam) ? tagParam[0] : tagParam ?? undefined;
+    const search = Array.isArray(searchParam)
+      ? searchParam[0]
+      : searchParam ?? undefined;
     
     console.log('[PAGE] Parsed parameters:', { page, tag, search });
     

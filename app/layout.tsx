@@ -1,19 +1,8 @@
 import type { Metadata } from "next";
 import React from "react";
-import { Geist, Geist_Mono } from "next/font/google";
 import Link from "next/link";
 import ThemeProvider from "./ThemeProvider";
 import "./globals.css";
-
-const geistSans = Geist({
-  variable: "--font-geist-sans",
-  subsets: ["latin"],
-});
-
-const geistMono = Geist_Mono({
-  variable: "--font-geist-mono",
-  subsets: ["latin"],
-});
 
 export const metadata: Metadata = {
   title: "我的博客",
@@ -29,7 +18,7 @@ export default function RootLayout({
     <ThemeProvider>
       <html lang="zh-CN">
         <body
-          className={`${geistSans.variable} ${geistMono.variable} antialiased min-h-screen flex flex-col`}
+          className="antialiased min-h-screen flex flex-col"
         >
           {/* 导航栏 */}
           <header className="bg-white shadow-md dark:bg-catppuccin-base dark:border-catppuccin-surface1">
