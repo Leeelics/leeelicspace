@@ -77,11 +77,13 @@ NEXT_PUBLIC_SITE_URL=http://localhost:3000
 After deployment, test these endpoints:
 
 #### ✅ Health Check
+
 ```bash
 curl https://your-app.vercel.app/api/health
 ```
 
 Expected response:
+
 ```json
 {
   "status": "healthy",
@@ -105,16 +107,19 @@ Expected response:
 ```
 
 #### ✅ Get All Posts
+
 ```bash
 curl https://your-app.vercel.app/api/posts
 ```
 
 #### ✅ Get All Tags
+
 ```bash
 curl https://your-app.vercel.app/api/tags
 ```
 
 #### ✅ Create a Test Post (requires authentication)
+
 ```bash
 curl -X POST https://your-app.vercel.app/api/posts \
   -H "Content-Type: application/json" \
@@ -131,17 +136,20 @@ curl -X POST https://your-app.vercel.app/api/posts \
 The API supports multiple authentication methods:
 
 ### 1. Header Authentication (Recommended)
+
 ```bash
 curl -H "X-API-Secret: your-secure-secret-key-here" \
   https://your-app.vercel.app/api/posts
 ```
 
 ### 2. Query Parameter Authentication
+
 ```bash
 curl https://your-app.vercel.app/api/posts?secret=your-secure-secret-key-here
 ```
 
 ### 3. Body Authentication (POST/PUT requests only)
+
 ```json
 {
   "secret": "your-secure-secret-key-here",
@@ -157,7 +165,8 @@ curl https://your-app.vercel.app/api/posts?secret=your-secure-secret-key-here
 
 **Cause**: Authentication is required but not provided.
 
-**Solution**: 
+**Solution**:
+
 - For read operations: No authentication needed
 - For write operations: Include your API secret
 
@@ -166,6 +175,7 @@ curl https://your-app.vercel.app/api/posts?secret=your-secure-secret-key-here
 **Cause**: Environment variables not set correctly.
 
 **Solution**:
+
 1. Check Vercel KV is properly connected to your project
 2. Verify environment variables in Vercel dashboard
 3. Check health endpoint for storage status
@@ -180,19 +190,23 @@ curl https://your-app.vercel.app/api/posts?secret=your-secure-secret-key-here
 
 **Cause**: KV storage might not be initialized.
 
-**Solution**: 
+**Solution**:
+
 1. Check health endpoint shows "initialized": true
 2. If not, the first API call will initialize it automatically
 
 ## 📊 Monitoring
 
 ### Health Check Endpoint
+
 Monitor your deployment with the health check endpoint:
+
 ```bash
 curl https://your-app.vercel.app/api/health
 ```
 
 ### Key Metrics to Monitor
+
 - `storage.type`: Should be "vercel-kv"
 - `storage.writable`: Should be true
 - `storage.initialized`: Should be true
@@ -235,6 +249,7 @@ If you encounter issues:
 ---
 
 **Success Indicators**:
+
 - ✅ Health check shows "status": "healthy"
 - ✅ Storage type shows "vercel-kv"
 - ✅ You can create posts with authentication

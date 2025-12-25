@@ -15,7 +15,7 @@
 
 ### 1.2 项目结构
 
-```
+``` text
 ├── app/                  # Next.js App Router
 │   ├── admin/            # 管理后台页面
 │   ├── api/              # API路由
@@ -102,7 +102,6 @@ interface Post {
   - 保持向后兼容的API设计
 
 ## 4. 开发指南
-
 
 ### 4.1 环境要求
 

@@ -5,7 +5,9 @@
 Based on my analysis of your Next.js blog application, here are the most likely causes of "Failed to fetch data" errors in production:
 
 ### 1. **Inconsistent URL Construction**
+
 **Problem**: Mixing relative and absolute URLs in API calls
+
 - **File**: `services/api.ts` line 21 uses relative URL `/api/posts?${params}`
 - **File**: `services/api.ts` lines 51, 61, 71, 87, 103 use absolute URLs with `getBaseUrl()`
 - **File**: `app/page.tsx` lines 17, 23 use absolute URLs with manual construction
@@ -13,12 +15,16 @@ Based on my analysis of your Next.js blog application, here are the most likely 
 **Solution**: Standardize URL construction approach.
 
 ### 2. **Environment Variable Issues**
+
 **Problem**: Missing or incorrect environment variables in production
+
 - `NEXT_PUBLIC_SITE_URL` might not be set correctly
 - `VERCEL_URL` behavior different in production vs preview deployments
 
 ### 3. **Serverless Environment Limitations**
+
 **Problem**: Using in-memory data storage (`PostStore` class) that doesn't persist across serverless function invocations
+
 - **File**: `app/api/data.ts` - Static in-memory storage
 - **Issue**: Data resets between function calls in serverless environment
 
@@ -29,24 +35,28 @@ Based on my analysis of your Next.js blog application, here are the most likely 
 ### Phase 1: Environment Configuration
 
 #### ✅ Environment Variables Check
+
 ```bash
 # Check your Vercel dashboard
 # Project Settings → Environment Variables
 ```
 
 **Required Variables:**
+
 ```
 NEXT_PUBLIC_SITE_URL=https://your-domain.com  # For production
 # OR leave unset to use VERCEL_URL automatically
 ```
 
 **Debugging Steps:**
+
 1. **Vercel Dashboard Check**:
    - Go to Vercel Dashboard → Your Project → Settings → Environment Variables
    - Ensure `NEXT_PUBLIC_SITE_URL` is set correctly for production
    - Check if you have different values for Production, Preview, and Development environments
 
 2. **Add Environment Variable Logging** (Temporary):
+
 ```typescript
 // Add this to your API routes for debugging
 console.log('Environment Debug:', {
@@ -79,6 +89,7 @@ export const buildApiUrl = (path: string): string => {
 ```
 
 **Update your services/api.ts**:
+
 ```typescript
 import { buildApiUrl } from '@/lib/url-helper';
 
@@ -97,6 +108,7 @@ export const fetchPosts = async (/* ... */): Promise<PostResponse> => {
 **Critical Issue**: Your `PostStore` class uses in-memory storage that won't persist in serverless environment.
 
 **Current Code** (app/api/data.ts):
+
 ```typescript
 // This data will be lost between function invocations!
 class PostStore {
@@ -108,6 +120,7 @@ class PostStore {
 **Solutions** (Choose one):
 
 **Option 1: Vercel KV (Recommended)**
+
 ```typescript
 // Install: npm install @vercel/kv
 import { kv } from '@vercel/kv';
@@ -130,6 +143,7 @@ class PostStore {
 ```
 
 **Option 2: File-based Storage** (For simple deployments)
+
 ```typescript
 import fs from 'fs/promises';
 import path from 'path';
@@ -149,6 +163,7 @@ class PostStore {
 ```
 
 **Option 3: PostgreSQL with Vercel Postgres**
+
 ```typescript
 // Install: npm install @vercel/postgres
 import { sql } from '@vercel/postgres';
@@ -195,6 +210,7 @@ export async function GET(request: NextRequest) {
 #### ✅ Add Vercel Functions Logging
 
 **Enable Vercel Functions Logs**:
+
 1. Go to Vercel Dashboard → Your Project → Functions
 2. Check the logs for your API routes
 3. Look for any error messages or timeouts
@@ -204,6 +220,7 @@ export async function GET(request: NextRequest) {
 #### ✅ Local Production Testing
 
 **Test locally with production build**:
+
 ```bash
 # Build and start production server
 npm run build
@@ -218,13 +235,14 @@ curl http://localhost:3000/api/posts/some-post-id
 #### ✅ Vercel Preview Deployment Testing
 
 1. **Create a preview deployment**:
+
 ```bash
 # Push to a branch (not main)
 git checkout -b test-deployment
 git push origin test-deployment
 ```
 
-2. **Test the preview URL**:
+1. **Test the preview URL**:
    - Check Vercel dashboard for preview deployment URL
    - Test all API endpoints on the preview URL
    - Check browser console for any CORS or fetch errors
@@ -259,10 +277,12 @@ export async function GET() {
 #### ✅ Function Timeout Issues
 
 **Check for long-running operations**:
+
 - Vercel functions have a 10-second timeout (hobby plan)
 - Your `PostStore.initialize()` might take too long with large datasets
 
 **Solution**: Add caching or optimize initialization:
+
 ```typescript
 class PostStore {
   private initializationPromise: Promise<void> | null = null;
@@ -290,6 +310,7 @@ class PostStore {
 **Problem**: First request after deployment might fail due to cold starts
 
 **Solution**: Add retry logic in your frontend:
+
 ```typescript
 // services/api.ts
 const fetchWithRetry = async (url: string, options?: RequestInit, retries = 3): Promise<Response> => {
@@ -317,6 +338,7 @@ const fetchWithRetry = async (url: string, options?: RequestInit, retries = 3): 
 #### ✅ CORS Issues
 
 **Add CORS headers to API routes**:
+
 ```typescript
 // Add to your API route handlers
 const corsHeaders = {
@@ -339,7 +361,9 @@ return NextResponse.json(data, { headers: corsHeaders });
 ## 🔧 Quick Fix Implementation
 
 ### Step 1: Fix URL Construction
+
 Create `lib/url-helper.ts`:
+
 ```typescript
 export const buildApiUrl = (path: string): string => {
   if (typeof window === 'undefined') {
@@ -352,12 +376,15 @@ export const buildApiUrl = (path: string): string => {
 ```
 
 ### Step 2: Update services/api.ts
+
 Replace all fetch calls with `buildApiUrl()` wrapper.
 
 ### Step 3: Add Environment Logging
+
 Add temporary logging to debug environment issues.
 
 ### Step 4: Deploy and Monitor
+
 1. Deploy to preview branch
 2. Check Vercel Functions logs
 3. Test health check endpoint: `/api/health`
@@ -368,16 +395,19 @@ Add temporary logging to debug environment issues.
 ## 📊 Monitoring & Debugging Tools
 
 ### Vercel Dashboard
+
 - **Functions Logs**: Real-time function execution logs
 - **Analytics**: Performance metrics and error rates
 - **Environment Variables**: Configuration management
 
 ### Browser DevTools
+
 - **Network Tab**: Check API response status and timing
 - **Console**: JavaScript errors and network failures
 - **Application Tab**: Local storage and cookies
 
 ### Command Line Tools
+
 ```bash
 # Check Vercel logs
 vercel logs your-project-name.vercel.app

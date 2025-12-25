@@ -54,35 +54,63 @@ export async function GET() {
       }
     };
 
-    // 检查KV存储状态
-    try {
-      const storageInfo = await kvStorage.getStorageInfo();
-      healthInfo.storage.post_count = storageInfo.post_count;
-      healthInfo.storage.initialized = storageInfo.connected;
-      console.log('KV storage info:', storageInfo);
-    } catch (error) {
-      console.error('KV storage check failed:', error);
-      healthInfo.status = 'degraded';
-      healthInfo.storage.error = error instanceof Error ? error.message : 'Unknown error';
+    // 检查KV存储状态（可选）
+    const hasKvConfig = !!process.env.KV_REST_API_URL && !!process.env.KV_REST_API_TOKEN;
+    
+    if (hasKvConfig) {
+      try {
+        const storageInfo = await kvStorage.getStorageInfo();
+        healthInfo.storage.post_count = storageInfo.post_count;
+        healthInfo.storage.initialized = storageInfo.connected;
+        console.log('KV storage info:', storageInfo);
+      } catch (error) {
+        console.error('KV storage check failed:', error);
+        healthInfo.storage.error = error instanceof Error ? error.message : 'Unknown error';
+        // Don't set status to degraded for KV issues - Edge Config can work independently
+      }
+
+      // 测试KV存储写入
+      try {
+        const testKey = 'blog:health-check';
+        const testValue = { timestamp: new Date().toISOString() };
+        await kv.set(testKey, testValue);
+        const retrieved = await kv.get(testKey);
+        await kv.del(testKey);
+        
+        if (JSON.stringify(retrieved) === JSON.stringify(testValue)) {
+          healthInfo.storage.writable = true;
+        } else {
+          throw new Error('KV storage read/write test failed');
+        }
+      } catch (error) {
+        console.error('KV storage write test failed', error);
+        healthInfo.storage.writable = false;
+      }
+    } else {
+      console.log('KV storage not configured - skipping KV checks');
+      healthInfo.storage.writable = false;
+      healthInfo.storage.initialized = false;
+      healthInfo.storage.error = 'KV storage not configured - set KV_REST_API_URL and KV_REST_API_TOKEN to enable';
     }
 
-    // 测试KV存储写入
-    try {
-      const testKey = 'blog:health-check';
-      const testValue = { timestamp: new Date().toISOString() };
-      await kv.set(testKey, testValue);
-      const retrieved = await kv.get(testKey);
-      await kv.del(testKey);
-      
-      if (JSON.stringify(retrieved) === JSON.stringify(testValue)) {
-        healthInfo.storage.writable = true;
-      } else {
-        throw new Error('KV storage read/write test failed');
-      }
-    } catch (error) {
-      console.error('KV storage write test failed:', error);
-      healthInfo.storage.writable = false;
+    // Determine overall status based on available services
+    const hasEdgeConfig = !!process.env.EDGE_CONFIG;
+    const hasAuth = !!process.env.API_SECRET;
+
+    if (!hasAuth) {
       healthInfo.status = 'degraded';
+    } else if (hasKvConfig && healthInfo.storage.writable) {
+      // If KV is configured and working
+      healthInfo.status = 'healthy';
+    } else if (hasEdgeConfig) {
+      // If only Edge Config is available, we're functional
+      healthInfo.status = 'healthy';
+    } else if (hasKvConfig) {
+      // KV is configured but not working properly
+      healthInfo.status = 'degraded';
+    } else {
+      // No storage services configured, but auth is working
+      healthInfo.status = 'healthy';
     }
 
     return NextResponse.json(healthInfo);
