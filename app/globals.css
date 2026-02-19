@@ -1,381 +1,563 @@
 @import "tailwindcss";
 
-/* Catppuccin Macchiatto theme colors */
+/* ============================================
+   Design System - Modern Blog Theme
+   ============================================ */
+
+/* Light Theme (Default) */
 :root {
-  /* Light mode */
-  --background: #f5f5f5;
-  --foreground: #1e1e2e;
-  --catppuccin-text: #cdd6f4;
-  --catppuccin-subtext1: #bac2de;
-  --catppuccin-subtext0: #a6adc8;
-  --catppuccin-overlay2: #9399b2;
-  --catppuccin-overlay1: #7f849c;
-  --catppuccin-overlay0: #6c7086;
-  --catppuccin-surface2: #585b70;
-  --catppuccin-surface1: #45475a;
-  --catppuccin-surface0: #313244;
-  --catppuccin-base: #1e1e2e;
-  --catppuccin-mantle: #181825;
-  --catppuccin-crust: #11111b;
+  /* Background Colors */
+  --background: #ffffff;
+  --surface: #f8fafc;
+  --surface-hover: #f1f5f9;
+  --surface-elevated: #ffffff;
+  
+  /* Text Colors */
+  --text-primary: #0f172a;
+  --text-secondary: #475569;
+  --text-tertiary: #64748b;
+  --text-muted: #94a3b8;
+  
+  /* Border & Divider */
+  --border: #e2e8f0;
+  --border-light: #f1f5f9;
+  --divider: #e2e8f0;
+  
+  /* Accent Colors - Blue */
+  --accent: #3b82f6;
+  --accent-hover: #2563eb;
+  --accent-light: #eff6ff;
+  --accent-alpha: rgba(59, 130, 246, 0.1);
+  
+  /* Status Colors */
+  --success: #10b981;
+  --warning: #f59e0b;
+  --error: #ef4444;
+  
+  /* Shadows */
+  --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+  --shadow: 0 1px 3px 0 rgb(0 0 0 / 0.1), 0 1px 2px -1px rgb(0 0 0 / 0.1);
+  --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+  --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
+  --shadow-xl: 0 20px 25px -5px rgb(0 0 0 / 0.1), 0 8px 10px -6px rgb(0 0 0 / 0.1);
+  --shadow-card: 0 4px 6px -1px rgb(0 0 0 / 0.05), 0 2px 4px -2px rgb(0 0 0 / 0.05);
+  --shadow-card-hover: 0 20px 25px -5px rgb(0 0 0 / 0.1), 0 8px 10px -6px rgb(0 0 0 / 0.1);
+  
+  /* Transitions */
+  --transition-fast: 150ms ease;
+  --transition-base: 200ms ease;
+  --transition-slow: 300ms ease;
+  
+  /* Border Radius */
+  --radius-sm: 0.375rem;
+  --radius-base: 0.5rem;
+  --radius-md: 0.75rem;
+  --radius-lg: 1rem;
+  --radius-xl: 1.5rem;
+  --radius-full: 9999px;
 }
 
-/* Tailwind CSS v4 theme definition */
+/* Dark Theme */
+.dark {
+  --background: #0f172a;
+  --surface: #1e293b;
+  --surface-hover: #334155;
+  --surface-elevated: #1e293b;
+  
+  --text-primary: #f8fafc;
+  --text-secondary: #cbd5e1;
+  --text-tertiary: #94a3b8;
+  --text-muted: #64748b;
+  
+  --border: #334155;
+  --border-light: #1e293b;
+  --divider: #334155;
+  
+  --accent: #38bdf8;
+  --accent-hover: #0ea5e9;
+  --accent-light: rgba(56, 189, 248, 0.1);
+  --accent-alpha: rgba(56, 189, 248, 0.15);
+  
+  --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.3);
+  --shadow: 0 1px 3px 0 rgb(0 0 0 / 0.4), 0 1px 2px -1px rgb(0 0 0 / 0.4);
+  --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.4), 0 2px 4px -2px rgb(0 0 0 / 0.4);
+  --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.4), 0 4px 6px -4px rgb(0 0 0 / 0.4);
+  --shadow-xl: 0 20px 25px -5px rgb(0 0 0 / 0.4), 0 8px 10px -6px rgb(0 0 0 / 0.4);
+  --shadow-card: 0 4px 6px -1px rgb(0 0 0 / 0.3), 0 2px 4px -2px rgb(0 0 0 / 0.3);
+  --shadow-card-hover: 0 20px 25px -5px rgb(0 0 0 / 0.5), 0 8px 10px -6px rgb(0 0 0 / 0.4);
+}
+
+/* Tailwind v4 Theme Configuration */
 @theme {
   --color-background: var(--background);
-  --color-foreground: var(--foreground);
-
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
-  /* Catppuccin colors */
-  --color-catppuccin-rosewater: #f5e0dc;
-  --color-catppuccin-flamingo: #f2cdcd;
-  --color-catppuccin-pink: #f5c2e7;
-  --color-catppuccin-mauve: #cba6f7;
-  --color-catppuccin-red: #f38ba8;
-  --color-catppuccin-maroon: #eba0ac;
-  --color-catppuccin-peach: #fab387;
-  --color-catppuccin-yellow: #f9e2af;
-  --color-catppuccin-green: #a6e3a1;
-  --color-catppuccin-teal: #94e2d5;
-  --color-catppuccin-sky: #89dceb;
-  --color-catppuccin-sapphire: #74c7ec;
-  --color-catppuccin-blue: #89b4fa;
-  --color-catppuccin-lavender: #b4befe;
-  --color-catppuccin-text: var(--catppuccin-text);
-  --color-catppuccin-subtext1: var(--catppuccin-subtext1);
-  --color-catppuccin-subtext0: var(--catppuccin-subtext0);
-  --color-catppuccin-overlay2: var(--catppuccin-overlay2);
-  --color-catppuccin-overlay1: var(--catppuccin-overlay1);
-  --color-catppuccin-overlay0: var(--catppuccin-overlay0);
-  --color-catppuccin-surface2: var(--catppuccin-surface2);
-  --color-catppuccin-surface1: var(--catppuccin-surface1);
-  --color-catppuccin-surface0: var(--catppuccin-surface0);
-  --color-catppuccin-base: var(--catppuccin-base);
-  --color-catppuccin-mantle: var(--catppuccin-mantle);
-  --color-catppuccin-crust: var(--catppuccin-crust);
+  --color-surface: var(--surface);
+  --color-surface-hover: var(--surface-hover);
+  --color-surface-elevated: var(--surface-elevated);
+  
+  --color-text-primary: var(--text-primary);
+  --color-text-secondary: var(--text-secondary);
+  --color-text-tertiary: var(--text-tertiary);
+  --color-text-muted: var(--text-muted);
+  
+  --color-border: var(--border);
+  --color-border-light: var(--border-light);
+  --color-divider: var(--divider);
+  
+  --color-accent: var(--accent);
+  --color-accent-hover: var(--accent-hover);
+  --color-accent-light: var(--accent-light);
+  
+  --color-success: var(--success);
+  --color-warning: var(--warning);
+  --color-error: var(--error);
+  
+  --font-sans: var(--font-geist-sans), system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  --font-mono: var(--font-geist-mono), ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
 }
 
-/* Dark mode */
-.dark {
-  --background: #11111b;
-  --foreground: #cdd6f4;
-  --catppuccin-text: #cdd6f4;
-  --catppuccin-subtext1: #bac2de;
-  --catppuccin-subtext0: #a6adc8;
-  --catppuccin-overlay2: #9399b2;
-  --catppuccin-overlay1: #7f849c;
-  --catppuccin-overlay0: #6c7086;
-  --catppuccin-surface2: #585b70;
-  --catppuccin-surface1: #45475a;
-  --catppuccin-surface0: #313244;
-  --catppuccin-base: #1e1e2e;
-  --catppuccin-mantle: #181825;
-  --catppuccin-crust: #11111b;
-}
+/* ============================================
+   Base Styles
+   ============================================ */
 
-/* Catppuccin theme specific styles */
-.catppuccin {
-  --background: var(--catppuccin-crust);
-  --foreground: var(--catppuccin-text);
-  background-color: var(--background);
-  color: var(--foreground);
-}
-
-/* 基础元素样式重置 */
-.catppuccin body {
-  background-color: var(--catppuccin-crust) !important;
-  color: var(--catppuccin-text) !important;
-}
-
-/* 白色背景元素 */
-.catppuccin .bg-white {
-  background-color: var(--catppuccin-base) !important;
-  border-color: var(--catppuccin-surface1) !important;
-}
-
-.catppuccin .bg-gray-50 {
-  background-color: var(--catppuccin-surface0) !important;
-}
-
-.catppuccin .bg-gray-100 {
-  background-color: var(--catppuccin-surface0) !important;
-}
-
-.catppuccin .bg-gray-200 {
-  background-color: var(--catppuccin-surface1) !important;
-}
-
-.catppuccin .bg-gray-300 {
-  background-color: var(--catppuccin-surface2) !important;
-}
-
-/* 文本颜色 */
-.catppuccin .text-gray-900 {
-  color: var(--catppuccin-text) !important;
-}
-
-.catppuccin .text-gray-800 {
-  color: var(--catppuccin-subtext1) !important;
-}
-
-.catppuccin .text-gray-700 {
-  color: var(--catppuccin-subtext0) !important;
-}
-
-.catppuccin .text-gray-600 {
-  color: var(--catppuccin-overlay0) !important;
-}
-
-.catppuccin .text-gray-500 {
-  color: var(--catppuccin-overlay1) !important;
-}
-
-.catppuccin .text-gray-400 {
-  color: var(--catppuccin-overlay2) !important;
-}
-
-/* 边框颜色 */
-.catppuccin .border-gray-200 {
-  border-color: var(--catppuccin-surface1) !important;
-}
-
-.catppuccin .border-gray-300 {
-  border-color: var(--catppuccin-surface2) !important;
-}
-
-.catppuccin .border-gray-400 {
-  border-color: var(--catppuccin-overlay0) !important;
-}
-
-/* 悬停效果 */
-.catppuccin .hover\:bg-gray-100:hover {
-  background-color: var(--catppuccin-surface0) !important;
-}
-
-.catppuccin .hover\:bg-gray-200:hover {
-  background-color: var(--catppuccin-surface1) !important;
-}
-
-.catppuccin .hover\:bg-gray-300:hover {
-  background-color: var(--catppuccin-surface2) !important;
-}
-
-/* 管理后台特定样式 */
-.catppuccin .dark\:bg-catppuccin-base {
-  background-color: var(--catppuccin-base) !important;
-}
-
-.catppuccin .dark\:bg-catppuccin-surface0 {
-  background-color: var(--catppuccin-surface0) !important;
-}
-
-.catppuccin .dark\:bg-catppuccin-surface1 {
-  background-color: var(--catppuccin-surface1) !important;
-}
-
-.catppuccin .dark\:border-catppuccin-surface1 {
-  border-color: var(--catppuccin-surface1) !important;
-}
-
-.catppuccin .dark\:border-catppuccin-surface2 {
-  border-color: var(--catppuccin-surface2) !important;
-}
-
-.catppuccin .dark\:text-catppuccin-text {
-  color: var(--catppuccin-text) !important;
-}
-
-.catppuccin .dark\:text-catppuccin-subtext0 {
-  color: var(--catppuccin-subtext0) !important;
-}
-
-.catppuccin .dark\:text-catppuccin-blue {
-  color: var(--color-catppuccin-blue) !important;
-}
-
-.catppuccin .dark\:hover\:text-catppuccin-blue:hover {
-  color: var(--color-catppuccin-blue) !important;
-}
-
-/* 确保Tailwind v4主题变量被正确应用 */
-.catppuccin {
-  --color-gray-50: var(--catppuccin-surface0);
-  --color-gray-100: var(--catppuccin-surface0);
-  --color-gray-200: var(--catppuccin-surface1);
-  --color-gray-300: var(--catppuccin-surface2);
-  --color-gray-400: var(--catppuccin-overlay0);
-  --color-gray-500: var(--catppuccin-overlay1);
-  --color-gray-600: var(--catppuccin-overlay0);
-  --color-gray-700: var(--catppuccin-subtext0);
-  --color-gray-800: var(--catppuccin-subtext1);
-  --color-gray-900: var(--catppuccin-text);
-  --color-white: var(--catppuccin-base);
-}
-
-/* 基础样式重置 */
-body {
+* {
   margin: 0;
   padding: 0;
-  font-family: var(--font-sans);
-  background-color: var(--background);
-  color: var(--foreground);
-  transition: background-color 0.3s, color 0.3s;
+  box-sizing: border-box;
 }
 
-/* 代码块样式 */
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  font-family: var(--font-sans);
+  background-color: var(--background);
+  color: var(--text-primary);
+  line-height: 1.75;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  transition: background-color var(--transition-base), color var(--transition-base);
+}
+
+/* ============================================
+   Typography
+   ============================================ */
+
+h1, h2, h3, h4, h5, h6 {
+  font-weight: 600;
+  line-height: 1.2;
+  color: var(--text-primary);
+  margin-bottom: 1rem;
+}
+
+h1 { font-size: 2.5rem; font-weight: 700; }
+h2 { font-size: 1.875rem; }
+h3 { font-size: 1.5rem; }
+h4 { font-size: 1.25rem; }
+h5 { font-size: 1.125rem; }
+h6 { font-size: 1rem; }
+
+p {
+  margin-bottom: 1.25rem;
+  color: var(--text-secondary);
+}
+
+a {
+  color: var(--accent);
+  text-decoration: none;
+  transition: color var(--transition-fast);
+}
+
+a:hover {
+  color: var(--accent-hover);
+}
+
+/* ============================================
+   Layout & Container
+   ============================================ */
+
+.container {
+  width: 100%;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 1.5rem;
+}
+
+.container-narrow {
+  max-width: 768px;
+}
+
+.container-wide {
+  max-width: 1400px;
+}
+
+/* ============================================
+   Components - Cards
+   ============================================ */
+
+.card {
+  background-color: var(--surface-elevated);
+  border-radius: var(--radius-lg);
+  border: 1px solid var(--border);
+  box-shadow: var(--shadow-card);
+  transition: transform var(--transition-base), box-shadow var(--transition-base);
+}
+
+.card:hover {
+  transform: translateY(-4px);
+  box-shadow: var(--shadow-card-hover);
+}
+
+.card-body {
+  padding: 1.5rem;
+}
+
+/* ============================================
+   Components - Buttons
+   ============================================ */
+
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  padding: 0.625rem 1.25rem;
+  font-size: 0.875rem;
+  font-weight: 500;
+  border-radius: var(--radius-base);
+  border: none;
+  cursor: pointer;
+  transition: all var(--transition-fast);
+  white-space: nowrap;
+}
+
+.btn:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
+.btn-primary {
+  background: linear-gradient(135deg, var(--accent), var(--accent-hover));
+  color: white;
+  box-shadow: 0 4px 14px 0 var(--accent-alpha);
+}
+
+.btn-primary:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 6px 20px 0 var(--accent-alpha);
+  color: white;
+}
+
+.btn-secondary {
+  background-color: var(--surface);
+  color: var(--text-primary);
+  border: 1px solid var(--border);
+}
+
+.btn-secondary:hover {
+  background-color: var(--surface-hover);
+  border-color: var(--text-muted);
+}
+
+.btn-ghost {
+  background-color: transparent;
+  color: var(--text-secondary);
+}
+
+.btn-ghost:hover {
+  background-color: var(--surface);
+  color: var(--text-primary);
+}
+
+.btn-sm {
+  padding: 0.375rem 0.75rem;
+  font-size: 0.75rem;
+}
+
+.btn-lg {
+  padding: 0.875rem 1.75rem;
+  font-size: 1rem;
+}
+
+/* ============================================
+   Components - Forms
+   ============================================ */
+
+.input {
+  width: 100%;
+  padding: 0.625rem 1rem;
+  font-size: 0.875rem;
+  color: var(--text-primary);
+  background-color: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-base);
+  transition: all var(--transition-fast);
+}
+
+.input::placeholder {
+  color: var(--text-muted);
+}
+
+.input:focus {
+  outline: none;
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px var(--accent-alpha);
+}
+
+.input-search {
+  padding-left: 2.5rem;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%2394a3b8' stroke-width='2'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' d='M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: 0.75rem center;
+  background-size: 1.25rem;
+}
+
+/* ============================================
+   Components - Tags
+   ============================================ */
+
+.tag {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.25rem 0.75rem;
+  font-size: 0.75rem;
+  font-weight: 500;
+  color: var(--text-secondary);
+  background-color: var(--surface);
+  border-radius: var(--radius-full);
+  border: 1px solid var(--border);
+  transition: all var(--transition-fast);
+}
+
+.tag:hover {
+  background-color: var(--accent-light);
+  border-color: var(--accent);
+  color: var(--accent);
+}
+
+.tag.active {
+  background-color: var(--accent);
+  border-color: var(--accent);
+  color: white;
+}
+
+/* ============================================
+   Components - Code Blocks
+   ============================================ */
+
 pre {
-  background-color: var(--catppuccin-surface0);
-  border-radius: 0.5rem;
-  padding: 1rem;
+  background-color: var(--surface);
+  border-radius: var(--radius-lg);
+  padding: 1.25rem;
   overflow-x: auto;
   font-family: var(--font-mono);
   font-size: 0.875rem;
-  line-height: 1.5;
+  line-height: 1.7;
+  border: 1px solid var(--border);
 }
 
 code {
   font-family: var(--font-mono);
-  font-size: 0.875rem;
-  background-color: var(--catppuccin-surface0);
-  padding: 0.2rem 0.4rem;
-  border-radius: 0.25rem;
+  font-size: 0.875em;
+  padding: 0.2em 0.4em;
+  background-color: var(--surface);
+  border-radius: var(--radius-sm);
+  color: var(--accent);
 }
 
 pre code {
   background-color: transparent;
   padding: 0;
+  color: inherit;
 }
 
-/* 链接样式 */
-a {
-  color: var(--color-catppuccin-blue);
-  text-decoration: none;
-  transition: color 0.2s;
+/* ============================================
+   Content Styles (for articles)
+   ============================================ */
+
+.prose {
+  max-width: none;
 }
 
-a:hover {
-  color: var(--color-catppuccin-lavender);
-  text-decoration: underline;
+.prose p {
+  margin-bottom: 1.5rem;
+  line-height: 1.8;
 }
 
-/* 列表样式 */
-ul, ol {
+.prose h2 {
+  margin-top: 2.5rem;
+  margin-bottom: 1rem;
+  padding-bottom: 0.5rem;
+  border-bottom: 1px solid var(--border);
+}
+
+.prose h3 {
+  margin-top: 2rem;
+}
+
+.prose ul, .prose ol {
+  margin-bottom: 1.5rem;
   padding-left: 1.5rem;
 }
 
-li {
+.prose li {
   margin-bottom: 0.5rem;
 }
 
-/* 标题样式 */
-h1, h2, h3, h4, h5, h6 {
-  margin-top: 1.5rem;
-  margin-bottom: 1rem;
-  font-weight: 600;
-  line-height: 1.25;
+.prose blockquote {
+  margin: 1.5rem 0;
+  padding: 1rem 1.5rem;
+  border-left: 4px solid var(--accent);
+  background-color: var(--surface);
+  border-radius: 0 var(--radius-base) var(--radius-base) 0;
+  font-style: italic;
+  color: var(--text-secondary);
 }
 
-h1 {
-  font-size: 2rem;
-}
-
-h2 {
-  font-size: 1.5rem;
-}
-
-h3 {
-  font-size: 1.25rem;
-}
-
-/* 段落样式 */
-p {
-  margin-bottom: 1rem;
-}
-
-/* 图片样式 */
-img {
+.prose img {
   max-width: 100%;
   height: auto;
-  border-radius: 0.5rem;
-  margin: 1rem 0;
+  border-radius: var(--radius-lg);
+  margin: 1.5rem 0;
 }
 
-/* 引用样式 */
-blockquote {
-  border-left: 4px solid var(--color-catppuccin-blue);
-  padding-left: 1rem;
-  margin: 1rem 0;
-  font-style: italic;
-  color: var(--catppuccin-subtext0);
-}
-
-/* 表格样式 */
-table {
+.prose table {
   width: 100%;
   border-collapse: collapse;
-  margin: 1rem 0;
+  margin: 1.5rem 0;
+  font-size: 0.875rem;
 }
 
-table, th, td {
-  border: 1px solid var(--catppuccin-surface1);
-}
-
-th, td {
-  padding: 0.5rem;
+.prose th, .prose td {
+  padding: 0.75rem;
+  border: 1px solid var(--border);
   text-align: left;
 }
 
-th {
-  background-color: var(--catppuccin-surface0);
+.prose th {
+  background-color: var(--surface);
   font-weight: 600;
 }
 
-/* 代码高亮主题 */
-.hljs {
-  background: var(--catppuccin-surface0) !important;
-  color: var(--catppuccin-text) !important;
+.prose tr:nth-child(even) {
+  background-color: var(--surface);
 }
 
-.hljs-keyword, .hljs-selector-tag, .hljs-literal, .hljs-section, .hljs-link {
-  color: var(--color-catppuccin-pink) !important;
+/* ============================================
+   Utility Classes
+   ============================================ */
+
+.text-gradient {
+  background: linear-gradient(135deg, var(--accent), var(--accent-hover));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
 }
 
-.hljs-function .hljs-keyword {
-  color: var(--color-catppuccin-mauve) !important;
+.bg-gradient {
+  background: linear-gradient(135deg, var(--accent), var(--accent-hover));
 }
 
-.hljs-string, .hljs-title, .hljs-section, .hljs-attribute, .hljs-literal, .hljs-template-tag, .hljs-template-variable, .hljs-type, .hljs-addition {
-  color: var(--color-catppuccin-green) !important;
+.glass {
+  background: rgba(255, 255, 255, 0.8);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
 }
 
-.hljs-comment, .hljs-quote {
-  color: var(--catppuccin-overlay1) !important;
+.dark .glass {
+  background: rgba(15, 23, 42, 0.8);
 }
 
-.hljs-deletion, .hljs-variable {
-  color: var(--color-catppuccin-red) !important;
+.line-clamp-2 {
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
 }
 
-.hljs-number {
-  color: var(--color-catppuccin-peach) !important;
+.line-clamp-3 {
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
 }
 
-.hljs-built_in, .hljs-builtin-name, .hljs-bullet, .hljs-code {
-  color: var(--color-catppuccin-yellow) !important;
+/* ============================================
+   Animation Utilities
+   ============================================ */
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
 }
 
-.hljs-tag, .hljs-name, .hljs-selector-id, .hljs-selector-class, .hljs-selector-attr, .hljs-selector-pseudo {
-  color: var(--color-catppuccin-blue) !important;
+.animate-fade-in {
+  animation: fadeIn 0.5s ease-out forwards;
 }
 
-.hljs-meta {
-  color: var(--color-catppuccin-teal) !important;
+/* Stagger animation delays */
+.stagger-1 { animation-delay: 0.1s; }
+.stagger-2 { animation-delay: 0.2s; }
+.stagger-3 { animation-delay: 0.3s; }
+.stagger-4 { animation-delay: 0.4s; }
+.stagger-5 { animation-delay: 0.5s; }
+
+/* ============================================
+   Scrollbar Styling
+   ============================================ */
+
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
 }
 
-.hljs-emphasis {
-  font-style: italic !important;
+::-webkit-scrollbar-track {
+  background: var(--surface);
 }
 
-.hljs-strong {
-  font-weight: bold !important;
+::-webkit-scrollbar-thumb {
+  background: var(--border);
+  border-radius: var(--radius-full);
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--text-muted);
+}
+
+/* ============================================
+   Selection
+   ============================================ */
+
+::selection {
+  background-color: var(--accent-alpha);
+  color: var(--accent);
+}
+
+/* ============================================
+   Focus Visible
+   ============================================ */
+
+:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
+/* Remove default focus for mouse users */
+:focus:not(:focus-visible) {
+  outline: none;
+}
+
+/* ============================================
+   Print Styles
+   ============================================ */
+
+@media print {
+  body {
+    background: white;
+    color: black;
+  }
+  
+  .no-print {
+    display: none !important;
+  }
 }

@@ -1,12 +1,19 @@
 import type { Metadata } from "next";
-import React from "react";
 import Link from "next/link";
 import ThemeProvider from "./ThemeProvider";
+import ThemeToggle from "@/components/ThemeToggle";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: "我的博客",
-  description: "使用 Next.js 构建的现代化个人博客",
+  title: "Lee's Blog",
+  description: "Sharing thoughts on technology, design, and life.",
+  keywords: ["blog", "technology", "design", "programming", "life"],
+  authors: [{ name: "Lee" }],
+  openGraph: {
+    title: "Lee's Blog",
+    description: "Sharing thoughts on technology, design, and life.",
+    type: "website",
+  },
 };
 
 export default function RootLayout({
@@ -16,97 +23,136 @@ export default function RootLayout({
 }>) {
   return (
     <ThemeProvider>
-      <html lang="zh-CN">
-        <body
-          className="antialiased min-h-screen flex flex-col"
-        >
-          {/* 导航栏 */}
-          <header className="bg-white shadow-md dark:bg-catppuccin-base dark:border-catppuccin-surface1">
-            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-              <div className="flex justify-between h-16">
-                <div className="flex items-center">
-                  <Link href="/" className="text-xl font-bold text-gray-900 dark:text-catppuccin-text">
-                    我的博客
+      <html lang="zh-CN" suppressHydrationWarning>
+        <body className="antialiased min-h-screen flex flex-col bg-[var(--background)]">
+          {/* Navigation */}
+          <header className="sticky top-0 z-50 glass border-b border-[var(--border)]">
+            <div className="container">
+              <nav className="flex items-center justify-between h-16">
+                {/* Logo */}
+                <Link href="/" className="flex items-center gap-3 group">
+                  <div className="w-8 h-8 rounded-lg bg-gradient flex items-center justify-center text-white font-bold text-lg">
+                    L
+                  </div>
+                  <span className="text-lg font-bold text-[var(--text-primary)] group-hover:text-[var(--accent)] transition-colors">
+                    Lee&apos;s Blog
+                  </span>
+                </Link>
+
+                {/* Desktop Navigation */}
+                <div className="hidden md:flex items-center gap-6">
+                  <Link 
+                    href="/" 
+                    className="text-sm font-medium text-[var(--text-secondary)] hover:text-[var(--text-primary)] transition-colors"
+                  >
+                    首页
+                  </Link>
+                  <Link 
+                    href="/projects" 
+                    className="text-sm font-medium text-[var(--text-secondary)] hover:text-[var(--text-primary)] transition-colors"
+                  >
+                    项目
+                  </Link>
+                  <Link 
+                    href="/about" 
+                    className="text-sm font-medium text-[var(--text-secondary)] hover:text-[var(--text-primary)] transition-colors"
+                  >
+                    关于
                   </Link>
                 </div>
-                <div className="flex items-center space-x-4">
-                  {/* 搜索框 - 客户端组件 */}
-                  <div className="relative">
-                    <form action="/" method="GET" className="relative">
+
+                {/* Right Section */}
+                <div className="flex items-center gap-3">
+                  {/* Search */}
+                  <form action="/" method="GET" className="hidden sm:block">
+                    <div className="relative">
                       <input
                         type="text"
                         name="search"
                         placeholder="搜索文章..."
-                        className="pl-10 pr-4 py-2 rounded-full border border-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-catppuccin-surface0 dark:border-catppuccin-surface2 dark:text-catppuccin-text"
+                        className="input input-search w-48 lg:w-64 text-sm"
                       />
-                      <button
-                        type="submit"
-                        className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600 dark:text-catppuccin-overlay1 dark:hover:text-catppuccin-text"
-                      >
-                        <svg
-                          width="16"
-                          height="16"
-                          fill="none"
-                          stroke="currentColor"
-                          viewBox="0 0 24 24"
-                          aria-label="搜索"
-                        >
-                          <title>搜索</title>
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-                        </svg>
-                      </button>
-                    </form>
-                  </div>
-                  {/* 导航链接 */}
-                    <nav className="flex items-center space-x-4">
-                      <Link
-                        href="/"
-                        className="text-gray-600 hover:text-gray-900 px-3 py-2 rounded-md text-sm font-medium dark:text-catppuccin-subtext0 dark:hover:text-catppuccin-text"
-                      >
-                        首页
-                      </Link>
-                      <Link
-                        href="/projects"
-                        className="text-gray-600 hover:text-gray-900 px-3 py-2 rounded-md text-sm font-medium dark:text-catppuccin-subtext0 dark:hover:text-catppuccin-text"
-                      >
-                        个人项目
-                      </Link>
-                    {/* RSS订阅 */}
-                    <Link
-                      href="/api/rss"
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="flex items-center justify-center w-8 h-8 rounded-full text-gray-600 hover:text-orange-600 dark:text-catppuccin-subtext0 dark:hover:text-catppuccin-orange"
-                      title="RSS订阅"
-                    >
-                      {/* RSS图标 */}
-                      <svg
-                        width="18"
-                        height="18"
-                        fill="currentColor"
-                        viewBox="0 0 24 24"
-                        xmlns="http://www.w3.org/2000/svg"
-                        aria-label="RSS订阅"
-                      >
-                        <title>RSS订阅</title>
-                        <path d="M6.18 3.56a8.89 8.89 0 0 1 5.91 2.29c.37.32.58.76.58 1.23 0 .84-.49 1.58-1.21 1.88-.35.14-.72.21-1.09.21-.44 0-.87-.12-1.25-.36a.84.84 0 0 1-.36-1.15c.17-.29.29-.6.29-.94 0-.72-.55-1.31-1.24-1.31a1.4 1.4 0 0 0-1.42 1.43c0 .18.03.35.08.51a.73.73 0 0 1-.64 1.04 2.12 2.12 0 0 1-.42-.05 2.68 2.68 0 0 1-.36-.15.74.74 0 0 1-.37-.64v-.08a.83.83 0 0 1 .34-.67 5.59 5.59 0 0 1 2.22-1.42ZM2 12.54c0-2.7 1.47-5.03 3.68-6.45a.74.74 0 0 1 .95.11c.21.23.3.51.3.79 0 .77-.49 1.43-1.21 1.73-.35.15-.72.21-1.1.21-.43 0-.85-.12-1.22-.36a.84.84 0 0 1-.36-1.15A7.77 7.77 0 0 0 2 12.55v.04a.83.83 0 0 0 .34.67 8.83 8.83 0 0 0 5.89 2.3.83.83 0 0 0 .77-.52 1.15 1.15 0 0 0-.33-1.39 3.91 3.91 0 0 1-.89-.55.7.7 0 0 0-.99.07 2.68 2.68 0 0 0-.14.18.74.74 0 0 0-.05.72v.07c0 .39.18.74.48.97.35.27.78.42 1.22.42a3.95 3.95 0 0 0 1.7-.37A7.41 7.41 0 0 0 14 15.59a.75.75 0 0 0-.08-1.06 3.97 3.97 0 0 1-3.47-2.44 5.93 5.93 0 0 1-1.11-3.72c0-2.17 1.23-4.02 3.08-4.96a.83.83 0 0 1 1.22.96 7.51 7.51 0 0 0-1.42 5.36c0 4.14 3.35 7.5 7.5 7.5a7.44 7.44 0 0 0 7.5-7.49 7.5 7.5 0 0 0-7.5-7.5h-.01a.83.83 0 0 1 0-1.66h.01a9.16 9.16 0 0 1 9.17 9.17 9.16 9.16 0 0 1-9.17 9.17 9.19 9.19 0 0 1-9.17-9.17Z" />
-                      </svg>
-                    </Link>
-                  </nav>
+                    </div>
+                  </form>
+
+                  {/* Theme Toggle */}
+                  <ThemeToggle />
+
+                  {/* Admin Link */}
+                  <Link
+                    href="/dashboard"
+                    className="btn btn-ghost btn-sm hidden sm:inline-flex"
+                  >
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-label="管理后台">
+                      <title>管理后台</title>
+                      <path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"/>
+                      <circle cx="12" cy="7" r="4"/>
+                    </svg>
+                    <span className="ml-2">管理</span>
+                  </Link>
+
+                  {/* Mobile Menu Button */}
+                  <button 
+                    type="button"
+                    className="btn btn-ghost btn-sm md:hidden"
+                    aria-label="菜单"
+                  >
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-label="菜单">
+                      <title>菜单</title>
+                      <line x1="3" y1="12" x2="21" y2="12"/>
+                      <line x1="3" y1="6" x2="21" y2="6"/>
+                      <line x1="3" y1="18" x2="21" y2="18"/>
+                    </svg>
+                  </button>
                 </div>
-              </div>
+              </nav>
             </div>
           </header>
 
-          {/* 主要内容 */}
-          <main className="flex-grow max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+          {/* Main Content */}
+          <main className="flex-grow">
             {children}
           </main>
 
-          {/* 页脚 */}
-          <footer className="bg-gray-50 border-t border-gray-200 py-6 dark:bg-catppuccin-surface0 dark:border-catppuccin-surface1">
-            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center text-gray-600 dark:text-catppuccin-text">
-              <p>© {new Date().getFullYear()} 我的博客. 使用 Next.js 和 Flask 构建.</p>
+          {/* Footer */}
+          <footer className="border-t border-[var(--border)] mt-auto">
+            <div className="container py-8">
+              <div className="flex flex-col md:flex-row items-center justify-between gap-4">
+                {/* Copyright */}
+                <div className="text-sm text-[var(--text-tertiary)]">
+                  © {new Date().getFullYear()} Lee&apos;s Blog. Built with Next.js & Tailwind CSS.
+                </div>
+
+                {/* Links */}
+                <div className="flex items-center gap-4">
+                  <a 
+                    href="/api/rss" 
+                    target="_blank" 
+                    rel="noopener noreferrer"
+                    className="text-sm text-[var(--text-tertiary)] hover:text-[var(--accent)] transition-colors flex items-center gap-1"
+                  >
+                    <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-label="RSS 订阅">
+                      <title>RSS 订阅</title>
+                      <path d="M4 11a9 9 0 0 1 9 9"/>
+                      <path d="M4 4a16 16 0 0 1 16 16"/>
+                      <circle cx="5" cy="19" r="1"/>
+                    </svg>
+                    RSS
+                  </a>
+                  <a 
+                    href="https://github.com" 
+                    target="_blank" 
+                    rel="noopener noreferrer"
+                    className="text-sm text-[var(--text-tertiary)] hover:text-[var(--accent)] transition-colors flex items-center gap-1"
+                  >
+                    <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-label="GitHub">
+                      <title>GitHub</title>
+                      <path d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37 0 0 0-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44 0 0 0 20 4.77 5.07 5.07 0 0 0 19.91 1S18.73.65 16 2.48a13.38 13.38 0 0 0-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07 0 0 0 5 4.77a5.44 5.44 0 0 0-1.5 3.78c0 5.42 3.3 6.61 6.44 7A3.37 3.37 0 0 0 9 18.13V22"/>
+                    </svg>
+                    GitHub
+                  </a>
+                </div>
+              </div>
             </div>
           </footer>
         </body>

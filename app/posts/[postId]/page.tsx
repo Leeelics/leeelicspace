@@ -45,17 +45,17 @@ export default async function PostDetail({ params }: { params: Promise<{ postId:
             </div>
           </div>
 
-          {/* 内容区域：文章居中 + 大纲固定右侧 */}
-          <div className="relative flex flex-col lg:flex-row gap-8 lg:gap-12">
+          {/* 内容区域：文章始终在中间显示，大纲独立在右侧 */}
+          <div className="relative">
             {/* 主内容区：居中显示，最佳阅读宽度 */}
-            <article className="flex-1 max-w-3xl mx-auto lg:mx-0 w-full">
+            <article className="max-w-3xl mx-auto w-full">
               <div className="bg-white dark:bg-catppuccin-base rounded-lg">
                 <MarkdownRenderer content={post.content} />
               </div>
             </article>
 
-            {/* 右侧大纲：固定位置 */}
-            <aside className="w-full lg:w-64 xl:w-72 flex-shrink-0">
+            {/* 右侧大纲：脱离阅读板块，悬浮在外侧 */}
+            <aside className="hidden lg:block absolute inset-y-0 right-0 w-64 xl:w-72">
               <ArticleOutline content={post.content} />
             </aside>
           </div>

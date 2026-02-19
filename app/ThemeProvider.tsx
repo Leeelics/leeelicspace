@@ -1,65 +1,69 @@
 'use client';
 
-import React, { useEffect, useState } from 'react';
+import { useEffect, useState, useCallback } from 'react';
 
-type Theme = 'light' | 'dark' | 'catppuccin';
+type Theme = 'light' | 'dark';
 
 const ThemeProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [theme, setTheme] = useState<Theme>('light');
+  const [mounted, setMounted] = useState(false);
 
-  // 初始化主题
-  useEffect(() => {
-    const savedTheme = localStorage.getItem('theme') as Theme | null;
-    const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
-    const initialTheme = savedTheme || (prefersDark ? 'dark' : 'light');
+  const applyTheme = useCallback((newTheme: Theme) => {
+    const html = document.documentElement;
     
-    applyTheme(initialTheme);
-    setTheme(initialTheme);
+    // Remove all theme classes
+    html.classList.remove('light', 'dark');
+    
+    // Add current theme class
+    html.classList.add(newTheme);
   }, []);
 
-  // 监听localStorage中的theme变化
+  // Initialize theme
   useEffect(() => {
-    const handleStorageChange = (e: StorageEvent) => {
-      if (e.key === 'theme') {
-        const newTheme = e.newValue as Theme || 'light';
-        applyTheme(newTheme);
+    setMounted(true);
+    
+    const savedTheme = localStorage.getItem('theme') as Theme | null;
+    const systemPrefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+    
+    const initialTheme = savedTheme || (systemPrefersDark ? 'dark' : 'light');
+    
+    setTheme(initialTheme);
+    applyTheme(initialTheme);
+  }, [applyTheme]);
+
+  // Listen to system theme changes
+  useEffect(() => {
+    const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
+    
+    const handleChange = (e: MediaQueryListEvent) => {
+      // Only auto-switch if user hasn't manually set a preference
+      if (!localStorage.getItem('theme')) {
+        const newTheme = e.matches ? 'dark' : 'light';
         setTheme(newTheme);
+        applyTheme(newTheme);
       }
     };
 
-    window.addEventListener('storage', handleStorageChange);
-    return () => window.removeEventListener('storage', handleStorageChange);
-  }, []);
+    mediaQuery.addEventListener('change', handleChange);
+    return () => mediaQuery.removeEventListener('change', handleChange);
+  }, [applyTheme]);
 
-  // 应用主题
-  const applyTheme = (newTheme: Theme) => {
-    const html = document.documentElement;
-    
-    // 移除所有主题类
-    html.classList.remove('light', 'dark', 'catppuccin');
-    
-    // 添加当前主题类
-    html.classList.add(newTheme);
-    
-    // 为了兼容现有的dark类用法，当主题为dark或catppuccin时，添加dark类
-    if (newTheme === 'dark' || newTheme === 'catppuccin') {
-      html.classList.add('dark');
-    } else {
-      html.classList.remove('dark');
+  // Apply theme when it changes
+  useEffect(() => {
+    if (mounted) {
+      applyTheme(theme);
+      localStorage.setItem('theme', theme);
     }
-  };
+  }, [theme, mounted, applyTheme]);
 
-  // 主题切换功能
-  const toggleTheme = () => {
-    const themes: Theme[] = ['light', 'dark', 'catppuccin'];
-    const currentIndex = themes.indexOf(theme);
-    const nextIndex = (currentIndex + 1) % themes.length;
-    const newTheme = themes[nextIndex];
-    
-    setTheme(newTheme);
-    localStorage.setItem('theme', newTheme);
-    applyTheme(newTheme);
-  };
+  // Prevent hydration mismatch
+  if (!mounted) {
+    return (
+      <div style={{ visibility: 'hidden' }}>
+        {children}
+      </div>
+    );
+  }
 
   return (
     <div className="theme-provider">
