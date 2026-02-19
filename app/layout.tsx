@@ -5,13 +5,13 @@ import ThemeToggle from "@/components/ThemeToggle";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: "Lee's Blog",
-  description: "Sharing thoughts on technology, design, and life.",
-  keywords: ["blog", "technology", "design", "programming", "life"],
+  title: "leelicspace",
+  description: "Lee's Digital Space - 记录技术、设计与思考",
+  keywords: ["blog", "technology", "design", "programming", "life", "leelicspace"],
   authors: [{ name: "Lee" }],
   openGraph: {
-    title: "Lee's Blog",
-    description: "Sharing thoughts on technology, design, and life.",
+    title: "leelicspace",
+    description: "Lee's Digital Space - 记录技术、设计与思考",
     type: "website",
   },
 };
@@ -29,13 +29,12 @@ export default function RootLayout({
           <header className="sticky top-0 z-50 glass border-b border-[var(--border)]">
             <div className="container">
               <nav className="flex items-center justify-between h-16">
-                {/* Logo */}
-                <Link href="/" className="flex items-center gap-3 group">
-                  <div className="w-8 h-8 rounded-lg bg-gradient flex items-center justify-center text-white font-bold text-lg">
-                    L
-                  </div>
-                  <span className="text-lg font-bold text-[var(--text-primary)] group-hover:text-[var(--accent)] transition-colors">
-                    Lee&apos;s Blog
+                {/* Logo - leelicspace */}
+                <Link href="/" className="flex items-center gap-1 group">
+                  <span className="text-xl font-bold tracking-tight">
+                    <span className="text-gradient group-hover:opacity-80 transition-opacity">lee</span>
+                    <span className="text-[var(--text-primary)]">lic</span>
+                    <span className="text-[var(--text-muted)]">space</span>
                   </span>
                 </Link>
 
@@ -119,8 +118,8 @@ export default function RootLayout({
             <div className="container py-8">
               <div className="flex flex-col md:flex-row items-center justify-between gap-4">
                 {/* Copyright */}
-                <div className="text-sm text-[var(--text-tertiary)]">
-                  © {new Date().getFullYear()} Lee&apos;s Blog. Built with Next.js & Tailwind CSS.
+                <div className="text-sm text-[var(--text-tertiary)]"
+>                  © {new Date().getFullYear()} leelicspace. Built with Next.js & Tailwind CSS.
                 </div>
 
                 {/* Links */}

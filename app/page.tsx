@@ -8,8 +8,7 @@ export const dynamic = "force-dynamic";
 export default async function Home({ searchParams }: PageProps<"/">) {
   let posts: Post[] = [];
   let tags: string[] = [];
-  let pagination = { page: 1, per_page: 9, total: 0, total_pages: 0 };
-  let featuredPost: Post | null = null;
+  let pagination = { page: 1, per_page: 10, total: 0, total_pages: 0 };
   
   try {
     const resolvedSearchParams = await searchParams;
@@ -28,7 +27,7 @@ export default async function Home({ searchParams }: PageProps<"/">) {
     
     const postsUrl = new URL(buildApiUrl('/api/posts'));
     postsUrl.searchParams.set('page', page.toString());
-    postsUrl.searchParams.set('per_page', '9');
+    postsUrl.searchParams.set('per_page', '10');
     if (tag) postsUrl.searchParams.set('tag', tag);
     if (search) postsUrl.searchParams.set('search', search);
     
@@ -47,30 +46,26 @@ export default async function Home({ searchParams }: PageProps<"/">) {
     tags = await tagsResponse.json();
     
     posts = postsResponseData.posts || [];
-    pagination = postsResponseData.pagination || { page: 1, per_page: 9, total: 0, total_pages: 0 };
-    
-    // Set featured post (first post or null if filtering)
-    if (!tag && !search && posts.length > 0) {
-      featuredPost = posts[0];
-      posts = posts.slice(1);
-    }
+    pagination = postsResponseData.pagination || { page: 1, per_page: 10, total: 0, total_pages: 0 };
     
     return (
       <div className="min-h-screen">
-        {/* Hero Section */}
-        <section className="py-16 md:py-24 border-b border-[var(--border)]">
-          <div className="container container-narrow text-center">
-            <div className="w-20 h-20 mx-auto mb-6 rounded-2xl bg-gradient flex items-center justify-center text-white text-3xl font-bold shadow-lg">
-              L
+        {/* Hero Section - leelicspace Brand */}
+        <section className="pt-20 pb-16 md:pt-28 md:pb-20">
+          <div className="container container-narrow">
+            {/* Logo */}
+            <div className="flex items-center justify-center gap-1 mb-8">
+              <span className="text-5xl md:text-6xl font-bold tracking-tight">
+                <span className="text-gradient">lee</span>
+                <span className="text-[var(--text-primary)]">lic</span>
+                <span className="text-[var(--text-muted)]">space</span>
+              </span>
             </div>
-            <h1 className="text-4xl md:text-5xl font-bold mb-4 text-[var(--text-primary)]">
-              Lee&apos;s Blog
-            </h1>
             
-            <p className="text-lg md:text-xl text-[var(--text-secondary)] max-w-2xl mx-auto mb-8">
-              分享关于技术、设计和生活的思考。
-              <br className="hidden md:block" />
-              记录学习路上的点滴成长。
+            <p className="text-lg md:text-xl text-[var(--text-secondary)] text-center max-w-2xl mx-auto mb-10 leading-relaxed">
+              Lee&apos;s Digital Space
+              <br />
+              <span className="text-[var(--text-tertiary)]">记录技术、设计与思考</span>
             </p>
             
             <div className="flex items-center justify-center gap-4">
@@ -78,77 +73,24 @@ export default async function Home({ searchParams }: PageProps<"/">) {
                 href="https://github.com" 
                 target="_blank" 
                 rel="noopener noreferrer"
-                className="btn btn-secondary btn-sm"
+                className="btn btn-secondary"
               >
-                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="mr-2" aria-label="GitHub">
+                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-label="GitHub">
                   <title>GitHub</title>
                   <path d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37 0 0 0-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44 0 0 0 20 4.77 5.07 5.07 0 0 0 19.91 1S18.73.65 16 2.48a13.38 13.38 0 0 0-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07 0 0 0 5 4.77a5.44 5.44 0 0 0-1.5 3.78c0 5.42 3.3 6.61 6.44 7A3.37 3.37 0 0 0 9 18.13V22"/>
                 </svg>
-                GitHub
               </a>
-              <Link href="/projects" className="btn btn-primary btn-sm">
+              <Link href="/projects" className="btn btn-primary">
                 查看项目
-                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="ml-2" aria-label="箭头">
-                  <title>箭头</title>
-                  <path d="M5 12h14"/>
-                  <path d="m12 5 7 7-7 7"/>
-                </svg>
               </Link>
             </div>
           </div>
         </section>
 
-        {/* Featured Article */}
-        {featuredPost && !tag && !search && (
-          <section className="py-12">
-            <div className="container">
-              <div className="flex items-center gap-2 mb-6">
-                <div className="w-1 h-6 bg-gradient rounded-full"></div>
-                <h2 className="text-lg font-semibold text-[var(--text-primary)] m-0">精选文章</h2>
-              </div>
-              
-              <Link 
-                href={`/posts/${featuredPost.id}`}
-                className="card block overflow-hidden group"
-              >
-                <div className="card-body p-6 md:p-8">
-                  <div className="flex flex-wrap items-center gap-2 mb-4">
-                    {featuredPost.tags.slice(0, 3).map((t) => (
-                      <span key={t} className="tag">
-                        {t}
-                      </span>
-                    ))}
-                    <span className="text-sm text-[var(--text-muted)] ml-auto">
-                      {formatDate(featuredPost.created_at)}
-                    </span>
-                  </div>
-                  
-                  <h3 className="text-2xl md:text-3xl font-bold text-[var(--text-primary)] mb-4 group-hover:text-[var(--accent)] transition-colors">
-                    {featuredPost.title}
-                  </h3>
-                  
-                  <p className="text-[var(--text-secondary)] line-clamp-3 mb-4">
-                    {featuredPost.content.slice(0, 200)}...
-                  </p>
-                  
-                  <div className="flex items-center text-[var(--accent)] font-medium">
-                    阅读全文
-                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="ml-2 group-hover:translate-x-1 transition-transform" aria-label="箭头">
-                      <title>箭头</title>
-                      <path d="M5 12h14"/>
-                      <path d="m12 5 7 7-7 7"/>
-                    </svg>
-                  </div>
-                </div>
-              </Link>
-            </div>
-          </section>
-        )}
-
         {/* Tags Filter */}
-        <section className="py-8 border-t border-[var(--border)]">
+        <section className="py-6 border-y border-[var(--border)]">
           <div className="container">
-            <div className="flex flex-wrap items-center gap-2">
+            <div className="flex flex-wrap items-center gap-2 justify-center">
               <Link
                 href={search ? `/?search=${search}` : "/"}
                 className={`tag ${!tag ? 'active' : ''}`}
@@ -168,15 +110,15 @@ export default async function Home({ searchParams }: PageProps<"/">) {
           </div>
         </section>
 
-        {/* Articles Grid */}
-        <section className="py-8 pb-16">
-          <div className="container">
+        {/* Articles List - Wide Cards */}
+        <section className="py-12 md:py-16">
+          <div className="container container-narrow">
             {(tag || search) && (
-              <div className="mb-8">
+              <div className="mb-10 text-center">
                 <h2 className="text-xl font-semibold text-[var(--text-primary)]">
                   {search ? `搜索结果: "${search}"` : `标签: ${tag}`}
                 </h2>
-                <p className="text-[var(--text-tertiary)] mt-1">
+                <p className="text-[var(--text-tertiary)] mt-2">
                   共 {pagination.total} 篇文章
                 </p>
               </div>
@@ -184,7 +126,7 @@ export default async function Home({ searchParams }: PageProps<"/">) {
 
             {posts.length > 0 ? (
               <>
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                <div className="space-y-6">
                   {posts.map((post: Post) => (
                     <ArticleCard key={post.id} post={post} />
                   ))}
@@ -192,7 +134,7 @@ export default async function Home({ searchParams }: PageProps<"/">) {
 
                 {/* Pagination */}
                 {pagination.total_pages > 1 && (
-                  <div className="mt-12 flex items-center justify-center gap-2">
+                  <div className="mt-16 flex items-center justify-center gap-3">
                     <Link
                       href={`/?${new URLSearchParams({ 
                         page: (page - 1).toString(), 
@@ -201,10 +143,10 @@ export default async function Home({ searchParams }: PageProps<"/">) {
                       })}`}
                       className={`btn btn-secondary ${page === 1 ? 'opacity-50 pointer-events-none' : ''}`}
                     >
-                      上一页
+                      ← 上一页
                     </Link>
                     
-                    <span className="px-4 py-2 text-sm font-medium text-[var(--text-secondary)]">
+                    <span className="px-4 py-2 text-sm font-medium text-[var(--text-secondary)] bg-[var(--surface)] rounded-lg">
                       {page} / {pagination.total_pages}
                     </span>
                     
@@ -216,14 +158,14 @@ export default async function Home({ searchParams }: PageProps<"/">) {
                       })}`}
                       className={`btn btn-secondary ${page === pagination.total_pages ? 'opacity-50 pointer-events-none' : ''}`}
                     >
-                      下一页
+                      下一页 →
                     </Link>
                   </div>
                 )}
               </>
             ) : (
-              <div className="text-center py-16">
-                <div className="w-16 h-16 mx-auto mb-4 rounded-full bg-[var(--surface)] flex items-center justify-center">
+              <div className="text-center py-20">
+                <div className="w-20 h-20 mx-auto mb-6 rounded-full bg-[var(--surface)] flex items-center justify-center">
                   <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" className="text-[var(--text-muted)]" aria-label="空">
                     <title>空</title>
                     <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
@@ -233,11 +175,11 @@ export default async function Home({ searchParams }: PageProps<"/">) {
                     <polyline points="10 9 9 9 8 9"/>
                   </svg>
                 </div>
-                <p className="text-[var(--text-tertiary)]">
+                <p className="text-[var(--text-tertiary)] text-lg">
                   {search ? '没有找到相关文章' : '暂无文章'}
                 </p>
                 {(tag || search) && (
-                  <Link href="/" className="btn btn-primary btn-sm mt-4">
+                  <Link href="/" className="btn btn-primary mt-6">
                     查看全部文章
                   </Link>
                 )}
@@ -250,7 +192,7 @@ export default async function Home({ searchParams }: PageProps<"/">) {
     
   } catch (error) {
     return (
-      <div className="container py-16">
+      <div className="container py-20">
         <DataErrorDisplay 
           error={error instanceof Error ? error.message : '未知错误'} 
         />
@@ -259,40 +201,40 @@ export default async function Home({ searchParams }: PageProps<"/">) {
   }
 }
 
-// Article Card Component
+// Article Card Component - Wide Layout
 function ArticleCard({ post }: { post: Post }) {
   return (
     <Link 
       href={`/posts/${post.id}`}
-      className="card group flex flex-col h-full"
+      className="group block py-8 border-b border-[var(--border)] last:border-b-0 hover:bg-[var(--surface-hover)] -mx-4 px-4 sm:-mx-6 sm:px-6 rounded-lg transition-colors"
     >
-      <div className="card-body flex flex-col h-full p-5">
-        <div className="flex flex-wrap gap-2 mb-3">
-          {post.tags.slice(0, 2).map((t) => (
+      <div className="flex flex-col gap-4">
+        <div className="flex flex-wrap items-center gap-3">
+          {post.tags.slice(0, 4).map((t) => (
             <span key={t} className="tag text-xs">
               {t}
             </span>
           ))}
+          <span className="text-sm text-[var(--text-muted)] ml-auto">
+            {formatDate(post.created_at)}
+          </span>
         </div>
         
-        <h3 className="text-lg font-semibold text-[var(--text-primary)] mb-3 line-clamp-2 group-hover:text-[var(--accent)] transition-colors">
+        <h3 className="text-xl md:text-2xl font-semibold text-[var(--text-primary)] group-hover:text-[var(--accent)] transition-colors leading-tight">
           {post.title}
         </h3>
         
-        <p className="text-sm text-[var(--text-secondary)] line-clamp-3 mb-4 flex-grow">
-          {post.content.slice(0, 150)}...
+        <p className="text-[var(--text-secondary)] line-clamp-2 text-base leading-relaxed">
+          {post.content.slice(0, 200).replace(/[#*`]/g, '')}...
         </p>
         
-        <div className="flex items-center justify-between text-xs text-[var(--text-muted)] mt-auto pt-4 border-t border-[var(--border)]">
-          <span>{formatDate(post.created_at)}</span>
-          <span className="flex items-center text-[var(--accent)]">
-            阅读
-            <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="ml-1 group-hover:translate-x-1 transition-transform" aria-label="箭头">
-              <title>箭头</title>
-              <path d="M5 12h14"/>
-              <path d="m12 5 7 7-7 7"/>
-            </svg>
-          </span>
+        <div className="flex items-center text-[var(--accent)] font-medium text-sm mt-2">
+          阅读全文
+          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="ml-2 group-hover:translate-x-1 transition-transform" aria-label="箭头">
+            <title>箭头</title>
+            <path d="M5 12h14"/>
+            <path d="m12 5 7 7-7 7"/>
+          </svg>
         </div>
       </div>
     </Link>

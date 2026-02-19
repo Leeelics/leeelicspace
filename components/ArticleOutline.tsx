@@ -73,58 +73,58 @@ function ArticleOutline({ content }: { content: string }) {
   }
 
   return (
-    <div className="hidden lg:block">
-      <div className="sticky top-24">
-        <div className="bg-gradient-to-br from-gray-50 to-gray-100 dark:from-catppuccin-surface0 dark:to-catppuccin-surface1 rounded-xl p-6 shadow-sm border border-gray-200 dark:border-catppuccin-surface2">
-          <div className="flex items-center gap-2 mb-4">
-            <svg className="w-5 h-5 text-blue-600 dark:text-catppuccin-blue" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h7" />
-            </svg>
-            <h3 className="text-base font-semibold text-gray-900 dark:text-catppuccin-text">
-              目录
-            </h3>
-          </div>
-          <nav className="text-sm">
-            <ul className="space-y-0.5">
-              {headings.map((heading) => {
-                const isActive = activeHeading === heading.id;
-                const paddingLeft = (heading.level - 1) * 12;
-
-                return (
-                  <li key={heading.id} style={{ paddingLeft: `${paddingLeft}px` }}>
-                    <a
-                      href={`#${heading.id}`}
-                      onClick={(e) => scrollToHeading(e, heading.id)}
-                      className={`block py-2 px-3 rounded-md transition-all duration-200 ${
-                        isActive
-                          ? 'bg-blue-100 dark:bg-catppuccin-blue/20 text-blue-700 dark:text-catppuccin-blue font-medium border-l-2 border-blue-600 dark:border-catppuccin-blue'
-                          : 'text-gray-600 dark:text-catppuccin-subtext0 hover:bg-gray-100 dark:hover:bg-catppuccin-surface0 hover:text-gray-900 dark:hover:text-catppuccin-text border-l-2 border-transparent'
-                      }`}
-                      title={heading.text}
-                    >
-                      <span className="line-clamp-2">{heading.text}</span>
-                    </a>
-                  </li>
-                );
-              })}
-            </ul>
-          </nav>
-        </div>
-
-        {/* 返回顶部按钮 */}
-        {activeHeading && (
-          <button
-            onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
-            className="mt-4 w-full flex items-center justify-center gap-2 px-4 py-2.5 bg-white dark:bg-catppuccin-surface0 text-gray-700 dark:text-catppuccin-text rounded-lg shadow-sm border border-gray-200 dark:border-catppuccin-surface2 hover:bg-gray-50 dark:hover:bg-catppuccin-surface1 transition-colors"
-            title="返回顶部"
-          >
-            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 10l7-7m0 0l7 7m-7-7v18" />
-            </svg>
-            <span className="text-sm font-medium">返回顶部</span>
-          </button>
-        )}
+    <div className="bg-[var(--surface)] rounded-xl p-5 border border-[var(--border)]">
+      <div className="flex items-center gap-2 mb-4 pb-3 border-b border-[var(--border)]">
+        <svg className="w-5 h-5 text-[var(--accent)]" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-label="目录">
+          <title>目录</title>
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h7" />
+        </svg>
+        <h3 className="text-sm font-semibold text-[var(--text-primary)]">
+          目录
+        </h3>
       </div>
+      
+      <nav className="text-sm">
+        <ul className="space-y-1">
+          {headings.map((heading) => {
+            const isActive = activeHeading === heading.id;
+            const paddingLeft = (heading.level - 1) * 12;
+
+            return (
+              <li key={heading.id} style={{ paddingLeft: `${paddingLeft}px` }}>
+                <a
+                  href={`#${heading.id}`}
+                  onClick={(e) => scrollToHeading(e, heading.id)}
+                  className={`block py-1.5 px-2 rounded-md transition-all duration-200 text-sm ${
+                    isActive
+                      ? 'bg-[var(--accent-light)] text-[var(--accent)] font-medium'
+                      : 'text-[var(--text-tertiary)] hover:text-[var(--text-primary)] hover:bg-[var(--surface-hover)]'
+                  }`}
+                  title={heading.text}
+                >
+                  <span className="line-clamp-2">{heading.text}</span>
+                </a>
+              </li>
+            );
+          })}
+        </ul>
+      </nav>
+
+      {/* 返回顶部按钮 */}
+      {activeHeading && (
+        <button
+          type="button"
+          onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
+          className="mt-4 w-full flex items-center justify-center gap-2 px-4 py-2 bg-[var(--surface-elevated)] text-[var(--text-secondary)] rounded-lg border border-[var(--border)] hover:bg-[var(--surface-hover)] hover:text-[var(--text-primary)] transition-colors text-sm"
+          title="返回顶部"
+        >
+          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-label="返回顶部">
+            <title>返回顶部</title>
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 10l7-7m0 0l7 7m-7-7v18" />
+          </svg>
+          <span>返回顶部</span>
+        </button>
+      )}
     </div>
   );
 }

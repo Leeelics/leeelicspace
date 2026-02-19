@@ -1,5 +1,6 @@
 // 服务器组件
 import { fetchPost } from '@/services/api';
+import Link from 'next/link';
 
 // 客户端组件 - 分离到单独的文件
 import MarkdownRenderer from '@/components/MarkdownContent';
@@ -15,60 +16,128 @@ export default async function PostDetail({ params }: { params: Promise<{ postId:
       throw new Error('未找到文章');
     }
     return (
-      <div className="min-h-screen bg-white dark:bg-catppuccin-base">
-        {/* 容器：使用更宽的最大宽度以容纳内容+大纲 */}
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-          {/* 文章头部：居中显示 */}
-          <div className="max-w-3xl mx-auto mb-12">
-            <h1 className="text-4xl sm:text-5xl font-bold mb-6 text-gray-900 dark:text-catppuccin-text leading-tight">
+      <div className="min-h-screen bg-[var(--background)]">
+        {/* 顶部返回导航 */}
+        <div className="border-b border-[var(--border)]">
+          <div className="container container-narrow py-4">
+            <Link 
+              href="/" 
+              className="inline-flex items-center text-sm text-[var(--text-tertiary)] hover:text-[var(--accent)] transition-colors"
+            >
+              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="mr-2" aria-label="返回">
+                <title>返回</title>
+                <path d="m15 18-6-6 6-6"/>
+              </svg>
+              返回首页
+            </Link>
+          </div>
+        </div>
+
+        <div className="container container-narrow py-12 md:py-16">
+          {/* 文章头部 */}
+          <header className="mb-12 md:mb-16">
+            <h1 className="text-3xl sm:text-4xl md:text-5xl font-bold text-[var(--text-primary)] leading-tight mb-6">
               {post.title}
             </h1>
-            <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-4 text-sm text-gray-500 dark:text-catppuccin-overlay0 mb-6">
-              <span>创建于: {new Date(post.created_at).toLocaleDateString('zh-CN', { year: 'numeric', month: 'long', day: 'numeric' })}</span>
+            
+            <div className="flex flex-wrap items-center gap-4 text-sm text-[var(--text-tertiary)] mb-6">
+              <time dateTime={post.created_at}>
+                {new Date(post.created_at).toLocaleDateString('zh-CN', { 
+                  year: 'numeric', 
+                  month: 'long', 
+                  day: 'numeric' 
+                })}
+              </time>
+              
               {post.updated_at !== post.created_at && (
                 <>
-                  <span className="hidden sm:inline">•</span>
-                  <span>更新于: {new Date(post.updated_at).toLocaleDateString('zh-CN', { year: 'numeric', month: 'long', day: 'numeric' })}</span>
+                  <span className="text-[var(--border)]">•</span>
+                  <span>
+                    更新于 {new Date(post.updated_at).toLocaleDateString('zh-CN', { 
+                      year: 'numeric', 
+                      month: 'long', 
+                      day: 'numeric' 
+                    })}
+                  </span>
                 </>
               )}
             </div>
+            
             {/* 标签 */}
             <div className="flex flex-wrap gap-2">
               {post.tags.map((tag: string) => (
-                <span
+                <Link
                   key={tag}
-                  className="px-4 py-1.5 bg-blue-50 text-blue-700 rounded-full text-sm font-medium hover:bg-blue-100 transition-colors dark:bg-catppuccin-surface0 dark:text-catppuccin-blue dark:hover:bg-catppuccin-surface1"
+                  href={`/?tag=${tag}`}
+                  className="tag hover:bg-[var(--accent)] hover:text-white hover:border-[var(--accent)] transition-all"
                 >
                   {tag}
-                </span>
+                </Link>
               ))}
             </div>
-          </div>
+          </header>
 
-          {/* 内容区域：文章始终在中间显示，大纲独立在右侧 */}
+          {/* 内容区域 */}
           <div className="relative">
-            {/* 主内容区：居中显示，最佳阅读宽度 */}
-            <article className="max-w-3xl mx-auto w-full">
-              <div className="bg-white dark:bg-catppuccin-base rounded-lg">
+            <article className="prose prose-lg max-w-none">
+              <div className="text-[var(--text-primary)]">
                 <MarkdownRenderer content={post.content} />
               </div>
             </article>
 
-            {/* 右侧大纲：脱离阅读板块，悬浮在外侧 */}
-            <aside className="hidden lg:block absolute inset-y-0 right-0 w-64 xl:w-72">
+            {/* 右侧大纲 - 桌面端显示 */}
+            <aside className="hidden xl:block fixed top-24 right-8 w-64">
               <ArticleOutline content={post.content} />
             </aside>
           </div>
+
+          {/* 文章底部 */}
+          <footer className="mt-16 pt-8 border-t border-[var(--border)]">
+            <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+              <div className="text-sm text-[var(--text-muted)]">
+                感谢阅读
+              </div>
+              
+              <Link 
+                href="/" 
+                className="btn btn-secondary btn-sm"
+              >
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="mr-2" aria-label="文章列表">
+                  <title>文章列表</title>
+                  <line x1="8" y1="6" x2="21" y2="6"/>
+                  <line x1="8" y1="12" x2="21" y2="12"/>
+                  <line x1="8" y1="18" x2="21" y2="18"/>
+                  <line x1="3" y1="6" x2="3.01" y2="6"/>
+                  <line x1="3" y1="12" x2="3.01" y2="12"/>
+                  <line x1="3" y1="18" x2="3.01" y2="18"/>
+                </svg>
+                浏览更多文章
+              </Link>
+            </div>
+          </footer>
         </div>
       </div>
     );
   } catch (error) {
     return (
-      <div className="max-w-6xl mx-auto px-4 py-8">
-        <h1 className="text-2xl font-bold mb-4">文章加载失败</h1>
-        <p className="text-gray-600 dark:text-catppuccin-subtext0">
-          无法加载指定的文章，请检查文章ID是否正确，或稍后再试。
-        </p>
+      <div className="min-h-screen bg-[var(--background)]">
+        <div className="container container-narrow py-20 text-center">
+          <div className="w-16 h-16 mx-auto mb-6 rounded-full bg-[var(--surface)] flex items-center justify-center">
+            <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" className="text-[var(--text-muted)]" aria-label="错误">
+              <title>错误</title>
+              <circle cx="12" cy="12" r="10"/>
+              <line x1="12" y1="8" x2="12" y2="12"/>
+              <line x1="12" y1="16" x2="12.01" y2="16"/>
+            </svg>
+          </div>
+          <h1 className="text-2xl font-bold text-[var(--text-primary)] mb-4">文章加载失败</h1>
+          <p className="text-[var(--text-secondary)] mb-8">
+            无法加载指定的文章，请检查文章ID是否正确，或稍后再试。
+          </p>
+          <Link href="/" className="btn btn-primary">
+            返回首页
+          </Link>
+        </div>
       </div>
     );
   }
