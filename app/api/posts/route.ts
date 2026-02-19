@@ -1,6 +1,7 @@
 import { type NextRequest, NextResponse } from "next/server";
 import { postStore } from "../data";
 import { isAuthenticated, getAuthDebugInfo } from "@/lib/auth";
+import type { Post } from "@/types";
 
 // 获取所有文章，支持分页、标签筛选和关键词搜索
 export async function GET(request: NextRequest) {
@@ -25,13 +26,13 @@ export async function GET(request: NextRequest) {
     
     // 标签筛选
     if (tag) {
-      filteredPosts = filteredPosts.filter(post => post.tags.includes(tag));
+      filteredPosts = filteredPosts.filter((post: Post) => post.tags.includes(tag));
     }
     
     // 关键词搜索
     if (search) {
       const searchLower = search.toLowerCase();
-      filteredPosts = filteredPosts.filter(post => 
+      filteredPosts = filteredPosts.filter((post: Post) => 
         post.title.toLowerCase().includes(searchLower) || 
         post.content.toLowerCase().includes(searchLower)
       );

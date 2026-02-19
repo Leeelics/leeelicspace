@@ -73,36 +73,31 @@ function ArticleOutline({ content }: { content: string }) {
   }
 
   return (
-    <div className="bg-[var(--surface)] rounded-xl p-5 border border-[var(--border)]">
-      <div className="flex items-center gap-2 mb-4 pb-3 border-b border-[var(--border)]">
-        <svg className="w-5 h-5 text-[var(--accent)]" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-label="目录">
-          <title>目录</title>
-          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h7" />
-        </svg>
-        <h3 className="text-sm font-semibold text-[var(--text-primary)]">
-          目录
-        </h3>
-      </div>
+    <div className="py-2">
+      <h3 className="text-[11px] font-bold text-[var(--text-muted)] uppercase tracking-[0.15em] mb-6">
+        目录
+      </h3>
       
-      <nav className="text-sm">
-        <ul className="space-y-1">
+      <nav className="text-[15px] leading-relaxed">
+        <ul className="space-y-3">
           {headings.map((heading) => {
             const isActive = activeHeading === heading.id;
-            const paddingLeft = (heading.level - 1) * 12;
+            // 层级缩进：每级 20px
+            const paddingLeft = (heading.level - 1) * 20;
 
             return (
               <li key={heading.id} style={{ paddingLeft: `${paddingLeft}px` }}>
                 <a
                   href={`#${heading.id}`}
                   onClick={(e) => scrollToHeading(e, heading.id)}
-                  className={`block py-1.5 px-2 rounded-md transition-all duration-200 text-sm ${
+                  className={`block transition-colors duration-200 ${
                     isActive
-                      ? 'bg-[var(--accent-light)] text-[var(--accent)] font-medium'
-                      : 'text-[var(--text-tertiary)] hover:text-[var(--text-primary)] hover:bg-[var(--surface-hover)]'
+                      ? 'text-[var(--accent)] font-medium'
+                      : 'text-[var(--text-tertiary)] hover:text-[var(--text-primary)]'
                   }`}
                   title={heading.text}
                 >
-                  <span className="line-clamp-2">{heading.text}</span>
+                  {heading.text}
                 </a>
               </li>
             );
@@ -110,21 +105,6 @@ function ArticleOutline({ content }: { content: string }) {
         </ul>
       </nav>
 
-      {/* 返回顶部按钮 */}
-      {activeHeading && (
-        <button
-          type="button"
-          onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
-          className="mt-4 w-full flex items-center justify-center gap-2 px-4 py-2 bg-[var(--surface-elevated)] text-[var(--text-secondary)] rounded-lg border border-[var(--border)] hover:bg-[var(--surface-hover)] hover:text-[var(--text-primary)] transition-colors text-sm"
-          title="返回顶部"
-        >
-          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-label="返回顶部">
-            <title>返回顶部</title>
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 10l7-7m0 0l7 7m-7-7v18" />
-          </svg>
-          <span>返回顶部</span>
-        </button>
-      )}
     </div>
   );
 }

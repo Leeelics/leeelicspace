@@ -6,6 +6,9 @@ export default {
   ],
   theme: {
     extend: {
+      gridTemplateColumns: {
+        '16': 'repeat(16, minmax(0, 1fr))',
+      },
       colors: {
         // Catppuccin Macchiatto theme colors
         'catppuccin-rosewater': '#f5e0dc',

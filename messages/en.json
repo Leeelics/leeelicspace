@@ -1,0 +1,76 @@
+{
+  "metadata": {
+    "title": "leelicspace",
+    "description": "Lee's Digital Space - Recording thoughts on technology, design, and life"
+  },
+  "nav": {
+    "home": "Home",
+    "projects": "Projects",
+    "about": "About",
+    "admin": "Admin",
+    "searchPlaceholder": "Search articles...",
+    "menu": "Menu",
+    "rss": "RSS"
+  },
+  "hero": {
+    "subtitle": "Lee's Digital Space",
+    "description": "Recording thoughts on technology, design, and life",
+    "github": "GitHub",
+    "viewProjects": "View Projects"
+  },
+  "article": {
+    "readMore": "Read more",
+    "read": "Read",
+    "tableOfContents": "Contents",
+    "backToTop": "Back to top",
+    "backToHome": "Back to home",
+    "browseMore": "Browse more articles",
+    "created": "Created",
+    "updated": "Updated",
+    "thanks": "Thanks for reading",
+    "loadError": "Failed to load article",
+    "loadErrorDesc": "Unable to load the specified article. Please check the article ID or try again later.",
+    "backToHomeBtn": "Back to Home"
+  },
+  "tags": {
+    "all": "All",
+    "tag": "Tag",
+    "searchResults": "Search results",
+    "articlesCount": "{count} articles in total"
+  },
+  "pagination": {
+    "previous": "← Previous",
+    "next": "Next →",
+    "page": "Page"
+  },
+  "empty": {
+    "noArticles": "No articles yet",
+    "noSearchResults": "No articles found",
+    "viewAll": "View all articles"
+  },
+  "footer": {
+    "copyright": "© {year} leelicspace. Built with Next.js & Tailwind CSS.",
+    "rss": "RSS",
+    "github": "GitHub"
+  },
+  "language": {
+    "switchTo": "Switch to",
+    "zh": "中文",
+    "en": "English"
+  },
+  "about": {
+    "title": "About",
+    "hi": "Hi, I'm Lee",
+    "welcome": "Welcome to leelicspace - my digital corner on the internet.",
+    "intro1": "I'm a developer passionate about AI, web technologies, and building useful tools. This space is where I share my thoughts, projects, and learning journey.",
+    "intro2": "The name 'leelicspace' comes from combining my name 'Lee' with 'elics' (my name spelled backwards) and 'space', representing my digital corner on the internet.",
+    "email": "Email",
+    "techStack": "Tech Stack",
+    "featuredProjects": "Featured Projects",
+    "projects": {
+      "AlignJuice": "High-quality alignment data management framework - transforming coarse-filtered data into high-quality LLM alignment data",
+      "speaksense": "AI-powered speech analysis tool to improve presentation skills",
+      "Eval-Explorer-": "Building 'knowledge infrastructure' for LLM evaluation field, solving researchers' core pain points of not knowing what standards to use, where to find datasets, and how to compare horizontally"
+    }
+  }
+}
