@@ -1,5 +1,4 @@
 // 服务器组件
-import React from 'react';
 import { fetchPost } from '@/services/api';
 
 // 客户端组件 - 分离到单独的文件
@@ -16,33 +15,49 @@ export default async function PostDetail({ params }: { params: Promise<{ postId:
       throw new Error('未找到文章');
     }
     return (
-      <div className="max-w-6xl mx-auto px-4 py-8">
-        <div className="mb-8">
-          <h1 className="text-3xl font-bold mb-4 text-gray-900 dark:text-catppuccin-text">{post.title}</h1>
-          <div className="text-sm text-gray-500 mb-6 dark:text-catppuccin-overlay0">
-            创建于: {new Date(post.created_at).toLocaleString()}
-            {post.updated_at !== post.created_at && (
-              <span className="ml-2">更新于: {new Date(post.updated_at).toLocaleString()}</span>
-            )}
+      <div className="min-h-screen bg-white dark:bg-catppuccin-base">
+        {/* 容器：使用更宽的最大宽度以容纳内容+大纲 */}
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+          {/* 文章头部：居中显示 */}
+          <div className="max-w-3xl mx-auto mb-12">
+            <h1 className="text-4xl sm:text-5xl font-bold mb-6 text-gray-900 dark:text-catppuccin-text leading-tight">
+              {post.title}
+            </h1>
+            <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-4 text-sm text-gray-500 dark:text-catppuccin-overlay0 mb-6">
+              <span>创建于: {new Date(post.created_at).toLocaleDateString('zh-CN', { year: 'numeric', month: 'long', day: 'numeric' })}</span>
+              {post.updated_at !== post.created_at && (
+                <>
+                  <span className="hidden sm:inline">•</span>
+                  <span>更新于: {new Date(post.updated_at).toLocaleDateString('zh-CN', { year: 'numeric', month: 'long', day: 'numeric' })}</span>
+                </>
+              )}
+            </div>
+            {/* 标签 */}
+            <div className="flex flex-wrap gap-2">
+              {post.tags.map((tag: string) => (
+                <span
+                  key={tag}
+                  className="px-4 py-1.5 bg-blue-50 text-blue-700 rounded-full text-sm font-medium hover:bg-blue-100 transition-colors dark:bg-catppuccin-surface0 dark:text-catppuccin-blue dark:hover:bg-catppuccin-surface1"
+                >
+                  {tag}
+                </span>
+              ))}
+            </div>
           </div>
-          {/* 标签 */}
-          <div className="flex flex-wrap gap-2 mb-8">
-            {post.tags.map((tag: string) => (
-              <span key={tag} className="px-3 py-1 bg-gray-100 text-gray-700 rounded-full text-sm dark:bg-catppuccin-surface0 dark:text-catppuccin-subtext0">
-                {tag}
-              </span>
-            ))}
-          </div>
-        </div>
-        {/* 文章内容和大纲 - 按用户要求的布局 */}
-        <div className="flex flex-col lg:flex-row gap-8">
-          {/* 左侧：文章内容（区域1） */}
-          <div className="w-full lg:w-3/4">
-            <MarkdownRenderer content={post.content} />
-          </div>
-          {/* 右侧：文章大纲（区域2） */}
-          <div className="w-full lg:w-1/4">
-            <ArticleOutline content={post.content} />
+
+          {/* 内容区域：文章居中 + 大纲固定右侧 */}
+          <div className="relative flex flex-col lg:flex-row gap-8 lg:gap-12">
+            {/* 主内容区：居中显示，最佳阅读宽度 */}
+            <article className="flex-1 max-w-3xl mx-auto lg:mx-0 w-full">
+              <div className="bg-white dark:bg-catppuccin-base rounded-lg">
+                <MarkdownRenderer content={post.content} />
+              </div>
+            </article>
+
+            {/* 右侧大纲：固定位置 */}
+            <aside className="w-full lg:w-64 xl:w-72 flex-shrink-0">
+              <ArticleOutline content={post.content} />
+            </aside>
           </div>
         </div>
       </div>

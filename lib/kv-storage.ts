@@ -160,7 +160,9 @@ export class KVStorage {
         const allPosts = await this.getAllPosts();
         const allTags = new Set<string>();
         for (const post of allPosts) {
-          post.tags.forEach(tag => allTags.add(tag));
+          for (const tag of post.tags) {
+            allTags.add(tag);
+          }
         }
         await kv.del(TAGS_KEY);
         if (allTags.size > 0) {
@@ -196,7 +198,9 @@ export class KVStorage {
       const allPosts = await this.getAllPosts();
       const allTags = new Set<string>();
       for (const post of allPosts) {
-        post.tags.forEach(tag => allTags.add(tag));
+        for (const tag of post.tags) {
+          allTags.add(tag);
+        }
       }
       await kv.del(TAGS_KEY);
       if (allTags.size > 0) {

@@ -103,7 +103,7 @@ export default async function Home({ searchParams }: PageProps<"/">) {
 
     console.log('[PAGE] Parsing JSON responses');
     const postsResponseData = await postsResponse.json();
-    const tags = await tagsResponse.json();
+    tags = await tagsResponse.json();
     
     console.log('[PAGE] Parsed data:', {
       postsCount: postsResponseData.posts?.length,
