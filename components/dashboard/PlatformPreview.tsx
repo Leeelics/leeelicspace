@@ -1,21 +1,10 @@
 'use client';
 
-import React, { useState } from 'react';
-import { 
-  Monitor, 
-  BookOpen, 
-  MessageSquare, 
-  Twitter,
-  FileText,
-  Zap,
-} from 'lucide-react';
+import React, { useState, useMemo, Suspense } from 'react';
+import { BookOpen, MessageSquare, Twitter, FileText, Zap } from 'lucide-react';
 import type { Platform } from '@/types';
 import { platforms } from '@/types';
-import BlogPreview from './previews/BlogPreview';
-import XiaohongshuPreview from './previews/XiaohongshuPreview';
-import WechatPreview from './previews/WechatPreview';
-import XPreview from './previews/XPreview';
-import JikePreview from './previews/JikePreview';
+import dynamic from 'next/dynamic';
 
 interface PlatformPreviewProps {
   title: string;
@@ -23,6 +12,7 @@ interface PlatformPreviewProps {
   tags: string[];
 }
 
+// 静态导入小图标（lucide-react 支持 tree-shaking）
 const platformIcons: Record<Platform, React.ElementType> = {
   blog: BookOpen,
   xiaohongshu: MessageSquare,
@@ -31,10 +21,41 @@ const platformIcons: Record<Platform, React.ElementType> = {
   jike: Zap,
 };
 
+// 动态导入预览组件，减少初始加载
+const BlogPreview = dynamic(() => import('./previews/BlogPreview'), {
+  loading: () => <PreviewLoading />,
+});
+
+const XiaohongshuPreview = dynamic(() => import('./previews/XiaohongshuPreview'), {
+  loading: () => <PreviewLoading />,
+});
+
+const WechatPreview = dynamic(() => import('./previews/WechatPreview'), {
+  loading: () => <PreviewLoading />,
+});
+
+const XPreview = dynamic(() => import('./previews/XPreview'), {
+  loading: () => <PreviewLoading />,
+});
+
+const JikePreview = dynamic(() => import('./previews/JikePreview'), {
+  loading: () => <PreviewLoading />,
+});
+
+// 加载占位组件
+function PreviewLoading() {
+  return (
+    <div className="h-full flex items-center justify-center">
+      <div className="animate-pulse text-[var(--text-muted)]">加载预览...</div>
+    </div>
+  );
+}
+
 export default function PlatformPreview({ title, content, tags }: PlatformPreviewProps) {
   const [activePlatform, setActivePlatform] = useState<Platform>('blog');
 
-  const renderPreview = () => {
+  // 使用 useMemo 缓存渲染内容
+  const previewContent = useMemo(() => {
     switch (activePlatform) {
       case 'blog':
         return <BlogPreview title={title} content={content} tags={tags} />;
@@ -49,7 +70,7 @@ export default function PlatformPreview({ title, content, tags }: PlatformPrevie
       default:
         return <BlogPreview title={title} content={content} tags={tags} />;
     }
-  };
+  }, [activePlatform, title, content, tags]);
 
   return (
     <div className="h-full flex flex-col">
@@ -61,7 +82,7 @@ export default function PlatformPreview({ title, content, tags }: PlatformPrevie
             <button
               key={platform.id}
               onClick={() => setActivePlatform(platform.id)}
-              className={`flex items-center gap-2 px-3 py-1.5 text-sm rounded-md transition-colors ${
+              className={`flex items-center gap-2 px-3 py-1.5 text-sm rounded-md transition-colors focus-ring ${
                 activePlatform === platform.id
                   ? 'bg-[var(--accent)]/10 text-[var(--accent)] font-medium'
                   : 'text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--surface-hover)]'
@@ -74,9 +95,11 @@ export default function PlatformPreview({ title, content, tags }: PlatformPrevie
         })}
       </div>
 
-      {/* Preview Area */}
+      {/* Preview Area - 使用动态组件 */}
       <div className="flex-1 overflow-auto bg-[var(--background)]">
-        {renderPreview()}
+        <Suspense fallback={<PreviewLoading />}>
+          {previewContent}
+        </Suspense>
       </div>
 
       {/* Platform Info */}

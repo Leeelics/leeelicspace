@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState, useCallback } from 'react';
+import { useEffect, useState } from 'react';
 
 type Theme = 'light' | 'dark';
 
@@ -8,17 +8,7 @@ const ThemeProvider: React.FC<{ children: React.ReactNode }> = ({ children }) =>
   const [theme, setTheme] = useState<Theme>('light');
   const [mounted, setMounted] = useState(false);
 
-  const applyTheme = useCallback((newTheme: Theme) => {
-    const html = document.documentElement;
-    
-    // Remove all theme classes
-    html.classList.remove('light', 'dark');
-    
-    // Add current theme class
-    html.classList.add(newTheme);
-  }, []);
-
-  // Initialize theme
+  // 初始化主题
   useEffect(() => {
     setMounted(true);
     
@@ -28,35 +18,44 @@ const ThemeProvider: React.FC<{ children: React.ReactNode }> = ({ children }) =>
     const initialTheme = savedTheme || (systemPrefersDark ? 'dark' : 'light');
     
     setTheme(initialTheme);
-    applyTheme(initialTheme);
-  }, [applyTheme]);
+    
+    // 直接应用主题，避免额外的 useCallback 开销
+    const html = document.documentElement;
+    html.classList.remove('light', 'dark');
+    html.classList.add(initialTheme);
+  }, []);
 
-  // Listen to system theme changes
+  // 监听系统主题变化
   useEffect(() => {
     const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
     
     const handleChange = (e: MediaQueryListEvent) => {
-      // Only auto-switch if user hasn't manually set a preference
+      // 仅在用户未手动设置偏好时自动切换
       if (!localStorage.getItem('theme')) {
         const newTheme = e.matches ? 'dark' : 'light';
         setTheme(newTheme);
-        applyTheme(newTheme);
+        
+        const html = document.documentElement;
+        html.classList.remove('light', 'dark');
+        html.classList.add(newTheme);
       }
     };
 
     mediaQuery.addEventListener('change', handleChange);
     return () => mediaQuery.removeEventListener('change', handleChange);
-  }, [applyTheme]);
+  }, []);
 
-  // Apply theme when it changes
+  // 应用主题变化
   useEffect(() => {
     if (mounted) {
-      applyTheme(theme);
+      const html = document.documentElement;
+      html.classList.remove('light', 'dark');
+      html.classList.add(theme);
       localStorage.setItem('theme', theme);
     }
-  }, [theme, mounted, applyTheme]);
+  }, [theme, mounted]);
 
-  // Prevent hydration mismatch
+  // 防止 hydration 不匹配
   if (!mounted) {
     return (
       <div style={{ visibility: 'hidden' }}>

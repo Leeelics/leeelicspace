@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useMemo, useCallback } from 'react';
 import { useRouter, useParams } from 'next/navigation';
 import { 
   Save, 
@@ -13,6 +13,19 @@ import type { Post } from '@/types';
 import Editor from '@/components/dashboard/Editor';
 import PlatformPreview from '@/components/dashboard/PlatformPreview';
 import PublishModal from '@/components/dashboard/PublishModal';
+
+// 优化的标签解析函数 - 单次遍历
+const parseTags = (tagsString: string): string[] => {
+  const tags: string[] = [];
+  const parts = tagsString.split(',');
+  for (let i = 0; i < parts.length; i++) {
+    const trimmed = parts[i].trim();
+    if (trimmed) {
+      tags.push(trimmed);
+    }
+  }
+  return tags;
+};
 
 export default function EditPostPage() {
   const router = useRouter();
@@ -28,11 +41,11 @@ export default function EditPostPage() {
   const [saveStatus, setSaveStatus] = useState<'idle' | 'saving' | 'saved'>('idle');
   const [showPublishModal, setShowPublishModal] = useState(false);
 
-  useEffect(() => {
-    fetchPost();
-  }, [postId]);
+  // 使用 useMemo 缓存解析后的标签数组
+  const parsedTags = useMemo(() => parseTags(tags), [tags]);
 
-  const fetchPost = async () => {
+  // 使用 useCallback 稳定 fetchPost 函数
+  const fetchPost = useCallback(async () => {
     try {
       const response = await fetch(`/api/posts/${postId}`);
       if (!response.ok) throw new Error('Post not found');
@@ -47,9 +60,21 @@ export default function EditPostPage() {
     } finally {
       setLoading(false);
     }
-  };
+  }, [postId, locale, router]);
 
-  const handleSave = async () => {
+  useEffect(() => {
+    fetchPost();
+  }, [fetchPost]);
+
+  // 使用 useMemo 缓存 postData
+  const postData = useMemo(() => ({
+    title: title.trim(),
+    content,
+    tags: parsedTags,
+  }), [title, content, parsedTags]);
+
+  // 使用 useCallback 稳定保存函数
+  const handleSave = useCallback(async () => {
     if (!title.trim()) {
       alert('请输入标题');
       return;
@@ -62,11 +87,7 @@ export default function EditPostPage() {
       const response = await fetch(`/api/posts/${postId}`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          title: title.trim(),
-          content,
-          tags: tags.split(',').map(t => t.trim()).filter(Boolean),
-        }),
+        body: JSON.stringify(postData),
       });
 
       if (response.ok) {
@@ -81,7 +102,32 @@ export default function EditPostPage() {
     } finally {
       setSaving(false);
     }
-  };
+  }, [postData, postId, title]);
+
+  // 使用 useCallback 稳定其他事件处理器
+  const handleBack = useCallback(() => {
+    router.push(`/${locale}/dashboard/posts`);
+  }, [router, locale]);
+
+  const handleTitleChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
+    setTitle(e.target.value);
+  }, []);
+
+  const handleTagsChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
+    setTags(e.target.value);
+  }, []);
+
+  const handleContentChange = useCallback((value: string) => {
+    setContent(value);
+  }, []);
+
+  const handleShowPublishModal = useCallback(() => {
+    setShowPublishModal(true);
+  }, []);
+
+  const handleClosePublishModal = useCallback(() => {
+    setShowPublishModal(false);
+  }, []);
 
   if (loading) {
     return (
@@ -97,15 +143,15 @@ export default function EditPostPage() {
       <header className="h-16 border-b border-[var(--border)] bg-[var(--surface)] flex items-center justify-between px-6">
         <div className="flex items-center gap-4">
           <button
-            onClick={() => router.push(`/${locale}/dashboard/posts`)}
-            className="p-2 hover:bg-[var(--surface-hover)] rounded-lg text-[var(--text-secondary)]"
+            onClick={handleBack}
+            className="p-2 hover:bg-[var(--surface-hover)] rounded-lg text-[var(--text-secondary)] focus-ring"
           >
             <ArrowLeft size={20} />
           </button>
           <input
             type="text"
             value={title}
-            onChange={(e) => setTitle(e.target.value)}
+            onChange={handleTitleChange}
             placeholder="输入文章标题..."
             className="text-xl font-semibold bg-transparent border-none outline-none text-[var(--text-primary)] placeholder:text-[var(--text-muted)] w-96"
           />
@@ -133,7 +179,7 @@ export default function EditPostPage() {
             保存
           </button>
           <button
-            onClick={() => setShowPublishModal(true)}
+            onClick={handleShowPublishModal}
             className="flex items-center gap-2 px-4 py-2 text-sm bg-[var(--accent)] text-white rounded-lg hover:bg-[var(--accent-hover)] transition-colors focus-ring"
           >
             <Send size={16} />
@@ -150,13 +196,13 @@ export default function EditPostPage() {
             <input
               type="text"
               value={tags}
-              onChange={(e) => setTags(e.target.value)}
+              onChange={handleTagsChange}
               placeholder="标签，用逗号分隔..."
               className="w-full text-sm bg-transparent border-none outline-none text-[var(--text-secondary)] placeholder:text-[var(--text-muted)]"
             />
           </div>
           <div className="flex-1 overflow-hidden">
-            <Editor value={content} onChange={setContent} />
+            <Editor value={content} onChange={handleContentChange} />
           </div>
         </div>
 
@@ -165,7 +211,7 @@ export default function EditPostPage() {
           <PlatformPreview
             title={title}
             content={content}
-            tags={tags.split(',').map(t => t.trim()).filter(Boolean)}
+            tags={parsedTags}
           />
         </div>
       </div>
@@ -175,7 +221,7 @@ export default function EditPostPage() {
           postId={postId}
           title={title}
           content={content}
-          onClose={() => setShowPublishModal(false)}
+          onClose={handleClosePublishModal}
         />
       )}
     </div>

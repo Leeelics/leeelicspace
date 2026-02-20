@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useCallback } from 'react';
 import { Copy, Check } from 'lucide-react';
 import DOMPurify from 'dompurify';
 
@@ -9,7 +9,7 @@ interface WechatPreviewProps {
   content: string;
 }
 
-// Allowed HTML tags and attributes for WeChat
+// Allowed HTML tags and attributes for WeChat - 模块级常量
 const WECHAT_ALLOWED_TAGS = [
   'p', 'br', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6',
   'strong', 'em', 'b', 'i', 'u', 'strike', 'del',
@@ -21,89 +21,129 @@ const WECHAT_ALLOWED_ATTR = [
   'style', 'href', 'src', 'alt', 'title', 'class'
 ];
 
+// 模块级正则表达式，避免每次渲染重新创建
+const REGEX_PATTERNS = {
+  // HTML 转义
+  htmlEntities: {
+    amp: /&/g,
+    lt: /</g,
+    gt: />/g,
+  },
+  // 标题
+  headersHtml: {
+    h1: /^&lt;h1&gt;(.+?)&lt;\/h1&gt;$/gm,
+    h2: /^&lt;h2&gt;(.+?)&lt;\/h2&gt;$/gm,
+    h3: /^&lt;h3&gt;(.+?)&lt;\/h3&gt;$/gm,
+  },
+  headersMarkdown: {
+    h1: /^# (.+)$/gm,
+    h2: /^## (.+)$/gm,
+    h3: /^### (.+)$/gm,
+  },
+  // 格式
+  bold: /\*\*(.+?)\*\*/g,
+  italic: /\*(.+?)\*/g,
+  listItem: /^- (.+)$/gm,
+  listWrapper: /(<li[^>]*>.+<\/li>\n?)+/g,
+  quote: /^&gt; (.+)$/gm,
+  codeBlock: /```([\s\S]+?)```/g,
+  inlineCode: /`(.+?)`/g,
+  paragraph: /\n\n/g,
+  lineBreak: /\n/g,
+};
+
+// 标题样式模板
+const HEADER_STYLES = {
+  h1: '<h1 style="font-size: 20px; font-weight: bold; margin: 20px 0;">$1</h1>',
+  h2: '<h2 style="font-size: 18px; font-weight: bold; margin: 16px 0;">$1</h2>',
+  h3: '<h3 style="font-size: 16px; font-weight: bold; margin: 14px 0;">$1</h3>',
+};
+
+// Markdown to HTML 转换函数 - 移到模块级，避免每次渲染重新创建
+const convertToWechatHtml = (markdown: string): string => {
+  // HTML 实体转义
+  let html = markdown
+    .replace(REGEX_PATTERNS.htmlEntities.amp, '&amp;')
+    .replace(REGEX_PATTERNS.htmlEntities.lt, '&lt;')
+    .replace(REGEX_PATTERNS.htmlEntities.gt, '&gt;');
+
+  // 处理 HTML 标签形式的标题
+  html = html
+    .replace(REGEX_PATTERNS.headersHtml.h1, HEADER_STYLES.h1)
+    .replace(REGEX_PATTERNS.headersHtml.h2, HEADER_STYLES.h2)
+    .replace(REGEX_PATTERNS.headersHtml.h3, HEADER_STYLES.h3);
+  
+  // 处理 Markdown 形式的标题
+  html = html
+    .replace(REGEX_PATTERNS.headersMarkdown.h1, HEADER_STYLES.h1)
+    .replace(REGEX_PATTERNS.headersMarkdown.h2, HEADER_STYLES.h2)
+    .replace(REGEX_PATTERNS.headersMarkdown.h3, HEADER_STYLES.h3);
+  
+  // 粗体和斜体
+  html = html
+    .replace(REGEX_PATTERNS.bold, '<strong>$1</strong>')
+    .replace(REGEX_PATTERNS.italic, '<em>$1</em>');
+  
+  // 列表
+  html = html
+    .replace(REGEX_PATTERNS.listItem, '<li style="margin: 8px 0;">$1</li>');
+  
+  // 包裹连续的 li 元素
+  html = html.replace(REGEX_PATTERNS.listWrapper, '<ul style="margin: 16px 0; padding-left: 20px;">$&</ul>');
+  
+  // 引用
+  html = html.replace(REGEX_PATTERNS.quote, '<blockquote style="border-left: 4px solid #07c160; padding-left: 16px; margin: 16px 0; color: #666;">$1</blockquote>');
+  
+  // 代码块
+  html = html.replace(REGEX_PATTERNS.codeBlock, '<pre style="background: #f6f6f6; padding: 12px; border-radius: 4px; overflow-x: auto; margin: 16px 0;"><code>$1</code></pre>');
+  
+  // 行内代码
+  html = html.replace(REGEX_PATTERNS.inlineCode, '<code style="background: #f6f6f6; padding: 2px 6px; border-radius: 3px; font-family: monospace;">$1</code>');
+  
+  // 段落
+  html = html.replace(REGEX_PATTERNS.paragraph, '</p><p style="margin: 16px 0; line-height: 1.8;">');
+  
+  // 换行
+  html = html.replace(REGEX_PATTERNS.lineBreak, '<br>');
+
+  // 如果不是以标签开头，用 p 标签包裹
+  if (!html.startsWith('<')) {
+    html = `<p style="margin: 16px 0; line-height: 1.8;">${html}</p>`;
+  }
+
+  return html;
+};
+
+// DOMPurify 配置 - 模块级缓存
+const DOMPURIFY_CONFIG = {
+  ALLOWED_TAGS: WECHAT_ALLOWED_TAGS,
+  ALLOWED_ATTR: WECHAT_ALLOWED_ATTR,
+  ALLOW_DATA_ATTR: false,
+  SANITIZE_DOM: true,
+};
+
 export default function WechatPreview({ title, content }: WechatPreviewProps) {
   const [copied, setCopied] = useState(false);
   const [showHtml, setShowHtml] = useState(false);
 
-  // Simple markdown to HTML conversion for WeChat
-  const convertToWechatHtml = (markdown: string): string => {
-    // First, escape HTML entities to prevent injection
-    let html = markdown
-      .replace(/&/g, '&amp;')
-      .replace(/</g, '&lt;')
-      .replace(/>/g, '&gt;');
-
-    // Headers
-    html = html
-      .replace(/^&lt;h1&gt;(.+?)&lt;\/h1&gt;$/gm, '<h1 style="font-size: 20px; font-weight: bold; margin: 20px 0;">$1</h1>')
-      .replace(/^&lt;h2&gt;(.+?)&lt;\/h2&gt;$/gm, '<h2 style="font-size: 18px; font-weight: bold; margin: 16px 0;">$1</h2>')
-      .replace(/^&lt;h3&gt;(.+?)&lt;\/h3&gt;$/gm, '<h3 style="font-size: 16px; font-weight: bold; margin: 14px 0;">$1</h3>');
-    
-    // Headers from markdown # syntax
-    html = html
-      .replace(/^# (.+)$/gm, '<h1 style="font-size: 20px; font-weight: bold; margin: 20px 0;">$1</h1>')
-      .replace(/^## (.+)$/gm, '<h2 style="font-size: 18px; font-weight: bold; margin: 16px 0;">$1</h2>')
-      .replace(/^### (.+)$/gm, '<h3 style="font-size: 16px; font-weight: bold; margin: 14px 0;">$1</h3>');
-    
-    // Bold and italic
-    html = html
-      .replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>')
-      .replace(/\*(.+?)\*/g, '<em>$1</em>');
-    
-    // Lists
-    html = html
-      .replace(/^- (.+)$/gm, '<li style="margin: 8px 0;">$1</li>');
-    
-    // Wrap consecutive li elements in ul
-    html = html.replace(/(<li[^>]*>.+<\/li>\n?)+/g, '<ul style="margin: 16px 0; padding-left: 20px;">$&</ul>');
-    
-    // Quotes
-    html = html
-      .replace(/^&gt; (.+)$/gm, '<blockquote style="border-left: 4px solid #07c160; padding-left: 16px; margin: 16px 0; color: #666;">$1</blockquote>');
-    
-    // Code blocks
-    html = html
-      .replace(/```([\s\S]+?)```/g, '<pre style="background: #f6f6f6; padding: 12px; border-radius: 4px; overflow-x: auto; margin: 16px 0;"><code>$1</code></pre>');
-    
-    // Inline code
-    html = html
-      .replace(/`(.+?)`/g, '<code style="background: #f6f6f6; padding: 2px 6px; border-radius: 3px; font-family: monospace;">$1</code>');
-    
-    // Paragraphs
-    html = html
-      .replace(/\n\n/g, '</p><p style="margin: 16px 0; line-height: 1.8;">');
-    
-    // Line breaks
-    html = html
-      .replace(/\n/g, '<br>');
-
-    // Wrap with p tag if not already wrapped
-    if (!html.startsWith('<')) {
-      html = `<p style="margin: 16px 0; line-height: 1.8;">${html}</p>`;
-    }
-
-    return html;
-  };
-
-  // Sanitize HTML content using DOMPurify
+  // 使用 useMemo 缓存转换结果
   const sanitizedHtml = useMemo(() => {
     const rawHtml = convertToWechatHtml(content);
-    
-    // Use DOMPurify to sanitize HTML
-    return DOMPurify.sanitize(rawHtml, {
-      ALLOWED_TAGS: WECHAT_ALLOWED_TAGS,
-      ALLOWED_ATTR: WECHAT_ALLOWED_ATTR,
-      ALLOW_DATA_ATTR: false, // Disable data-* attributes
-      SANITIZE_DOM: true,
-    });
+    return DOMPurify.sanitize(rawHtml, DOMPURIFY_CONFIG);
   }, [content]);
 
-  const handleCopy = () => {
-    // Copy sanitized HTML to clipboard
+  // 使用 useCallback 稳定事件处理器
+  const handleCopy = useCallback(() => {
     navigator.clipboard.writeText(sanitizedHtml);
     setCopied(true);
-    setTimeout(() => setCopied(false), 2000);
-  };
+    // 使用 requestAnimationFrame 优化 setState
+    requestAnimationFrame(() => {
+      setTimeout(() => setCopied(false), 2000);
+    });
+  }, [sanitizedHtml]);
+
+  const handleShowPreview = useCallback(() => setShowHtml(false), []);
+  const handleShowHtml = useCallback(() => setShowHtml(true), []);
 
   return (
     <div className="p-8">
@@ -111,16 +151,16 @@ export default function WechatPreview({ title, content }: WechatPreviewProps) {
       <div className="flex items-center justify-between mb-6">
         <div className="flex items-center gap-2">
           <button
-            onClick={() => setShowHtml(false)}
-            className={`px-3 py-1.5 text-sm rounded-lg transition-colors ${
+            onClick={handleShowPreview}
+            className={`px-3 py-1.5 text-sm rounded-lg transition-colors focus-ring ${
               !showHtml ? 'bg-[#07c160] text-white' : 'bg-[var(--surface)] text-[var(--text-secondary)]'
             }`}
           >
             预览
           </button>
           <button
-            onClick={() => setShowHtml(true)}
-            className={`px-3 py-1.5 text-sm rounded-lg transition-colors ${
+            onClick={handleShowHtml}
+            className={`px-3 py-1.5 text-sm rounded-lg transition-colors focus-ring ${
               showHtml ? 'bg-[#07c160] text-white' : 'bg-[var(--surface)] text-[var(--text-secondary)]'
             }`}
           >
@@ -129,7 +169,7 @@ export default function WechatPreview({ title, content }: WechatPreviewProps) {
         </div>
         <button
           onClick={handleCopy}
-          className="flex items-center gap-1.5 px-3 py-1.5 text-sm bg-[var(--surface)] hover:bg-[var(--surface-hover)] rounded-lg transition-colors"
+          className="flex items-center gap-1.5 px-3 py-1.5 text-sm bg-[var(--surface)] hover:bg-[var(--surface-hover)] rounded-lg transition-colors focus-ring"
         >
           {copied ? <Check size={14} /> : <Copy size={14} />}
           {copied ? '已复制' : '复制 HTML'}
@@ -163,7 +203,7 @@ export default function WechatPreview({ title, content }: WechatPreviewProps) {
             </div>
           </div>
 
-          {/* Content - now sanitized */}
+          {/* Content */}
           <div 
             className="p-4 text-gray-800"
             style={{ fontSize: '16px', lineHeight: '1.8' }}

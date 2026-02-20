@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo, useCallback } from 'react';
 import { useRouter, useParams } from 'next/navigation';
 import { 
   Save, 
@@ -13,6 +13,23 @@ import { defaultChannelConfig, defaultPublishStatus } from '@/types';
 import Editor from '@/components/dashboard/Editor';
 import PlatformPreview from '@/components/dashboard/PlatformPreview';
 import PublishModal from '@/components/dashboard/PublishModal';
+
+// 模块级常量，避免每次渲染重新创建
+const DEFAULT_PUBLISH_STATUS = { ...defaultPublishStatus };
+const DEFAULT_CHANNEL_CONFIG = { ...defaultChannelConfig };
+
+// 优化的标签解析函数 - 单次遍历
+const parseTags = (tagsString: string): string[] => {
+  const tags: string[] = [];
+  const parts = tagsString.split(',');
+  for (let i = 0; i < parts.length; i++) {
+    const trimmed = parts[i].trim();
+    if (trimmed) {
+      tags.push(trimmed);
+    }
+  }
+  return tags;
+};
 
 export default function WritePage() {
   const router = useRouter();
@@ -28,34 +45,33 @@ export default function WritePage() {
   const [showPublishModal, setShowPublishModal] = useState(false);
   const [postId, setPostId] = useState<string | null>(null);
 
-  // Auto-save draft
-  useEffect(() => {
-    const timer = setTimeout(() => {
-      if (title || content) {
-        handleAutoSave();
-      }
-    }, 30000);
+  // 使用 useMemo 缓存解析后的标签数组
+  const parsedTags = useMemo(() => parseTags(tags), [tags]);
 
-    return () => clearTimeout(timer);
-  }, [title, content, tags]);
+  // 使用 useMemo 缓存 postData 对象，避免每次渲染重新创建
+  const postData = useMemo(() => ({
+    title: title.trim(),
+    content,
+    tags: parsedTags,
+    publishStatus: DEFAULT_PUBLISH_STATUS,
+    channelConfig: DEFAULT_CHANNEL_CONFIG,
+  }), [title, content, parsedTags]);
 
-  const handleAutoSave = async () => {
+  // 使用 useCallback 稳定事件处理器
+  const handleAutoSave = useCallback(async () => {
     if (!title.trim() || saveStatus === 'saving') return;
     
     setSaveStatus('saving');
     try {
-      const postData = {
+      const autoSaveData = {
+        ...postData,
         title: title.trim() || '未命名草稿',
-        content,
-        tags: tags.split(',').map(t => t.trim()).filter(Boolean),
-        publishStatus: defaultPublishStatus,
-        channelConfig: defaultChannelConfig,
       };
 
       const response = await fetch('/api/posts', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(postData),
+        body: JSON.stringify(autoSaveData),
       });
 
       if (response.ok) {
@@ -67,9 +83,20 @@ export default function WritePage() {
     } catch {
       setSaveStatus('idle');
     }
-  };
+  }, [postData, title, saveStatus]);
 
-  const handleSave = async () => {
+  // Auto-save draft
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      if (title || content) {
+        handleAutoSave();
+      }
+    }, 30000);
+
+    return () => clearTimeout(timer);
+  }, [title, content, handleAutoSave]);
+
+  const handleSave = useCallback(async () => {
     if (!title.trim()) {
       alert('请输入标题');
       return;
@@ -77,14 +104,6 @@ export default function WritePage() {
 
     setSaving(true);
     try {
-      const postData = {
-        title: title.trim(),
-        content,
-        tags: tags.split(',').map(t => t.trim()).filter(Boolean),
-        publishStatus: defaultPublishStatus,
-        channelConfig: defaultChannelConfig,
-      };
-
       const response = await fetch('/api/posts', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -104,7 +123,24 @@ export default function WritePage() {
     } finally {
       setSaving(false);
     }
-  };
+  }, [postData, title]);
+
+  // 使用 useCallback 稳定 onChange 处理器
+  const handleTitleChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
+    setTitle(e.target.value);
+  }, []);
+
+  const handleTagsChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
+    setTags(e.target.value);
+  }, []);
+
+  const handleContentChange = useCallback((value: string) => {
+    setContent(value);
+  }, []);
+
+  const handleClosePublishModal = useCallback(() => {
+    setShowPublishModal(false);
+  }, []);
 
   return (
     <div className="h-screen flex flex-col">
@@ -114,7 +150,7 @@ export default function WritePage() {
           <input
             type="text"
             value={title}
-            onChange={(e) => setTitle(e.target.value)}
+            onChange={handleTitleChange}
             placeholder="输入文章标题..."
             className="text-xl font-semibold bg-transparent border-none outline-none text-[var(--text-primary)] placeholder:text-[var(--text-muted)] w-96"
           />
@@ -164,13 +200,13 @@ export default function WritePage() {
             <input
               type="text"
               value={tags}
-              onChange={(e) => setTags(e.target.value)}
+              onChange={handleTagsChange}
               placeholder="标签，用逗号分隔..."
               className="w-full text-sm bg-transparent border-none outline-none text-[var(--text-secondary)] placeholder:text-[var(--text-muted)]"
             />
           </div>
           <div className="flex-1 overflow-hidden">
-            <Editor value={content} onChange={setContent} />
+            <Editor value={content} onChange={handleContentChange} />
           </div>
         </div>
 
@@ -179,7 +215,7 @@ export default function WritePage() {
           <PlatformPreview
             title={title}
             content={content}
-            tags={tags.split(',').map(t => t.trim()).filter(Boolean)}
+            tags={parsedTags}
           />
         </div>
       </div>
@@ -189,7 +225,7 @@ export default function WritePage() {
           postId={postId}
           title={title}
           content={content}
-          onClose={() => setShowPublishModal(false)}
+          onClose={handleClosePublishModal}
         />
       )}
     </div>

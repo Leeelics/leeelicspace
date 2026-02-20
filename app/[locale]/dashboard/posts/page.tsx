@@ -1,48 +1,45 @@
 'use client';
 
-import React, { useEffect, useState } from 'react';
+import React, { useState, useCallback } from 'react';
 import { useRouter, useParams } from 'next/navigation';
 import Link from 'next/link';
+import useSWR, { mutate } from 'swr';
 import {
   Edit,
   Trash2,
   ExternalLink,
   Check,
   X,
-  MoreHorizontal,
-  Filter,
   Search,
 } from 'lucide-react';
 import type { Post, Platform } from '@/types';
 import { platforms } from '@/types';
+import { fetcher } from '@/lib/swr-config';
 
 export default function PostsManagement() {
   const router = useRouter();
   const routeParams = useParams();
   const locale = (routeParams?.locale as string) || 'zh';
   
-  const [posts, setPosts] = useState<Post[]>([]);
-  const [loading, setLoading] = useState(true);
   const [filter, setFilter] = useState<'all' | 'published' | 'draft'>('all');
   const [searchQuery, setSearchQuery] = useState('');
   const [deleting, setDeleting] = useState<string | null>(null);
 
-  useEffect(() => {
-    fetchPosts();
-  }, []);
+  // 使用 SWR 获取文章列表，自动缓存和去重
+  const { data: postsData, isLoading } = useSWR<{ posts: Post[] }>('/api/posts', fetcher, {
+    // 5分钟后重新验证
+    refreshInterval: 5 * 60 * 1000,
+    // 窗口聚焦时重新验证
+    revalidateOnFocus: true,
+    // 错误时重试
+    shouldRetryOnError: true,
+    errorRetryCount: 3,
+  });
 
-  const fetchPosts = async () => {
-    try {
-      const response = await fetch('/api/posts');
-      const data = await response.json();
-      setPosts(data.posts || []);
-    } catch {
-    } finally {
-      setLoading(false);
-    }
-  };
+  const posts = postsData?.posts || [];
 
-  const handleDelete = async (id: string) => {
+  // 使用 useCallback 稳定删除函数引用
+  const handleDelete = useCallback(async (id: string) => {
     if (!confirm('确定要删除这篇文章吗？')) return;
     
     setDeleting(id);
@@ -52,7 +49,14 @@ export default function PostsManagement() {
       });
       
       if (response.ok) {
-        setPosts(posts.filter(p => p.id !== id));
+        // 乐观更新：立即更新本地缓存
+        mutate(
+          '/api/posts',
+          (currentData: { posts: Post[] } | undefined) => ({
+            posts: currentData?.posts.filter(p => p.id !== id) || []
+          }),
+          false // 不立即重新验证
+        );
       } else {
         throw new Error('Delete failed');
       }
@@ -61,25 +65,28 @@ export default function PostsManagement() {
     } finally {
       setDeleting(null);
     }
-  };
+  }, []);
 
-  const filteredPosts = posts.filter(post => {
-    // Search filter
-    if (searchQuery && !post.title.toLowerCase().includes(searchQuery.toLowerCase())) {
-      return false;
-    }
-    
-    // Status filter
-    if (filter === 'published') {
-      return Object.values(post.publishStatus).some(s => s.published);
-    }
-    if (filter === 'draft') {
-      return !Object.values(post.publishStatus).some(s => s.published);
-    }
-    return true;
-  });
+  // 使用 useMemo 缓存筛选结果
+  const filteredPosts = React.useMemo(() => {
+    return posts.filter(post => {
+      // 搜索筛选
+      if (searchQuery && !post.title.toLowerCase().includes(searchQuery.toLowerCase())) {
+        return false;
+      }
+      
+      // 状态筛选
+      if (filter === 'published') {
+        return Object.values(post.publishStatus).some(s => s.published);
+      }
+      if (filter === 'draft') {
+        return !Object.values(post.publishStatus).some(s => s.published);
+      }
+      return true;
+    });
+  }, [posts, searchQuery, filter]);
 
-  if (loading) {
+  if (isLoading) {
     return (
       <div className="p-8">
         <div className="animate-pulse space-y-4">
@@ -108,7 +115,7 @@ export default function PostsManagement() {
         </div>
         <Link
           href={`/${locale}/dashboard/write`}
-          className="flex items-center gap-2 px-4 py-2 bg-[var(--accent)] text-white rounded-lg hover:bg-[var(--accent-hover)] transition-colors"
+          className="flex items-center gap-2 px-4 py-2 bg-[var(--accent)] text-white rounded-lg hover:bg-[var(--accent-hover)] transition-colors focus-ring"
         >
           写新文章
         </Link>
@@ -121,7 +128,7 @@ export default function PostsManagement() {
             <button
               key={f}
               onClick={() => setFilter(f)}
-              className={`px-3 py-1.5 text-sm rounded-md transition-colors ${
+              className={`px-3 py-1.5 text-sm rounded-md transition-colors focus-ring ${
                 filter === f
                   ? 'bg-[var(--accent)] text-white'
                   : 'text-[var(--text-secondary)] hover:text-[var(--text-primary)]'
