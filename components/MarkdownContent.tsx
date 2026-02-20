@@ -1,21 +1,26 @@
-'use client';
+"use client";
 
-import React from 'react';
-import ReactMarkdown from 'react-markdown';
-import remarkGfm from 'remark-gfm';
-import { useRef, useEffect } from 'react';
+import { useEffect, useRef } from "react";
+import ReactMarkdown from "react-markdown";
+import remarkGfm from "remark-gfm";
 
 // Markdown内容渲染组件 - 优化阅读体验
 function MarkdownContent({ content }: { content: string }) {
   const contentRef = useRef<HTMLDivElement>(null);
 
   // 为标题添加 ID，用于大纲跳转
+  // biome-ignore lint/correctness/useExhaustiveDependencies: contentRef is a ref that doesn't change
   useEffect(() => {
     if (contentRef.current) {
-      const headings = contentRef.current.querySelectorAll('h1, h2, h3, h4, h5, h6');
+      const headings = contentRef.current.querySelectorAll(
+        "h1, h2, h3, h4, h5, h6",
+      );
       headings.forEach((heading) => {
-        const text = heading.textContent || '';
-        const id = text.toLowerCase().replace(/[^\w\s-]/g, '').replace(/\s+/g, '-');
+        const text = heading.textContent || "";
+        const id = text
+          .toLowerCase()
+          .replace(/[^\w\s-]/g, "")
+          .replace(/\s+/g, "-");
         heading.id = id;
       });
     }
@@ -46,11 +51,7 @@ function MarkdownContent({ content }: { content: string }) {
         prose-th:bg-[var(--surface)] prose-th:font-semibold
         prose-td:border prose-td:border-[var(--border)]"
     >
-      <ReactMarkdown
-        remarkPlugins={[remarkGfm]}
-      >
-        {content}
-      </ReactMarkdown>
+      <ReactMarkdown remarkPlugins={[remarkGfm]}>{content}</ReactMarkdown>
     </div>
   );
 }

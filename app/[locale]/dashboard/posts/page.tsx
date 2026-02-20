@@ -1,67 +1,64 @@
-'use client';
+"use client";
 
-import React, { useState, useCallback } from 'react';
-import { useRouter, useParams } from 'next/navigation';
-import Link from 'next/link';
-import useSWR, { mutate } from 'swr';
-import {
-  Edit,
-  Trash2,
-  ExternalLink,
-  Check,
-  X,
-  Search,
-} from 'lucide-react';
-import type { Post, Platform } from '@/types';
-import { platforms } from '@/types';
-import { fetcher } from '@/lib/swr-config';
+import { Check, Edit, ExternalLink, Search, Trash2, X } from "lucide-react";
+import Link from "next/link";
+import { useParams } from "next/navigation";
+import React, { useCallback, useState } from "react";
+import useSWR, { mutate } from "swr";
+import { fetcher } from "@/lib/swr-config";
+import type { Post } from "@/types";
+import { platforms } from "@/types";
 
 export default function PostsManagement() {
-  const router = useRouter();
+  // Router available for future navigation features
   const routeParams = useParams();
-  const locale = (routeParams?.locale as string) || 'zh';
-  
-  const [filter, setFilter] = useState<'all' | 'published' | 'draft'>('all');
-  const [searchQuery, setSearchQuery] = useState('');
+  const locale = (routeParams?.locale as string) || "zh";
+
+  const [filter, setFilter] = useState<"all" | "published" | "draft">("all");
+  const [searchQuery, setSearchQuery] = useState("");
   const [deleting, setDeleting] = useState<string | null>(null);
 
   // 使用 SWR 获取文章列表，自动缓存和去重
-  const { data: postsData, isLoading } = useSWR<{ posts: Post[] }>('/api/posts', fetcher, {
-    // 5分钟后重新验证
-    refreshInterval: 5 * 60 * 1000,
-    // 窗口聚焦时重新验证
-    revalidateOnFocus: true,
-    // 错误时重试
-    shouldRetryOnError: true,
-    errorRetryCount: 3,
-  });
+  const { data: postsData, isLoading } = useSWR<{ posts: Post[] }>(
+    "/api/posts",
+    fetcher,
+    {
+      // 5分钟后重新验证
+      refreshInterval: 5 * 60 * 1000,
+      // 窗口聚焦时重新验证
+      revalidateOnFocus: true,
+      // 错误时重试
+      shouldRetryOnError: true,
+      errorRetryCount: 3,
+    },
+  );
 
   const posts = postsData?.posts || [];
 
   // 使用 useCallback 稳定删除函数引用
   const handleDelete = useCallback(async (id: string) => {
-    if (!confirm('确定要删除这篇文章吗？')) return;
-    
+    if (!confirm("确定要删除这篇文章吗？")) return;
+
     setDeleting(id);
     try {
       const response = await fetch(`/api/posts/${id}`, {
-        method: 'DELETE',
+        method: "DELETE",
       });
-      
+
       if (response.ok) {
         // 乐观更新：立即更新本地缓存
         mutate(
-          '/api/posts',
+          "/api/posts",
           (currentData: { posts: Post[] } | undefined) => ({
-            posts: currentData?.posts.filter(p => p.id !== id) || []
+            posts: currentData?.posts.filter((p) => p.id !== id) || [],
           }),
-          false // 不立即重新验证
+          false, // 不立即重新验证
         );
       } else {
-        throw new Error('Delete failed');
+        throw new Error("Delete failed");
       }
     } catch {
-      alert('删除失败，请重试');
+      alert("删除失败，请重试");
     } finally {
       setDeleting(null);
     }
@@ -69,18 +66,21 @@ export default function PostsManagement() {
 
   // 使用 useMemo 缓存筛选结果
   const filteredPosts = React.useMemo(() => {
-    return posts.filter(post => {
+    return posts.filter((post) => {
       // 搜索筛选
-      if (searchQuery && !post.title.toLowerCase().includes(searchQuery.toLowerCase())) {
+      if (
+        searchQuery &&
+        !post.title.toLowerCase().includes(searchQuery.toLowerCase())
+      ) {
         return false;
       }
-      
+
       // 状态筛选
-      if (filter === 'published') {
-        return Object.values(post.publishStatus).some(s => s.published);
+      if (filter === "published") {
+        return Object.values(post.publishStatus).some((s) => s.published);
       }
-      if (filter === 'draft') {
-        return !Object.values(post.publishStatus).some(s => s.published);
+      if (filter === "draft") {
+        return !Object.values(post.publishStatus).some((s) => s.published);
       }
       return true;
     });
@@ -92,7 +92,7 @@ export default function PostsManagement() {
         <div className="animate-pulse space-y-4">
           <div className="h-8 bg-[var(--surface)] rounded w-1/4"></div>
           <div className="space-y-2">
-            {[1, 2, 3].map(i => (
+            {[1, 2, 3].map((i) => (
               <div key={i} className="h-16 bg-[var(--surface)] rounded"></div>
             ))}
           </div>
@@ -124,24 +124,28 @@ export default function PostsManagement() {
       {/* Filters */}
       <div className="flex items-center gap-4 mb-6">
         <div className="flex items-center gap-2 bg-[var(--surface)] rounded-lg p-1">
-          {(['all', 'published', 'draft'] as const).map((f) => (
+          {(["all", "published", "draft"] as const).map((f) => (
             <button
+              type="button"
               key={f}
               onClick={() => setFilter(f)}
               className={`px-3 py-1.5 text-sm rounded-md transition-colors focus-ring ${
                 filter === f
-                  ? 'bg-[var(--accent)] text-white'
-                  : 'text-[var(--text-secondary)] hover:text-[var(--text-primary)]'
+                  ? "bg-[var(--accent)] text-white"
+                  : "text-[var(--text-secondary)] hover:text-[var(--text-primary)]"
               }`}
             >
-              {f === 'all' && '全部'}
-              {f === 'published' && '已发布'}
-              {f === 'draft' && '草稿'}
+              {f === "all" && "全部"}
+              {f === "published" && "已发布"}
+              {f === "draft" && "草稿"}
             </button>
           ))}
         </div>
         <div className="flex-1 relative">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-[var(--text-muted)]" size={16} />
+          <Search
+            className="absolute left-3 top-1/2 -translate-y-1/2 text-[var(--text-muted)]"
+            size={16}
+          />
           <input
             type="text"
             value={searchQuery}
@@ -174,7 +178,10 @@ export default function PostsManagement() {
           <tbody className="divide-y divide-[var(--border)]">
             {filteredPosts.length === 0 ? (
               <tr>
-                <td colSpan={4} className="px-6 py-12 text-center text-[var(--text-muted)]">
+                <td
+                  colSpan={4}
+                  className="px-6 py-12 text-center text-[var(--text-muted)]"
+                >
                   没有找到文章
                 </td>
               </tr>
@@ -190,7 +197,7 @@ export default function PostsManagement() {
                         {post.title}
                       </Link>
                       <div className="flex flex-wrap gap-1 mt-1">
-                        {post.tags.slice(0, 3).map(tag => (
+                        {post.tags.slice(0, 3).map((tag) => (
                           <span
                             key={tag}
                             className="text-xs px-2 py-0.5 bg-[var(--background)] text-[var(--text-muted)] rounded-full"
@@ -203,17 +210,18 @@ export default function PostsManagement() {
                   </td>
                   <td className="px-6 py-4">
                     <div className="flex items-center gap-1">
-                      {platforms.map(platform => {
-                        const isPublished = post.publishStatus[platform.id]?.published;
+                      {platforms.map((platform) => {
+                        const isPublished =
+                          post.publishStatus[platform.id]?.published;
                         return (
                           <div
                             key={platform.id}
                             className={`w-6 h-6 rounded flex items-center justify-center ${
                               isPublished
-                                ? 'bg-green-100 text-green-600'
-                                : 'bg-gray-100 text-gray-400'
+                                ? "bg-green-100 text-green-600"
+                                : "bg-gray-100 text-gray-400"
                             }`}
-                            title={`${platform.name}: ${isPublished ? '已发布' : '未发布'}`}
+                            title={`${platform.name}: ${isPublished ? "已发布" : "未发布"}`}
                           >
                             {isPublished ? (
                               <Check size={12} />
@@ -226,7 +234,7 @@ export default function PostsManagement() {
                     </div>
                   </td>
                   <td className="px-6 py-4 text-sm text-[var(--text-secondary)]">
-                    {new Date(post.updated_at).toLocaleDateString('zh-CN')}
+                    {new Date(post.updated_at).toLocaleDateString("zh-CN")}
                   </td>
                   <td className="px-6 py-4">
                     <div className="flex items-center justify-end gap-2">
@@ -246,6 +254,7 @@ export default function PostsManagement() {
                         <ExternalLink size={16} />
                       </Link>
                       <button
+                        type="button"
                         onClick={() => handleDelete(post.id)}
                         disabled={deleting === post.id}
                         className="p-2 hover:bg-red-50 rounded-lg text-[var(--text-secondary)] hover:text-red-600 disabled:opacity-50 focus-ring"

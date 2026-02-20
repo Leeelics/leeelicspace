@@ -1,8 +1,8 @@
-'use client';
+"use client";
 
-import React, { useState, useMemo } from 'react';
-import { Copy, Check, Twitter } from 'lucide-react';
-import type { XThreadPost } from '@/types';
+import { Check, Copy, Twitter } from "lucide-react";
+import React, { useMemo, useState } from "react";
+import type { XThreadPost } from "@/types";
 
 interface XPreviewProps {
   title: string;
@@ -19,15 +19,17 @@ export default function XPreview({ title, content }: XPreviewProps) {
   // Split content into threads
   const threads: XThreadPost[] = useMemo(() => {
     const fullText = title ? `${title}\n\n${content}` : content;
-    const plainText = fullText.replace(/[#*`>\-\[\]\(\)]/g, '');
-    
+    const plainText = fullText.replace(/[#*`>\-[\]()]/g, "");
+
     if (!threadMode || plainText.length <= MAX_LENGTH) {
-      return [{
-        number: 1,
-        total: 1,
-        content: plainText.slice(0, MAX_LENGTH),
-        charCount: Math.min(plainText.length, MAX_LENGTH),
-      }];
+      return [
+        {
+          number: 1,
+          total: 1,
+          content: plainText.slice(0, MAX_LENGTH),
+          charCount: Math.min(plainText.length, MAX_LENGTH),
+        },
+      ];
     }
 
     // Split into multiple posts
@@ -41,14 +43,14 @@ export default function XPreview({ title, content }: XPreviewProps) {
       const availableLength = MAX_LENGTH - numberingLength;
 
       let chunk = remaining.slice(0, availableLength);
-      
+
       // Try to break at sentence end
       const lastSentence = chunk.match(/.*[。！？.!?\n]/);
       if (lastSentence && lastSentence[0].length > availableLength * 0.5) {
         chunk = lastSentence[0];
       }
 
-      const numberedContent = addNumbering 
+      const numberedContent = addNumbering
         ? `${number}/${Math.ceil(plainText.length / availableLength)} ${chunk}`
         : chunk;
 
@@ -67,7 +69,7 @@ export default function XPreview({ title, content }: XPreviewProps) {
     }
 
     // Update total
-    posts.forEach(post => post.total = posts.length);
+    posts.forEach((post) => (post.total = posts.length));
 
     return posts;
   }, [title, content, addNumbering, threadMode]);
@@ -79,7 +81,7 @@ export default function XPreview({ title, content }: XPreviewProps) {
   };
 
   const handleCopyAll = () => {
-    const allContent = threads.map(t => t.content).join('\n\n---\n\n');
+    const allContent = threads.map((t) => t.content).join("\n\n---\n\n");
     navigator.clipboard.writeText(allContent);
     setCopiedIndex(-1);
     setTimeout(() => setCopiedIndex(null), 2000);
@@ -136,7 +138,9 @@ export default function XPreview({ title, content }: XPreviewProps) {
               </div>
               <div>
                 <div className="font-bold text-[var(--text-primary)]">Lee</div>
-                <div className="text-sm text-[var(--text-muted)]">@leelicspace</div>
+                <div className="text-sm text-[var(--text-muted)]">
+                  @leelicspace
+                </div>
               </div>
             </div>
 
@@ -147,9 +151,11 @@ export default function XPreview({ title, content }: XPreviewProps) {
 
             {/* Footer */}
             <div className="flex items-center justify-between text-[var(--text-muted)] text-sm">
-              <span>{new Date().toLocaleDateString('zh-CN')}</span>
+              <span>{new Date().toLocaleDateString("zh-CN")}</span>
               <div className="flex items-center gap-3">
-                <span className={post.charCount > MAX_LENGTH ? 'text-red-500' : ''}>
+                <span
+                  className={post.charCount > MAX_LENGTH ? "text-red-500" : ""}
+                >
                   {post.charCount}/{MAX_LENGTH}
                 </span>
                 <button
@@ -171,7 +177,7 @@ export default function XPreview({ title, content }: XPreviewProps) {
       {/* Info */}
       <div className="mt-6 text-center text-sm text-[var(--text-muted)]">
         共 {threads.length} 条推文
-        {threads.length > 1 && ' · 按顺序发布形成线程'}
+        {threads.length > 1 && " · 按顺序发布形成线程"}
       </div>
     </div>
   );

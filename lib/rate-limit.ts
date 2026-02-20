@@ -1,5 +1,5 @@
-import { kv } from '@vercel/kv';
-import { logger } from './logger';
+import { kv } from "@vercel/kv";
+import { logger } from "./logger";
 
 interface RateLimitConfig {
   maxRequests: number;
@@ -29,7 +29,7 @@ export const RATE_LIMITS = {
  */
 export async function rateLimit(
   identifier: string,
-  config: RateLimitConfig = RATE_LIMITS.read
+  config: RateLimitConfig = RATE_LIMITS.read,
 ): Promise<RateLimitResult> {
   const { maxRequests, windowSeconds } = config;
   const key = `rate_limit:${identifier}`;
@@ -39,7 +39,7 @@ export async function rateLimit(
   try {
     // If KV is not configured, allow the request (fail open)
     if (!process.env.KV_REST_API_URL) {
-      logger.warn('KV not configured, skipping rate limit check');
+      logger.warn("KV not configured, skipping rate limit check");
       return {
         success: true,
         limit: maxRequests,
@@ -50,25 +50,25 @@ export async function rateLimit(
 
     // Clean old entries and add current request in a pipeline
     const pipeline = kv.pipeline();
-    
+
     // Remove entries outside the window
     pipeline.zremrangebyscore(key, 0, windowStart);
-    
+
     // Add current request
     pipeline.zadd(key, { score: now, member: `${now}:${Math.random()}` });
-    
+
     // Count requests in current window
     pipeline.zcard(key);
-    
+
     // Set expiry on the key
     pipeline.expire(key, windowSeconds);
-    
+
     const results = await pipeline.exec();
     const currentCount = results[2] as number;
-    
+
     const remaining = Math.max(0, maxRequests - currentCount);
     const success = currentCount <= maxRequests;
-    
+
     return {
       success,
       limit: maxRequests,
@@ -76,7 +76,10 @@ export async function rateLimit(
       reset: now + windowSeconds,
     };
   } catch (error) {
-    logger.error('Rate limit check failed', error instanceof Error ? error : new Error(String(error)));
+    logger.error(
+      "Rate limit check failed",
+      error instanceof Error ? error : new Error(String(error)),
+    );
     // Fail open - allow request if rate limiting fails
     return {
       success: true,
@@ -93,20 +96,20 @@ export async function rateLimit(
  */
 export function getClientIdentifier(request: Request): string {
   // Get IP from various headers (Vercel specific)
-  const forwardedFor = request.headers.get('x-forwarded-for');
-  const realIp = request.headers.get('x-real-ip');
-  
+  const forwardedFor = request.headers.get("x-forwarded-for");
+  const realIp = request.headers.get("x-real-ip");
+
   if (forwardedFor) {
     // Get first IP from the list
-    return forwardedFor.split(',')[0].trim();
+    return forwardedFor.split(",")[0].trim();
   }
-  
+
   if (realIp) {
     return realIp;
   }
-  
+
   // Fallback to a default identifier
-  return 'unknown';
+  return "unknown";
 }
 
 /**
@@ -114,46 +117,46 @@ export function getClientIdentifier(request: Request): string {
  */
 export function withRateLimit(
   handler: (request: Request) => Promise<Response>,
-  config: RateLimitConfig = RATE_LIMITS.read
+  config: RateLimitConfig = RATE_LIMITS.read,
 ) {
   return async (request: Request): Promise<Response> => {
     const identifier = getClientIdentifier(request);
     const result = await rateLimit(identifier, config);
-    
+
     if (!result.success) {
       return new Response(
         JSON.stringify({
-          error: 'Too Many Requests',
-          message: 'Rate limit exceeded. Please try again later.',
+          error: "Too Many Requests",
+          message: "Rate limit exceeded. Please try again later.",
           retryAfter: result.reset,
         }),
         {
           status: 429,
           headers: {
-            'Content-Type': 'application/json',
-            'X-RateLimit-Limit': String(result.limit),
-            'X-RateLimit-Remaining': String(result.remaining),
-            'X-RateLimit-Reset': String(result.reset),
-            'Retry-After': String(result.reset - Math.floor(Date.now() / 1000)),
+            "Content-Type": "application/json",
+            "X-RateLimit-Limit": String(result.limit),
+            "X-RateLimit-Remaining": String(result.remaining),
+            "X-RateLimit-Reset": String(result.reset),
+            "Retry-After": String(result.reset - Math.floor(Date.now() / 1000)),
           },
-        }
+        },
       );
     }
-    
+
     // Execute the handler
     const response = await handler(request);
-    
+
     // Add rate limit headers to successful responses
     const newResponse = new Response(response.body, {
       status: response.status,
       statusText: response.statusText,
       headers: response.headers,
     });
-    
-    newResponse.headers.set('X-RateLimit-Limit', String(result.limit));
-    newResponse.headers.set('X-RateLimit-Remaining', String(result.remaining));
-    newResponse.headers.set('X-RateLimit-Reset', String(result.reset));
-    
+
+    newResponse.headers.set("X-RateLimit-Limit", String(result.limit));
+    newResponse.headers.set("X-RateLimit-Remaining", String(result.remaining));
+    newResponse.headers.set("X-RateLimit-Reset", String(result.reset));
+
     return newResponse;
   };
 }
@@ -163,11 +166,11 @@ export function withRateLimit(
  */
 export async function checkRateLimit(
   request: Request,
-  config: RateLimitConfig = RATE_LIMITS.read
+  config: RateLimitConfig = RATE_LIMITS.read,
 ): Promise<{ allowed: boolean; result?: RateLimitResult }> {
   const identifier = getClientIdentifier(request);
   const result = await rateLimit(identifier, config);
-  
+
   return {
     allowed: result.success,
     result: result.success ? result : undefined,
@@ -177,10 +180,12 @@ export async function checkRateLimit(
 /**
  * Get rate limit headers for successful responses
  */
-export function getRateLimitHeaders(result: RateLimitResult): Record<string, string> {
+export function getRateLimitHeaders(
+  result: RateLimitResult,
+): Record<string, string> {
   return {
-    'X-RateLimit-Limit': String(result.limit),
-    'X-RateLimit-Remaining': String(result.remaining),
-    'X-RateLimit-Reset': String(result.reset),
+    "X-RateLimit-Limit": String(result.limit),
+    "X-RateLimit-Remaining": String(result.remaining),
+    "X-RateLimit-Reset": String(result.reset),
   };
 }

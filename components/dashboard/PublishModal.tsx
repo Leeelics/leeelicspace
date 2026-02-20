@@ -1,9 +1,18 @@
-'use client';
+"use client";
 
-import React, { useState } from 'react';
-import { X, Check, ExternalLink, BookOpen, MessageSquare, FileText, Twitter, Zap } from 'lucide-react';
-import type { Platform } from '@/types';
-import { platforms } from '@/types';
+import {
+  BookOpen,
+  Check,
+  FileText,
+  MessageSquare,
+  Twitter,
+  X,
+  Zap,
+} from "lucide-react";
+// React type used for component props
+import { useState } from "react";
+import type { Platform } from "@/types";
+import { platforms } from "@/types";
 
 interface PublishModalProps {
   postId: string;
@@ -20,33 +29,41 @@ const platformIcons: Record<Platform, React.ElementType> = {
   jike: Zap,
 };
 
-export default function PublishModal({ postId, title, content, onClose }: PublishModalProps) {
-  const [selectedPlatforms, setSelectedPlatforms] = useState<Platform[]>(['blog']);
+export default function PublishModal({
+  postId,
+  title,
+  // biome-ignore lint/correctness/noUnusedFunctionParameters: Content will be used for platform-specific formatting
+  content,
+  onClose,
+}: PublishModalProps) {
+  const [selectedPlatforms, setSelectedPlatforms] = useState<Platform[]>([
+    "blog",
+  ]);
   const [publishing, setPublishing] = useState(false);
   const [published, setPublished] = useState<Platform[]>([]);
 
   const togglePlatform = (platform: Platform) => {
     if (published.includes(platform)) return;
-    setSelectedPlatforms(prev =>
+    setSelectedPlatforms((prev) =>
       prev.includes(platform)
-        ? prev.filter(p => p !== platform)
-        : [...prev, platform]
+        ? prev.filter((p) => p !== platform)
+        : [...prev, platform],
     );
   };
 
   const handlePublish = async () => {
     setPublishing(true);
-    
+
     // Simulate publishing process
     for (const platform of selectedPlatforms) {
-      await new Promise(resolve => setTimeout(resolve, 500));
-      setPublished(prev => [...prev, platform]);
-      
+      await new Promise((resolve) => setTimeout(resolve, 500));
+      setPublished((prev) => [...prev, platform]);
+
       // Update publish status in database
       try {
         await fetch(`/api/posts/${postId}`, {
-          method: 'PUT',
-          headers: { 'Content-Type': 'application/json' },
+          method: "PUT",
+          headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
             publishStatus: {
               [platform]: {
@@ -60,11 +77,11 @@ export default function PublishModal({ postId, title, content, onClose }: Publis
         // Silently handle publish status update errors
       }
     }
-    
+
     setPublishing(false);
   };
 
-  const allPublished = selectedPlatforms.every(p => published.includes(p));
+  const allPublished = selectedPlatforms.every((p) => published.includes(p));
 
   return (
     <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
@@ -75,11 +92,10 @@ export default function PublishModal({ postId, title, content, onClose }: Publis
             <h2 className="text-xl font-bold text-[var(--text-primary)]">
               发布到各平台
             </h2>
-            <p className="text-sm text-[var(--text-muted)] mt-1">
-              {title}
-            </p>
+            <p className="text-sm text-[var(--text-muted)] mt-1">{title}</p>
           </div>
           <button
+            type="button"
             onClick={onClose}
             className="p-2 hover:bg-[var(--surface-hover)] rounded-lg transition-colors focus-ring"
             aria-label="关闭"
@@ -101,15 +117,16 @@ export default function PublishModal({ postId, title, content, onClose }: Publis
 
               return (
                 <button
+                  type="button"
                   key={platform.id}
                   onClick={() => togglePlatform(platform.id)}
                   disabled={isPublished || publishing}
                   className={`w-full flex items-center gap-4 p-4 rounded-lg border transition-all ${
                     isPublished
-                      ? 'bg-green-50 border-green-200 dark:bg-green-900/20 dark:border-green-800'
+                      ? "bg-green-50 border-green-200 dark:bg-green-900/20 dark:border-green-800"
                       : isSelected
-                      ? 'bg-[var(--accent)]/5 border-[var(--accent)]'
-                      : 'bg-[var(--background)] border-[var(--border)] hover:border-[var(--text-muted)]'
+                        ? "bg-[var(--accent)]/5 border-[var(--accent)]"
+                        : "bg-[var(--background)] border-[var(--border)] hover:border-[var(--text-muted)]"
                   }`}
                 >
                   <div
@@ -124,10 +141,10 @@ export default function PublishModal({ postId, title, content, onClose }: Publis
                     </div>
                     <div className="text-xs text-[var(--text-muted)]">
                       {isPublished
-                        ? '已发布'
+                        ? "已发布"
                         : platform.maxLength
-                        ? `最多 ${platform.maxLength} 字符`
-                        : '无字数限制'}
+                          ? `最多 ${platform.maxLength} 字符`
+                          : "无字数限制"}
                     </div>
                   </div>
                   <div className="flex items-center justify-center w-6 h-6 rounded-full border-2">
@@ -152,6 +169,7 @@ export default function PublishModal({ postId, title, content, onClose }: Publis
                 <span className="font-medium">发布完成！</span>
               </div>
               <button
+                type="button"
                 onClick={onClose}
                 className="w-full py-2.5 bg-[var(--accent)] text-white rounded-lg hover:bg-[var(--accent-hover)] transition-colors"
               >
@@ -160,6 +178,7 @@ export default function PublishModal({ postId, title, content, onClose }: Publis
             </div>
           ) : (
             <button
+              type="button"
               onClick={handlePublish}
               disabled={selectedPlatforms.length === 0 || publishing}
               className="w-full py-2.5 bg-[var(--accent)] text-white rounded-lg hover:bg-[var(--accent-hover)] transition-colors disabled:opacity-50 disabled:cursor-not-allowed"

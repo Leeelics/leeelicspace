@@ -1,8 +1,8 @@
-import { Post } from "@/types";
 import Link from "next/link";
 import { getTranslations } from "next-intl/server";
-import { buildApiUrl } from "@/lib/url-helper";
 import { DataErrorDisplay } from "@/components/DataErrorDisplay";
+import { buildApiUrl } from "@/lib/url-helper";
+import type { Post } from "@/types";
 
 export const dynamic = "force-dynamic";
 
@@ -235,7 +235,7 @@ export default async function Home({
                           post={post}
                           locale={locale}
                           t={t}
-                          isEn={isEn}
+                          // isEn prop removed - not used in component
                         />
                       ))}
                     </div>
@@ -333,13 +333,11 @@ function ArticleCard({
   post,
   locale,
   t,
-  isEn,
 }: {
   post: Post;
   locale: string;
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   t: Awaited<ReturnType<typeof getTranslations>>;
-  isEn: boolean;
 }) {
   return (
     <article className="group animate-fade-in-up">

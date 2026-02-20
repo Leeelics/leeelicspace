@@ -1,71 +1,117 @@
-'use client';
+"use client";
 
-import React, { useState, useRef, useEffect, useCallback } from 'react';
-import { 
-  Download, 
-  Layout, 
-  Type, 
-  Palette, 
-  AlignLeft, 
-  AlignCenter, 
+import {
+  AlignCenter,
+  AlignLeft,
   AlignRight,
-  Smartphone,
-  Instagram,
-  Twitter,
-  Plus,
-  Edit3,
-  X,
-  FileText,
-  Copy,
   Check,
-} from 'lucide-react';
-import ReactMarkdown from 'react-markdown';
-import remarkGfm from 'remark-gfm';
+  Copy,
+  Download,
+  Edit3,
+  FileText,
+  Instagram,
+  Layout,
+  Palette,
+  Plus,
+  Smartphone,
+  Twitter,
+  Type,
+  X,
+} from "lucide-react";
+import React, { useCallback, useEffect, useRef, useState } from "react";
+import ReactMarkdown from "react-markdown";
+import remarkGfm from "remark-gfm";
 
 const FONTS = [
-  { name: '默认黑体', value: 'sans-serif' },
-  { name: '宋体风格', value: '"Songti SC", "Noto Serif SC", serif' },
-  { name: '楷体风格', value: '"Kaiti SC", "STKaiti", serif' },
-  { name: '圆体风格', value: '"Yuanti SC", "YouYuan", sans-serif' },
-  { name: '系统代码', value: 'monospace' },
+  { name: "默认黑体", value: "sans-serif" },
+  { name: "宋体风格", value: '"Songti SC", "Noto Serif SC", serif' },
+  { name: "楷体风格", value: '"Kaiti SC", "STKaiti", serif' },
+  { name: "圆体风格", value: '"Yuanti SC", "YouYuan", sans-serif' },
+  { name: "系统代码", value: "monospace" },
 ];
 
 const PRESETS = [
-  { name: '小红书竖屏', width: 1080, height: 1440, icon: <Smartphone size={16} /> },
-  { name: '小红书/IG 正方', width: 1080, height: 1080, icon: <Instagram size={16} /> },
-  { name: 'Twitter/X 横屏', width: 1200, height: 675, icon: <Twitter size={16} /> },
-  { name: 'Instagram Story', width: 1080, height: 1920, icon: <Instagram size={16} /> },
-  { name: 'A4 竖版', width: 794, height: 1123, icon: <FileText size={16} /> },
-  { name: '16:9 横屏', width: 1920, height: 1080, icon: <Smartphone size={16} /> },
+  {
+    name: "小红书竖屏",
+    width: 1080,
+    height: 1440,
+    icon: <Smartphone size={16} />,
+  },
+  {
+    name: "小红书/IG 正方",
+    width: 1080,
+    height: 1080,
+    icon: <Instagram size={16} />,
+  },
+  {
+    name: "Twitter/X 横屏",
+    width: 1200,
+    height: 675,
+    icon: <Twitter size={16} />,
+  },
+  {
+    name: "Instagram Story",
+    width: 1080,
+    height: 1920,
+    icon: <Instagram size={16} />,
+  },
+  { name: "A4 竖版", width: 794, height: 1123, icon: <FileText size={16} /> },
+  {
+    name: "16:9 横屏",
+    width: 1920,
+    height: 1080,
+    icon: <Smartphone size={16} />,
+  },
 ];
 
 const GRADIENTS = [
-  { name: '纯白', value: '#ffffff', type: 'hex' },
-  { name: '纸张', value: '#fdfbf7', type: 'hex' },
-  { name: '极光', value: 'linear-gradient(135deg, #a8edea 0%, #fed6e3 100%)', type: 'style' },
-  { name: '日落', value: 'linear-gradient(120deg, #f6d365 0%, #fda085 100%)', type: 'style' },
-  { name: '深邃', value: 'linear-gradient(to top, #30cfd0 0%, #330867 100%)', type: 'style', dark: true },
-  { name: '纯黑', value: '#1a1a1a', type: 'hex', dark: true },
-  { name: '樱花', value: 'linear-gradient(to top, #fff1eb 0%, #ace0f9 100%)', type: 'style' },
-  { name: '薄荷', value: 'linear-gradient(to top, #d299c2 0%, #fef9d7 100%)', type: 'style' },
+  { name: "纯白", value: "#ffffff", type: "hex" },
+  { name: "纸张", value: "#fdfbf7", type: "hex" },
+  {
+    name: "极光",
+    value: "linear-gradient(135deg, #a8edea 0%, #fed6e3 100%)",
+    type: "style",
+  },
+  {
+    name: "日落",
+    value: "linear-gradient(120deg, #f6d365 0%, #fda085 100%)",
+    type: "style",
+  },
+  {
+    name: "深邃",
+    value: "linear-gradient(to top, #30cfd0 0%, #330867 100%)",
+    type: "style",
+    dark: true,
+  },
+  { name: "纯黑", value: "#1a1a1a", type: "hex", dark: true },
+  {
+    name: "樱花",
+    value: "linear-gradient(to top, #fff1eb 0%, #ace0f9 100%)",
+    type: "style",
+  },
+  {
+    name: "薄荷",
+    value: "linear-gradient(to top, #d299c2 0%, #fef9d7 100%)",
+    type: "style",
+  },
 ];
 
 export default function MediaCardCreator() {
   const [content, setContent] = useState({
-    title: '在这里输入你的标题',
+    title: "在这里输入你的标题",
     body: '## 欢迎使用 Markdown\n\n这里是正文内容，支持 **Markdown** 格式！\n\n### 特性\n- ✅ 支持粗体和斜体\n- ✅ 支持标题\n- ✅ 支持列表\n- ✅ 支持引用\n- ✅ 支持代码块\n\n> 这是一个引用示例\n\n```javascript\nconsole.log("Hello, World!");\n```\n\n这个工具可以自动帮你排版，非常适合发小红书或者 Twitter。',
-    author: '@leelicspace',
+    author: "@leelicspace",
     date: new Date().toLocaleDateString(),
   });
 
   const [config, setConfig] = useState({
     presetIndex: 0,
-    fontFamily: 'sans-serif',
+    fontFamily: "sans-serif",
     titleSize: 64,
     bodySize: 32,
     lineHeight: 1.6,
-    textAlign: 'left' as const,
-    textColor: '#1f2937',
+    textAlign: "left" as const,
+    textColor: "#1f2937",
     background: GRADIENTS[2],
     padding: 80,
     showWatermark: true,
@@ -84,8 +130,8 @@ export default function MediaCardCreator() {
 
   const getBackgroundStyle = useCallback(() => {
     const bg = config.background;
-    if (bg.type === 'hex') return { backgroundColor: bg.value };
-    if (bg.type === 'style') return { background: bg.value };
+    if (bg.type === "hex") return { backgroundColor: bg.value };
+    if (bg.type === "style") return { background: bg.value };
     return {};
   }, [config.background]);
 
@@ -99,22 +145,22 @@ export default function MediaCardCreator() {
   const handleDownload = async () => {
     setIsExporting(true);
     try {
-      const html2canvas = (await import('html2canvas')).default;
+      const html2canvas = (await import("html2canvas")).default;
       if (canvasRef.current) {
         const canvas = await html2canvas(canvasRef.current, {
           scale: 2,
           useCORS: true,
           backgroundColor: null,
         });
-        
-        const link = document.createElement('a');
+
+        const link = document.createElement("a");
         link.download = `card-${Date.now()}.png`;
-        link.href = canvas.toDataURL('image/png');
+        link.href = canvas.toDataURL("image/png");
         link.click();
       }
     } catch (error) {
-      console.error('Export failed:', error);
-      alert('导出失败，请重试');
+      console.error("Export failed:", error);
+      alert("导出失败，请重试");
     } finally {
       setIsExporting(false);
     }
@@ -123,14 +169,17 @@ export default function MediaCardCreator() {
   // Auto-calculate scale
   useEffect(() => {
     const calculateScale = () => {
-      const containerWidth = window.innerWidth > 1024 ? window.innerWidth * 0.5 : window.innerWidth - 40;
+      const containerWidth =
+        window.innerWidth > 1024
+          ? window.innerWidth * 0.5
+          : window.innerWidth - 40;
       const scale = Math.min(containerWidth / canvasWidth, 0.8);
-      setConfig(prev => ({ ...prev, previewScale: Math.max(0.2, scale) }));
+      setConfig((prev) => ({ ...prev, previewScale: Math.max(0.2, scale) }));
     };
 
     calculateScale();
-    window.addEventListener('resize', calculateScale);
-    return () => window.removeEventListener('resize', calculateScale);
+    window.addEventListener("resize", calculateScale);
+    return () => window.removeEventListener("resize", calculateScale);
   }, [canvasWidth]);
 
   return (
@@ -139,7 +188,9 @@ export default function MediaCardCreator() {
       <div className="w-full lg:w-[420px] bg-white border-r border-gray-200 h-[calc(100vh-73px)] overflow-y-auto flex flex-col">
         <div className="p-6 border-b border-gray-100 sticky top-0 bg-white/95 backdrop-blur z-20">
           <h1 className="text-xl font-bold text-gray-900">图文排版助手</h1>
-          <p className="text-sm text-gray-500 mt-1">支持 Markdown 和多平台导出</p>
+          <p className="text-sm text-gray-500 mt-1">
+            支持 Markdown 和多平台导出
+          </p>
         </div>
 
         <div className="p-6 space-y-6 pb-32">
@@ -155,8 +206,8 @@ export default function MediaCardCreator() {
                   onClick={() => setConfig({ ...config, presetIndex: idx })}
                   className={`flex items-center gap-2 p-3 text-sm rounded-lg border transition-all ${
                     config.presetIndex === idx
-                      ? 'border-purple-500 bg-purple-50 text-purple-700 font-medium ring-1 ring-purple-500'
-                      : 'border-gray-200 hover:border-gray-300 text-gray-600'
+                      ? "border-purple-500 bg-purple-50 text-purple-700 font-medium ring-1 ring-purple-500"
+                      : "border-gray-200 hover:border-gray-300 text-gray-600"
                   }`}
                 >
                   {preset.icon}
@@ -171,13 +222,17 @@ export default function MediaCardCreator() {
             <h3 className="text-xs font-bold text-gray-400 uppercase tracking-wider mb-3 flex items-center gap-2">
               <Type size={14} /> 内容编辑
             </h3>
-            
+
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">标题</label>
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                标题
+              </label>
               <input
                 type="text"
                 value={content.title}
-                onChange={(e) => setContent({ ...content, title: e.target.value })}
+                onChange={(e) =>
+                  setContent({ ...content, title: e.target.value })
+                }
                 className="w-full p-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-purple-500 focus:border-transparent"
               />
             </div>
@@ -189,27 +244,35 @@ export default function MediaCardCreator() {
               <textarea
                 rows={10}
                 value={content.body}
-                onChange={(e) => setContent({ ...content, body: e.target.value })}
+                onChange={(e) =>
+                  setContent({ ...content, body: e.target.value })
+                }
                 className="w-full p-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-purple-500 focus:border-transparent resize-none font-mono text-sm"
               />
             </div>
 
             <div className="grid grid-cols-2 gap-4">
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">作者</label>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  作者
+                </label>
                 <input
                   type="text"
                   value={content.author}
-                  onChange={(e) => setContent({ ...content, author: e.target.value })}
+                  onChange={(e) =>
+                    setContent({ ...content, author: e.target.value })
+                  }
                   className="w-full p-2 border border-gray-300 rounded-md"
                 />
               </div>
               <div className="flex items-end">
                 <label className="flex items-center gap-2 cursor-pointer select-none text-sm text-gray-600 mb-2">
-                  <input 
-                    type="checkbox" 
+                  <input
+                    type="checkbox"
                     checked={config.showDate}
-                    onChange={(e) => setConfig({ ...config, showDate: e.target.checked })}
+                    onChange={(e) =>
+                      setConfig({ ...config, showDate: e.target.checked })
+                    }
                     className="rounded text-purple-600"
                   />
                   显示日期
@@ -226,22 +289,30 @@ export default function MediaCardCreator() {
 
             {/* Background */}
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">背景主题</label>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                背景主题
+              </label>
               <div className="grid grid-cols-4 gap-2">
                 {GRADIENTS.map((bg, idx) => (
                   <button
                     key={idx}
                     onClick={() => {
-                      setConfig({ 
-                        ...config, 
+                      setConfig({
+                        ...config,
                         background: bg,
-                        textColor: bg.dark ? '#ffffff' : '#1f2937',
+                        textColor: bg.dark ? "#ffffff" : "#1f2937",
                       });
                     }}
                     className={`w-full aspect-square rounded-lg border-2 transition-all ${
-                      config.background.name === bg.name ? 'border-purple-500 scale-105' : 'border-gray-200'
+                      config.background.name === bg.name
+                        ? "border-purple-500 scale-105"
+                        : "border-gray-200"
                     }`}
-                    style={bg.type === 'hex' ? { backgroundColor: bg.value } : { background: bg.value }}
+                    style={
+                      bg.type === "hex"
+                        ? { backgroundColor: bg.value }
+                        : { background: bg.value }
+                    }
                     title={bg.name}
                   />
                 ))}
@@ -250,16 +321,20 @@ export default function MediaCardCreator() {
 
             {/* Font */}
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">字体风格</label>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                字体风格
+              </label>
               <div className="flex flex-wrap gap-2">
                 {FONTS.map((font) => (
                   <button
                     key={font.value}
-                    onClick={() => setConfig({ ...config, fontFamily: font.value })}
+                    onClick={() =>
+                      setConfig({ ...config, fontFamily: font.value })
+                    }
                     className={`px-3 py-1.5 text-xs rounded-full border transition-all ${
                       config.fontFamily === font.value
-                        ? 'bg-gray-800 text-white border-gray-800'
-                        : 'bg-white text-gray-600 border-gray-200 hover:border-gray-400'
+                        ? "bg-gray-800 text-white border-gray-800"
+                        : "bg-white text-gray-600 border-gray-200 hover:border-gray-400"
                     }`}
                     style={{ fontFamily: font.value }}
                   >
@@ -271,18 +346,24 @@ export default function MediaCardCreator() {
 
             {/* Alignment */}
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">对齐方式</label>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                对齐方式
+              </label>
               <div className="flex bg-gray-100 rounded-lg p-1 w-fit">
                 {[
-                  { val: 'left', icon: <AlignLeft size={16} /> },
-                  { val: 'center', icon: <AlignCenter size={16} /> },
-                  { val: 'right', icon: <AlignRight size={16} /> }
+                  { val: "left", icon: <AlignLeft size={16} /> },
+                  { val: "center", icon: <AlignCenter size={16} /> },
+                  { val: "right", icon: <AlignRight size={16} /> },
                 ].map((align) => (
                   <button
                     key={align.val}
-                    onClick={() => setConfig({ ...config, textAlign: align.val as any })}
+                    onClick={() =>
+                      setConfig({ ...config, textAlign: align.val as any })
+                    }
                     className={`p-2 rounded-md transition-all ${
-                      config.textAlign === align.val ? 'bg-white shadow text-purple-600' : 'text-gray-500 hover:text-gray-700'
+                      config.textAlign === align.val
+                        ? "bg-white shadow text-purple-600"
+                        : "text-gray-500 hover:text-gray-700"
                     }`}
                   >
                     {align.icon}
@@ -294,10 +375,26 @@ export default function MediaCardCreator() {
             {/* Sliders */}
             <div className="space-y-3">
               {[
-                { label: '标题字号', key: 'titleSize' as const, min: 24, max: 128 },
-                { label: '正文字号', key: 'bodySize' as const, min: 14, max: 64 },
-                { label: '行间距', key: 'lineHeight' as const, min: 1, max: 3, step: 0.1 },
-                { label: '边距', key: 'padding' as const, min: 20, max: 200 },
+                {
+                  label: "标题字号",
+                  key: "titleSize" as const,
+                  min: 24,
+                  max: 128,
+                },
+                {
+                  label: "正文字号",
+                  key: "bodySize" as const,
+                  min: 14,
+                  max: 64,
+                },
+                {
+                  label: "行间距",
+                  key: "lineHeight" as const,
+                  min: 1,
+                  max: 3,
+                  step: 0.1,
+                },
+                { label: "边距", key: "padding" as const, min: 20, max: 200 },
               ].map((control) => (
                 <div key={control.key}>
                   <div className="flex justify-between text-xs text-gray-500 mb-1">
@@ -310,7 +407,12 @@ export default function MediaCardCreator() {
                     max={control.max}
                     step={control.step || 1}
                     value={config[control.key]}
-                    onChange={(e) => setConfig({ ...config, [control.key]: Number(e.target.value) })}
+                    onChange={(e) =>
+                      setConfig({
+                        ...config,
+                        [control.key]: Number(e.target.value),
+                      })
+                    }
                     className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer accent-purple-600"
                   />
                 </div>
@@ -333,7 +435,7 @@ export default function MediaCardCreator() {
               className="flex items-center gap-2 px-4 py-2 border border-gray-200 text-gray-700 rounded-lg hover:border-purple-300 hover:text-purple-700 transition-colors"
             >
               {copied ? <Check size={18} /> : <Copy size={18} />}
-              {copied ? '已复制' : '复制文本'}
+              {copied ? "已复制" : "复制文本"}
             </button>
             <button
               onClick={handleDownload}
@@ -383,7 +485,7 @@ export default function MediaCardCreator() {
                       marginBottom: config.titleSize * 0.8,
                       lineHeight: 1.2,
                       fontWeight: 800,
-                      letterSpacing: '-0.02em',
+                      letterSpacing: "-0.02em",
                     }}
                   >
                     {content.title}
@@ -393,13 +495,76 @@ export default function MediaCardCreator() {
                   <ReactMarkdown
                     remarkPlugins={[remarkGfm]}
                     components={{
-                      h1: ({ children }) => <div style={{ fontSize: config.bodySize * 1.5, fontWeight: 'bold', margin: '0.5em 0' }}>{children}</div>,
-                      h2: ({ children }) => <div style={{ fontSize: config.bodySize * 1.3, fontWeight: 'bold', margin: '0.5em 0' }}>{children}</div>,
-                      h3: ({ children }) => <div style={{ fontSize: config.bodySize * 1.2, fontWeight: 'bold', margin: '0.5em 0' }}>{children}</div>,
-                      p: ({ children }) => <div style={{ margin: '0.5em 0', lineHeight: config.lineHeight }}>{children}</div>,
-                      li: ({ children }) => <div style={{ margin: '0.3em 0' }}>• {children}</div>,
-                      code: ({ children }) => <code style={{ background: 'rgba(0,0,0,0.1)', padding: '0.2em 0.4em', borderRadius: '3px', fontFamily: 'monospace' }}>{children}</code>,
-                      pre: ({ children }) => <pre style={{ background: 'rgba(0,0,0,0.1)', padding: '1em', borderRadius: '5px', overflow: 'auto' }}>{children}</pre>,
+                      h1: ({ children }) => (
+                        <div
+                          style={{
+                            fontSize: config.bodySize * 1.5,
+                            fontWeight: "bold",
+                            margin: "0.5em 0",
+                          }}
+                        >
+                          {children}
+                        </div>
+                      ),
+                      h2: ({ children }) => (
+                        <div
+                          style={{
+                            fontSize: config.bodySize * 1.3,
+                            fontWeight: "bold",
+                            margin: "0.5em 0",
+                          }}
+                        >
+                          {children}
+                        </div>
+                      ),
+                      h3: ({ children }) => (
+                        <div
+                          style={{
+                            fontSize: config.bodySize * 1.2,
+                            fontWeight: "bold",
+                            margin: "0.5em 0",
+                          }}
+                        >
+                          {children}
+                        </div>
+                      ),
+                      p: ({ children }) => (
+                        <div
+                          style={{
+                            margin: "0.5em 0",
+                            lineHeight: config.lineHeight,
+                          }}
+                        >
+                          {children}
+                        </div>
+                      ),
+                      li: ({ children }) => (
+                        <div style={{ margin: "0.3em 0" }}>• {children}</div>
+                      ),
+                      code: ({ children }) => (
+                        <code
+                          style={{
+                            background: "rgba(0,0,0,0.1)",
+                            padding: "0.2em 0.4em",
+                            borderRadius: "3px",
+                            fontFamily: "monospace",
+                          }}
+                        >
+                          {children}
+                        </code>
+                      ),
+                      pre: ({ children }) => (
+                        <pre
+                          style={{
+                            background: "rgba(0,0,0,0.1)",
+                            padding: "1em",
+                            borderRadius: "5px",
+                            overflow: "auto",
+                          }}
+                        >
+                          {children}
+                        </pre>
+                      ),
                     }}
                   >
                     {content.body}
@@ -419,12 +584,17 @@ export default function MediaCardCreator() {
                   <div className="font-semibold flex items-center gap-2">
                     {config.showWatermark && (
                       <>
-                        <div className="w-1 h-4 rounded-full" style={{ backgroundColor: config.textColor }} />
+                        <div
+                          className="w-1 h-4 rounded-full"
+                          style={{ backgroundColor: config.textColor }}
+                        />
                         {content.author}
                       </>
                     )}
                   </div>
-                  {config.showDate && <div className="font-mono">{content.date}</div>}
+                  {config.showDate && (
+                    <div className="font-mono">{content.date}</div>
+                  )}
                 </div>
               )}
             </div>

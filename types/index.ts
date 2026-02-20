@@ -6,16 +6,16 @@ export interface PlatformStatus {
   url?: string;
   publishedAt?: string;
   // Platform-specific data
-  cardImages?: string[];        // For Xiaohongshu (image URLs if stored)
-  draftUrl?: string;            // For WeChat
-  threadUrls?: string[];        // For X
+  cardImages?: string[]; // For Xiaohongshu (image URLs if stored)
+  draftUrl?: string; // For WeChat
+  threadUrls?: string[]; // For X
 }
 
 /**
  * Xiaohongshu-specific config
  */
 export interface XiaohongshuConfig {
-  cardStyle: 'gradient' | 'minimal' | 'photo';
+  cardStyle: "gradient" | "minimal" | "photo";
   fontSize: number;
   background: string;
   textColor: string;
@@ -27,7 +27,7 @@ export interface XiaohongshuConfig {
  * WeChat-specific config
  */
 export interface WechatConfig {
-  template: 'default' | 'tech' | 'minimal';
+  template: "default" | "tech" | "minimal";
   autoToc: boolean;
   codeHighlight: boolean;
 }
@@ -64,15 +64,15 @@ export interface ChannelConfig {
  */
 export const defaultChannelConfig: ChannelConfig = {
   xiaohongshu: {
-    cardStyle: 'gradient',
+    cardStyle: "gradient",
     fontSize: 32,
-    background: '#fdfbf7',
-    textColor: '#1f2937',
+    background: "#fdfbf7",
+    textColor: "#1f2937",
     padding: 80,
     pages: 1,
   },
   wechat: {
-    template: 'default',
+    template: "default",
     autoToc: true,
     codeHighlight: true,
   },
@@ -115,15 +115,15 @@ export const defaultPublishStatus: PublishStatus = {
 export interface Post {
   id: string;
   title: string;
-  content: string;              // Markdown source
+  content: string; // Markdown source
   tags: string[];
-  coverImage?: string;          // Cover image URL
+  coverImage?: string; // Cover image URL
   created_at: string;
   updated_at: string;
-  
+
   // Publish status tracking
   publishStatus: PublishStatus;
-  
+
   // Channel-specific configurations
   channelConfig: ChannelConfig;
 }
@@ -143,7 +143,7 @@ export interface LegacyPost {
 /**
  * Platform types
  */
-export type Platform = 'blog' | 'xiaohongshu' | 'wechat' | 'jike' | 'x';
+export type Platform = "blog" | "xiaohongshu" | "wechat" | "jike" | "x";
 
 /**
  * Platform metadata
@@ -164,49 +164,49 @@ export interface PlatformMeta {
  */
 export const platforms: PlatformMeta[] = [
   {
-    id: 'blog',
-    name: '博客',
-    nameEn: 'Blog',
-    color: '#3b82f6',
-    icon: ' Globe',
+    id: "blog",
+    name: "博客",
+    nameEn: "Blog",
+    color: "#3b82f6",
+    icon: " Globe",
     supportsImages: true,
     supportsMarkdown: true,
   },
   {
-    id: 'xiaohongshu',
-    name: '小红书',
-    nameEn: 'Xiaohongshu',
-    color: '#ff2442',
-    icon: 'BookOpen',
+    id: "xiaohongshu",
+    name: "小红书",
+    nameEn: "Xiaohongshu",
+    color: "#ff2442",
+    icon: "BookOpen",
     maxLength: 1000,
     supportsImages: true,
     supportsMarkdown: false,
   },
   {
-    id: 'wechat',
-    name: '公众号',
-    nameEn: 'WeChat',
-    color: '#07c160',
-    icon: 'MessageCircle',
+    id: "wechat",
+    name: "公众号",
+    nameEn: "WeChat",
+    color: "#07c160",
+    icon: "MessageCircle",
     supportsImages: true,
     supportsMarkdown: false,
   },
   {
-    id: 'jike',
-    name: '即刻',
-    nameEn: 'Jike',
-    color: '#ffe411',
-    icon: 'Zap',
+    id: "jike",
+    name: "即刻",
+    nameEn: "Jike",
+    color: "#ffe411",
+    icon: "Zap",
     maxLength: 2000,
     supportsImages: true,
     supportsMarkdown: false,
   },
   {
-    id: 'x',
-    name: 'X',
-    nameEn: 'X / Twitter',
-    color: '#000000',
-    icon: 'Twitter',
+    id: "x",
+    name: "X",
+    nameEn: "X / Twitter",
+    color: "#000000",
+    icon: "Twitter",
     maxLength: 280,
     supportsImages: true,
     supportsMarkdown: false,
@@ -241,7 +241,7 @@ export interface CardExportOptions {
   titleSize: number;
   bodySize: number;
   lineHeight: number;
-  textAlign: 'left' | 'center' | 'right';
+  textAlign: "left" | "center" | "right";
   textColor: string;
   background: string;
   padding: number;

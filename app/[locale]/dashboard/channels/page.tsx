@@ -1,17 +1,18 @@
-'use client';
+"use client";
 
-import React, { useState } from 'react';
 import {
   BookOpen,
-  MessageSquare,
+  ExternalLink,
   FileText,
+  MessageSquare,
+  Settings,
   Twitter,
   Zap,
-  ExternalLink,
-  Settings,
-} from 'lucide-react';
-import type { Platform } from '@/types';
-import { platforms } from '@/types';
+} from "lucide-react";
+import type React from "react";
+import { useState } from "react";
+import type { Platform } from "@/types";
+import { platforms } from "@/types";
 
 const platformIcons: Record<Platform, React.ElementType> = {
   blog: BookOpen,
@@ -29,7 +30,7 @@ interface ChannelConfig {
 }
 
 const defaultConfigs: Record<Platform, ChannelConfig> = {
-  blog: { enabled: true, url: 'https://leelicspace.com' },
+  blog: { enabled: true, url: "https://leelicspace.com" },
   xiaohongshu: { enabled: false },
   wechat: { enabled: false },
   x: { enabled: false },
@@ -41,7 +42,7 @@ export default function ChannelsPage() {
   const [saving, setSaving] = useState(false);
 
   const handleToggle = (platform: Platform) => {
-    setConfigs(prev => ({
+    setConfigs((prev) => ({
       ...prev,
       [platform]: {
         ...prev[platform],
@@ -53,10 +54,10 @@ export default function ChannelsPage() {
   const handleSave = async () => {
     setSaving(true);
     // Save to localStorage or API
-    localStorage.setItem('channelConfigs', JSON.stringify(configs));
-    await new Promise(resolve => setTimeout(resolve, 500));
+    localStorage.setItem("channelConfigs", JSON.stringify(configs));
+    await new Promise((resolve) => setTimeout(resolve, 500));
     setSaving(false);
-    alert('配置已保存');
+    alert("配置已保存");
   };
 
   return (
@@ -76,15 +77,15 @@ export default function ChannelsPage() {
         {platforms.map((platform) => {
           const Icon = platformIcons[platform.id];
           const config = configs[platform.id];
-          const isBlog = platform.id === 'blog';
+          const isBlog = platform.id === "blog";
 
           return (
             <div
               key={platform.id}
               className={`bg-[var(--surface)] rounded-lg border transition-all ${
                 config.enabled
-                  ? 'border-[var(--accent)]'
-                  : 'border-[var(--border)]'
+                  ? "border-[var(--accent)]"
+                  : "border-[var(--border)]"
               }`}
             >
               <div className="p-6">
@@ -130,14 +131,18 @@ export default function ChannelsPage() {
                         ) : (
                           <div className="space-y-3">
                             <div>
-                              <label className="block text-sm text-[var(--text-secondary)] mb-1">
+                              <label
+                                htmlFor={`username-${platform.id}`}
+                                className="block text-sm text-[var(--text-secondary)] mb-1"
+                              >
                                 用户名/账号
                               </label>
                               <input
+                                id={`username-${platform.id}`}
                                 type="text"
-                                value={config.username || ''}
+                                value={config.username || ""}
                                 onChange={(e) =>
-                                  setConfigs(prev => ({
+                                  setConfigs((prev) => ({
                                     ...prev,
                                     [platform.id]: {
                                       ...prev[platform.id],
@@ -150,14 +155,18 @@ export default function ChannelsPage() {
                               />
                             </div>
                             <div>
-                              <label className="block text-sm text-[var(--text-secondary)] mb-1">
+                              <label
+                                htmlFor={`url-${platform.id}`}
+                                className="block text-sm text-[var(--text-secondary)] mb-1"
+                              >
                                 主页链接
                               </label>
                               <input
+                                id={`url-${platform.id}`}
                                 type="url"
-                                value={config.url || ''}
+                                value={config.url || ""}
                                 onChange={(e) =>
-                                  setConfigs(prev => ({
+                                  setConfigs((prev) => ({
                                     ...prev,
                                     [platform.id]: {
                                       ...prev[platform.id],
@@ -173,17 +182,17 @@ export default function ChannelsPage() {
                         )}
 
                         {/* Quick link */}
-                        {platform.id !== 'blog' && (
+                        {platform.id !== "blog" && (
                           <div className="mt-3">
                             <a
                               href={
-                                platform.id === 'xiaohongshu'
-                                  ? 'https://www.xiaohongshu.com'
-                                  : platform.id === 'wechat'
-                                  ? 'https://mp.weixin.qq.com'
-                                  : platform.id === 'x'
-                                  ? 'https://x.com'
-                                  : 'https://web.okjike.com'
+                                platform.id === "xiaohongshu"
+                                  ? "https://www.xiaohongshu.com"
+                                  : platform.id === "wechat"
+                                    ? "https://mp.weixin.qq.com"
+                                    : platform.id === "x"
+                                      ? "https://x.com"
+                                      : "https://web.okjike.com"
                               }
                               target="_blank"
                               rel="noopener noreferrer"
@@ -207,11 +216,12 @@ export default function ChannelsPage() {
       {/* Save Button */}
       <div className="mt-8">
         <button
+          type="button"
           onClick={handleSave}
           disabled={saving}
           className="px-6 py-2 bg-[var(--accent)] text-white rounded-lg hover:bg-[var(--accent-hover)] transition-colors disabled:opacity-50"
         >
-          {saving ? '保存中...' : '保存配置'}
+          {saving ? "保存中..." : "保存配置"}
         </button>
       </div>
 

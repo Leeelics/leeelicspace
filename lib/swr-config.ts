@@ -1,4 +1,4 @@
-import type { SWRConfiguration } from 'swr';
+import type { SWRConfiguration } from "swr";
 
 // SWR 全局配置
 export const swrConfig: SWRConfiguration = {

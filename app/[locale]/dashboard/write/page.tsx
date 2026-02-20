@@ -1,18 +1,14 @@
-'use client';
+"use client";
 
-import React, { useState, useEffect, useMemo, useCallback } from 'react';
-import { useRouter, useParams } from 'next/navigation';
-import { 
-  Save, 
-  Send, 
-  Loader2, 
-  Check,
-} from 'lucide-react';
-import type { Post } from '@/types';
-import { defaultChannelConfig, defaultPublishStatus } from '@/types';
-import Editor from '@/components/dashboard/Editor';
-import PlatformPreview from '@/components/dashboard/PlatformPreview';
-import PublishModal from '@/components/dashboard/PublishModal';
+import { Check, Loader2, Save, Send } from "lucide-react";
+import { useParams } from "next/navigation";
+import type React from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
+import Editor from "@/components/dashboard/Editor";
+import PlatformPreview from "@/components/dashboard/PlatformPreview";
+import PublishModal from "@/components/dashboard/PublishModal";
+// Post type available when needed for type annotations
+import { defaultChannelConfig, defaultPublishStatus } from "@/types";
 
 // 模块级常量，避免每次渲染重新创建
 const DEFAULT_PUBLISH_STATUS = { ...defaultPublishStatus };
@@ -21,7 +17,7 @@ const DEFAULT_CHANNEL_CONFIG = { ...defaultChannelConfig };
 // 优化的标签解析函数 - 单次遍历
 const parseTags = (tagsString: string): string[] => {
   const tags: string[] = [];
-  const parts = tagsString.split(',');
+  const parts = tagsString.split(",");
   for (let i = 0; i < parts.length; i++) {
     const trimmed = parts[i].trim();
     if (trimmed) {
@@ -32,16 +28,17 @@ const parseTags = (tagsString: string): string[] => {
 };
 
 export default function WritePage() {
-  const router = useRouter();
   const routeParams = useParams();
-  const locale = (routeParams?.locale as string) || 'zh';
+  const _locale = (routeParams?.locale as string) || "zh";
 
   // Editor state
-  const [title, setTitle] = useState('');
-  const [content, setContent] = useState('');
-  const [tags, setTags] = useState('');
+  const [title, setTitle] = useState("");
+  const [content, setContent] = useState("");
+  const [tags, setTags] = useState("");
   const [saving, setSaving] = useState(false);
-  const [saveStatus, setSaveStatus] = useState<'idle' | 'saving' | 'saved'>('idle');
+  const [saveStatus, setSaveStatus] = useState<"idle" | "saving" | "saved">(
+    "idle",
+  );
   const [showPublishModal, setShowPublishModal] = useState(false);
   const [postId, setPostId] = useState<string | null>(null);
 
@@ -49,39 +46,42 @@ export default function WritePage() {
   const parsedTags = useMemo(() => parseTags(tags), [tags]);
 
   // 使用 useMemo 缓存 postData 对象，避免每次渲染重新创建
-  const postData = useMemo(() => ({
-    title: title.trim(),
-    content,
-    tags: parsedTags,
-    publishStatus: DEFAULT_PUBLISH_STATUS,
-    channelConfig: DEFAULT_CHANNEL_CONFIG,
-  }), [title, content, parsedTags]);
+  const postData = useMemo(
+    () => ({
+      title: title.trim(),
+      content,
+      tags: parsedTags,
+      publishStatus: DEFAULT_PUBLISH_STATUS,
+      channelConfig: DEFAULT_CHANNEL_CONFIG,
+    }),
+    [title, content, parsedTags],
+  );
 
   // 使用 useCallback 稳定事件处理器
   const handleAutoSave = useCallback(async () => {
-    if (!title.trim() || saveStatus === 'saving') return;
-    
-    setSaveStatus('saving');
+    if (!title.trim() || saveStatus === "saving") return;
+
+    setSaveStatus("saving");
     try {
       const autoSaveData = {
         ...postData,
-        title: title.trim() || '未命名草稿',
+        title: title.trim() || "未命名草稿",
       };
 
-      const response = await fetch('/api/posts', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+      const response = await fetch("/api/posts", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify(autoSaveData),
       });
 
       if (response.ok) {
         const data = await response.json();
         setPostId(data.id);
-        setSaveStatus('saved');
-        setTimeout(() => setSaveStatus('idle'), 2000);
+        setSaveStatus("saved");
+        setTimeout(() => setSaveStatus("idle"), 2000);
       }
     } catch {
-      setSaveStatus('idle');
+      setSaveStatus("idle");
     }
   }, [postData, title, saveStatus]);
 
@@ -98,41 +98,47 @@ export default function WritePage() {
 
   const handleSave = useCallback(async () => {
     if (!title.trim()) {
-      alert('请输入标题');
+      alert("请输入标题");
       return;
     }
 
     setSaving(true);
     try {
-      const response = await fetch('/api/posts', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+      const response = await fetch("/api/posts", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify(postData),
       });
 
       if (response.ok) {
         const data = await response.json();
         setPostId(data.id);
-        setSaveStatus('saved');
+        setSaveStatus("saved");
         setShowPublishModal(true);
       } else {
-        throw new Error('Failed to save');
+        throw new Error("Failed to save");
       }
     } catch {
-      alert('保存失败，请重试');
+      alert("保存失败，请重试");
     } finally {
       setSaving(false);
     }
   }, [postData, title]);
 
   // 使用 useCallback 稳定 onChange 处理器
-  const handleTitleChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
-    setTitle(e.target.value);
-  }, []);
+  const handleTitleChange = useCallback(
+    (e: React.ChangeEvent<HTMLInputElement>) => {
+      setTitle(e.target.value);
+    },
+    [],
+  );
 
-  const handleTagsChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
-    setTags(e.target.value);
-  }, []);
+  const handleTagsChange = useCallback(
+    (e: React.ChangeEvent<HTMLInputElement>) => {
+      setTags(e.target.value);
+    },
+    [],
+  );
 
   const handleContentChange = useCallback((value: string) => {
     setContent(value);
@@ -154,13 +160,13 @@ export default function WritePage() {
             placeholder="输入文章标题..."
             className="text-xl font-semibold bg-transparent border-none outline-none text-[var(--text-primary)] placeholder:text-[var(--text-muted)] w-96"
           />
-          {saveStatus === 'saving' && (
+          {saveStatus === "saving" && (
             <span className="text-xs text-[var(--text-muted)] flex items-center gap-1">
               <Loader2 size={12} className="animate-spin" />
               保存中...
             </span>
           )}
-          {saveStatus === 'saved' && (
+          {saveStatus === "saved" && (
             <span className="text-xs text-green-600 flex items-center gap-1">
               <Check size={12} />
               已保存
@@ -170,6 +176,7 @@ export default function WritePage() {
 
         <div className="flex items-center gap-3">
           <button
+            type="button"
             onClick={handleAutoSave}
             disabled={saving}
             className="flex items-center gap-2 px-4 py-2 text-sm text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--surface-hover)] rounded-lg transition-colors focus-ring"
@@ -178,6 +185,7 @@ export default function WritePage() {
             保存草稿
           </button>
           <button
+            type="button"
             onClick={handleSave}
             disabled={saving}
             className="flex items-center gap-2 px-4 py-2 text-sm bg-[var(--accent)] text-white rounded-lg hover:bg-[var(--accent-hover)] transition-colors disabled:opacity-50 focus-ring"
@@ -212,11 +220,7 @@ export default function WritePage() {
 
         {/* Right: Preview */}
         <div className="w-1/2 flex flex-col bg-[var(--background)]">
-          <PlatformPreview
-            title={title}
-            content={content}
-            tags={parsedTags}
-          />
+          <PlatformPreview title={title} content={content} tags={parsedTags} />
         </div>
       </div>
 

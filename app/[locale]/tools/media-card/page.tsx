@@ -1,18 +1,20 @@
-'use client';
+"use client";
 
-import React from 'react';
-import dynamic from 'next/dynamic';
-import Link from 'next/link';
-import { ArrowLeft, Sparkles } from 'lucide-react';
+import { ArrowLeft, Sparkles } from "lucide-react";
+import dynamic from "next/dynamic";
+import Link from "next/link";
 
 // Dynamically import the MediaCardCreator to avoid SSR issues with html2canvas
 const MediaCardCreator = dynamic(
-  () => import('@/components/tools/MediaCardCreator'),
-  { ssr: false, loading: () => (
-    <div className="flex items-center justify-center h-screen">
-      <div className="animate-pulse text-purple-600">加载中...</div>
-    </div>
-  )}
+  () => import("@/components/tools/MediaCardCreator"),
+  {
+    ssr: false,
+    loading: () => (
+      <div className="flex items-center justify-center h-screen">
+        <div className="animate-pulse text-purple-600">加载中...</div>
+      </div>
+    ),
+  },
 );
 
 export default function MediaCardPage() {

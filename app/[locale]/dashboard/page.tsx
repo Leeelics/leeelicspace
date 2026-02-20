@@ -1,21 +1,22 @@
-'use client';
+"use client";
 
-import React, { useEffect, useState } from 'react';
-import { useRouter, useParams } from 'next/navigation';
-import Link from 'next/link';
 import {
-  FileText,
-  Share2,
-  Clock,
-  TrendingUp,
-  PenLine,
-  ExternalLink,
   BookOpen,
+  Clock,
+  ExternalLink,
+  FileText,
   MessageSquare,
+  PenLine,
+  Share2,
+  TrendingUp,
   Twitter,
-} from 'lucide-react';
-import type { Post, Platform } from '@/types';
-import { platforms } from '@/types';
+} from "lucide-react";
+import Link from "next/link";
+import { useParams } from "next/navigation";
+import type React from "react";
+import { useEffect, useState } from "react";
+import type { Platform, Post } from "@/types";
+import { platforms } from "@/types";
 
 interface Stats {
   totalPosts: number;
@@ -25,9 +26,8 @@ interface Stats {
 }
 
 export default function DashboardOverview() {
-  const router = useRouter();
   const params = useParams();
-  const locale = (params?.locale as string) || 'zh';
+  const locale = (params?.locale as string) || "zh";
   const [stats, setStats] = useState<Stats>({
     totalPosts: 0,
     publishedPosts: 0,
@@ -43,48 +43,51 @@ export default function DashboardOverview() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
+    const fetchStats = async () => {
+      try {
+        const response = await fetch("/api/posts");
+        const data = await response.json();
+        const posts: Post[] = data.posts || [];
+
+        // Calculate stats
+        const platformStats = {
+          blog: 0,
+          xiaohongshu: 0,
+          wechat: 0,
+          jike: 0,
+          x: 0,
+        };
+
+        let publishedPosts = 0;
+
+        posts.forEach((post) => {
+          let isPublished = false;
+          (Object.keys(post.publishStatus) as Platform[]).forEach(
+            (platform) => {
+              if (post.publishStatus[platform].published) {
+                platformStats[platform]++;
+                isPublished = true;
+              }
+            },
+          );
+          if (isPublished) publishedPosts++;
+        });
+
+        setStats({
+          totalPosts: posts.length,
+          publishedPosts,
+          platformStats,
+          recentPosts: posts.slice(0, 5),
+        });
+      } catch {
+        // Silently handle error
+      } finally {
+        setLoading(false);
+      }
+    };
+
     fetchStats();
   }, []);
-
-  const fetchStats = async () => {
-    try {
-      const response = await fetch('/api/posts');
-      const data = await response.json();
-      const posts: Post[] = data.posts || [];
-
-      // Calculate stats
-      const platformStats = {
-        blog: 0,
-        xiaohongshu: 0,
-        wechat: 0,
-        jike: 0,
-        x: 0,
-      };
-
-      let publishedPosts = 0;
-
-      posts.forEach((post) => {
-        let isPublished = false;
-        (Object.keys(post.publishStatus) as Platform[]).forEach((platform) => {
-          if (post.publishStatus[platform].published) {
-            platformStats[platform]++;
-            isPublished = true;
-          }
-        });
-        if (isPublished) publishedPosts++;
-      });
-
-      setStats({
-        totalPosts: posts.length,
-        publishedPosts,
-        platformStats,
-        recentPosts: posts.slice(0, 5),
-      });
-    } catch {
-    } finally {
-      setLoading(false);
-    }
-  };
 
   if (loading) {
     return (
@@ -160,21 +163,24 @@ export default function DashboardOverview() {
           </h2>
           <div className="space-y-3">
             {platforms.map((platform) => (
-              <div key={platform.id} className="flex items-center justify-between">
+              <div
+                key={platform.id}
+                className="flex items-center justify-between"
+              >
                 <div className="flex items-center gap-3">
                   <div
                     className="w-3 h-3 rounded-full"
                     style={{ backgroundColor: platform.color }}
                   />
-                  <span className="text-[var(--text-secondary)]">{platform.name}</span>
+                  <span className="text-[var(--text-secondary)]">
+                    {platform.name}
+                  </span>
                 </div>
                 <div className="flex items-center gap-4">
                   <span className="text-[var(--text-primary)] font-medium">
                     {stats.platformStats[platform.id]}
                   </span>
-                  <span className="text-xs text-[var(--text-muted)]">
-                    篇
-                  </span>
+                  <span className="text-xs text-[var(--text-muted)]">篇</span>
                 </div>
               </div>
             ))}
@@ -213,7 +219,7 @@ export default function DashboardOverview() {
                       {post.title}
                     </Link>
                     <p className="text-xs text-[var(--text-muted)] mt-0.5">
-                      {new Date(post.updated_at).toLocaleDateString('zh-CN')}
+                      {new Date(post.updated_at).toLocaleDateString("zh-CN")}
                     </p>
                   </div>
                   <div className="flex items-center gap-1 ml-4">
@@ -281,13 +287,13 @@ function StatCard({
   icon: React.ElementType;
   label: string;
   value: number | string;
-  color: 'blue' | 'green' | 'orange' | 'purple';
+  color: "blue" | "green" | "orange" | "purple";
 }) {
   const colorClasses = {
-    blue: 'bg-blue-500/10 text-blue-600',
-    green: 'bg-green-500/10 text-green-600',
-    orange: 'bg-orange-500/10 text-orange-600',
-    purple: 'bg-purple-500/10 text-purple-600',
+    blue: "bg-blue-500/10 text-blue-600",
+    green: "bg-green-500/10 text-green-600",
+    orange: "bg-orange-500/10 text-orange-600",
+    purple: "bg-purple-500/10 text-purple-600",
   };
 
   return (
@@ -298,7 +304,9 @@ function StatCard({
         </div>
         <div>
           <p className="text-sm text-[var(--text-muted)]">{label}</p>
-          <p className="text-2xl font-bold text-[var(--text-primary)]">{value}</p>
+          <p className="text-2xl font-bold text-[var(--text-primary)]">
+            {value}
+          </p>
         </div>
       </div>
     </div>

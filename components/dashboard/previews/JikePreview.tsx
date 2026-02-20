@@ -1,7 +1,7 @@
-'use client';
+"use client";
 
-import React, { useState, useMemo } from 'react';
-import { Copy, Check, Zap } from 'lucide-react';
+import { Check, Copy, Zap } from "lucide-react";
+import React, { useMemo, useState } from "react";
 
 interface JikePreviewProps {
   title: string;
@@ -17,29 +17,29 @@ export default function JikePreview({ title, content }: JikePreviewProps) {
   // Format content for Jike
   const formattedContent = useMemo(() => {
     let text = title ? `${title}\n\n${content}` : content;
-    
+
     // Convert markdown to plain text with simple formatting
     text = text
       // Headers to bold
-      .replace(/^#+ (.+)$/gm, '**$1**')
+      .replace(/^#+ (.+)$/gm, "**$1**")
       // Bold
-      .replace(/\*\*(.+?)\*\*/g, '$1')
+      .replace(/\*\*(.+?)\*\*/g, "$1")
       // Italic
-      .replace(/\*(.+?)\*/g, '$1')
+      .replace(/\*(.+?)\*/g, "$1")
       // Code blocks to quotes
-      .replace(/```[\s\S]*?```/g, '[代码块]')
+      .replace(/```[\s\S]*?```/g, "[代码块]")
       // Inline code
-      .replace(/`(.+?)`/g, '$1')
+      .replace(/`(.+?)`/g, "$1")
       // Lists
-      .replace(/^- (.+)$/gm, '• $1')
+      .replace(/^- (.+)$/gm, "• $1")
       // Quotes
-      .replace(/^&gt; (.+)$/gm, '「$1」')
+      .replace(/^&gt; (.+)$/gm, "「$1」")
       // Links
-      .replace(/\[(.+?)\]\((.+?)\)/g, '$1 $2');
+      .replace(/\[(.+?)\]\((.+?)\)/g, "$1 $2");
 
     // Truncate if too long
     if (text.length > MAX_LENGTH) {
-      text = text.slice(0, MAX_LENGTH - 3) + '...';
+      text = text.slice(0, MAX_LENGTH - 3) + "...";
     }
 
     return text;
@@ -64,7 +64,13 @@ export default function JikePreview({ title, content }: JikePreviewProps) {
         <div className="flex items-center gap-4">
           <div className="text-sm">
             <span className="text-[var(--text-muted)]">字数：</span>
-            <span className={formattedContent.length > MAX_LENGTH ? 'text-red-500' : 'text-[var(--text-primary)]'}>
+            <span
+              className={
+                formattedContent.length > MAX_LENGTH
+                  ? "text-red-500"
+                  : "text-[var(--text-primary)]"
+              }
+            >
               {formattedContent.length} / {MAX_LENGTH}
             </span>
           </div>
@@ -83,7 +89,7 @@ export default function JikePreview({ title, content }: JikePreviewProps) {
           className="flex items-center gap-1.5 px-3 py-1.5 text-sm bg-[#ffe411] text-black rounded-lg hover:bg-[#ffe411]/90 transition-colors"
         >
           {copied ? <Check size={14} /> : <Copy size={14} />}
-          {copied ? '已复制' : '复制内容'}
+          {copied ? "已复制" : "复制内容"}
         </button>
       </div>
 
@@ -103,18 +109,15 @@ export default function JikePreview({ title, content }: JikePreviewProps) {
         {/* Content */}
         <div className="p-4">
           <div className="text-[var(--text-primary)] whitespace-pre-wrap leading-relaxed">
-            {formattedContent || '开始写作，即刻动态将在这里显示...'}
+            {formattedContent || "开始写作，即刻动态将在这里显示..."}
           </div>
 
           {/* Topics */}
           {topics.length > 0 && (
             <div className="flex flex-wrap gap-2 mt-4">
               {topics.map((topic) => (
-                <span
-                  key={topic}
-                  className="text-[#ffe411] text-sm"
-                >
-                  #{topic.replace('#', '')}
+                <span key={topic} className="text-[#ffe411] text-sm">
+                  #{topic.replace("#", "")}
                 </span>
               ))}
             </div>
@@ -123,7 +126,7 @@ export default function JikePreview({ title, content }: JikePreviewProps) {
 
         {/* Footer */}
         <div className="px-4 py-3 bg-gray-50 flex items-center justify-between text-sm text-[var(--text-muted)]">
-          <span>{new Date().toLocaleDateString('zh-CN')}</span>
+          <span>{new Date().toLocaleDateString("zh-CN")}</span>
           <div className="flex items-center gap-4">
             <span>转发</span>
             <span>评论</span>
@@ -135,7 +138,9 @@ export default function JikePreview({ title, content }: JikePreviewProps) {
       {/* Tips */}
       <div className="mt-6 max-w-[400px] mx-auto">
         <div className="bg-[var(--surface)] rounded-lg p-4 text-sm">
-          <h4 className="font-medium text-[var(--text-primary)] mb-2">即刻发布提示</h4>
+          <h4 className="font-medium text-[var(--text-primary)] mb-2">
+            即刻发布提示
+          </h4>
           <ul className="text-[var(--text-secondary)] space-y-1 list-disc list-inside">
             <li>即刻适合短内容，建议控制在 2000 字以内</li>
             <li>使用话题标签（#话题#）增加曝光</li>

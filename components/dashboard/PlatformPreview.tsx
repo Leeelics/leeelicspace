@@ -1,10 +1,11 @@
-'use client';
+"use client";
 
-import React, { useState, useMemo, Suspense } from 'react';
-import { BookOpen, MessageSquare, Twitter, FileText, Zap } from 'lucide-react';
-import type { Platform } from '@/types';
-import { platforms } from '@/types';
-import dynamic from 'next/dynamic';
+import { BookOpen, FileText, MessageSquare, Twitter, Zap } from "lucide-react";
+import dynamic from "next/dynamic";
+import type React from "react";
+import { Suspense, useMemo, useState } from "react";
+import type { Platform } from "@/types";
+import { platforms } from "@/types";
 
 interface PlatformPreviewProps {
   title: string;
@@ -22,23 +23,26 @@ const platformIcons: Record<Platform, React.ElementType> = {
 };
 
 // 动态导入预览组件，减少初始加载
-const BlogPreview = dynamic(() => import('./previews/BlogPreview'), {
+const BlogPreview = dynamic(() => import("./previews/BlogPreview"), {
   loading: () => <PreviewLoading />,
 });
 
-const XiaohongshuPreview = dynamic(() => import('./previews/XiaohongshuPreview'), {
+const XiaohongshuPreview = dynamic(
+  () => import("./previews/XiaohongshuPreview"),
+  {
+    loading: () => <PreviewLoading />,
+  },
+);
+
+const WechatPreview = dynamic(() => import("./previews/WechatPreview"), {
   loading: () => <PreviewLoading />,
 });
 
-const WechatPreview = dynamic(() => import('./previews/WechatPreview'), {
+const XPreview = dynamic(() => import("./previews/XPreview"), {
   loading: () => <PreviewLoading />,
 });
 
-const XPreview = dynamic(() => import('./previews/XPreview'), {
-  loading: () => <PreviewLoading />,
-});
-
-const JikePreview = dynamic(() => import('./previews/JikePreview'), {
+const JikePreview = dynamic(() => import("./previews/JikePreview"), {
   loading: () => <PreviewLoading />,
 });
 
@@ -51,21 +55,25 @@ function PreviewLoading() {
   );
 }
 
-export default function PlatformPreview({ title, content, tags }: PlatformPreviewProps) {
-  const [activePlatform, setActivePlatform] = useState<Platform>('blog');
+export default function PlatformPreview({
+  title,
+  content,
+  tags,
+}: PlatformPreviewProps) {
+  const [activePlatform, setActivePlatform] = useState<Platform>("blog");
 
   // 使用 useMemo 缓存渲染内容
   const previewContent = useMemo(() => {
     switch (activePlatform) {
-      case 'blog':
+      case "blog":
         return <BlogPreview title={title} content={content} tags={tags} />;
-      case 'xiaohongshu':
+      case "xiaohongshu":
         return <XiaohongshuPreview title={title} content={content} />;
-      case 'wechat':
+      case "wechat":
         return <WechatPreview title={title} content={content} />;
-      case 'x':
+      case "x":
         return <XPreview title={title} content={content} />;
-      case 'jike':
+      case "jike":
         return <JikePreview title={title} content={content} />;
       default:
         return <BlogPreview title={title} content={content} tags={tags} />;
@@ -80,12 +88,13 @@ export default function PlatformPreview({ title, content, tags }: PlatformPrevie
           const Icon = platformIcons[platform.id];
           return (
             <button
+              type="button"
               key={platform.id}
               onClick={() => setActivePlatform(platform.id)}
               className={`flex items-center gap-2 px-3 py-1.5 text-sm rounded-md transition-colors focus-ring ${
                 activePlatform === platform.id
-                  ? 'bg-[var(--accent)]/10 text-[var(--accent)] font-medium'
-                  : 'text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--surface-hover)]'
+                  ? "bg-[var(--accent)]/10 text-[var(--accent)] font-medium"
+                  : "text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--surface-hover)]"
               }`}
             >
               <Icon size={14} />
@@ -97,20 +106,16 @@ export default function PlatformPreview({ title, content, tags }: PlatformPrevie
 
       {/* Preview Area - 使用动态组件 */}
       <div className="flex-1 overflow-auto bg-[var(--background)]">
-        <Suspense fallback={<PreviewLoading />}>
-          {previewContent}
-        </Suspense>
+        <Suspense fallback={<PreviewLoading />}>{previewContent}</Suspense>
       </div>
 
       {/* Platform Info */}
       <div className="p-3 border-t border-[var(--border)] bg-[var(--surface)] text-xs text-[var(--text-muted)]">
         <div className="flex items-center justify-between">
           <span>
-            {platforms.find(p => p.id === activePlatform)?.name} 预览
+            {platforms.find((p) => p.id === activePlatform)?.name} 预览
           </span>
-          <span>
-            {content.length} 字符
-          </span>
+          <span>{content.length} 字符</span>
         </div>
       </div>
     </div>

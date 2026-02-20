@@ -1,5 +1,5 @@
-import { get } from '@vercel/edge-config';
-import { logger } from './logger';
+import { get } from "@vercel/edge-config";
+import { logger } from "./logger";
 
 export interface EdgeConfigItems {
   greeting?: string;
@@ -12,24 +12,29 @@ export interface EdgeConfigItems {
  * 避免在构建或运行时出现 "No connection string provided" 的报错。
  */
 export async function getEdgeConfigItem<T extends keyof EdgeConfigItems>(
-  key: T
+  key: T,
 ): Promise<EdgeConfigItems[T] | undefined> {
   try {
     // 未配置 Edge Config 时，直接跳过远程调用
     if (!process.env.EDGE_CONFIG) {
-      if (process.env.NODE_ENV !== 'production') {
-        logger.debug(`EDGE_CONFIG env not set, skip fetching key '${String(key)}'`);
+      if (process.env.NODE_ENV !== "production") {
+        logger.debug(
+          `EDGE_CONFIG env not set, skip fetching key '${String(key)}'`,
+        );
       }
       return undefined;
     }
 
     return (await get(key)) as EdgeConfigItems[T] | undefined;
   } catch (error) {
-    logger.error(`Failed to get Edge Config item '${String(key)}'`, error instanceof Error ? error : new Error(String(error)));
+    logger.error(
+      `Failed to get Edge Config item '${String(key)}'`,
+      error instanceof Error ? error : new Error(String(error)),
+    );
     return undefined;
   }
 }
 
 export async function getGreeting(): Promise<string | undefined> {
-  return getEdgeConfigItem('greeting');
+  return getEdgeConfigItem("greeting");
 }

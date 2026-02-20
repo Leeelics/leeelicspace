@@ -1,8 +1,8 @@
-'use client';
+"use client";
 
-import React from 'react';
-import ReactMarkdown from 'react-markdown';
-import remarkGfm from 'remark-gfm';
+// React type used for props interface
+import ReactMarkdown from "react-markdown";
+import remarkGfm from "remark-gfm";
 
 interface EditorProps {
   value: string;
@@ -41,9 +41,7 @@ export default function Editor({ value, onChange }: EditorProps) {
 export function MarkdownPreview({ content }: { content: string }) {
   return (
     <div className="prose prose-lg max-w-none p-6">
-      <ReactMarkdown remarkPlugins={[remarkGfm]}>
-        {content}
-      </ReactMarkdown>
+      <ReactMarkdown remarkPlugins={[remarkGfm]}>{content}</ReactMarkdown>
     </div>
   );
 }

@@ -1,4 +1,4 @@
-import { z } from 'zod';
+import { z } from "zod";
 
 // Platform status schema
 const PlatformStatusSchema = z.object({
@@ -21,7 +21,7 @@ export const PublishStatusSchema = z.object({
 
 // Xiaohongshu config schema
 const XiaohongshuConfigSchema = z.object({
-  cardStyle: z.enum(['gradient', 'minimal', 'photo']),
+  cardStyle: z.enum(["gradient", "minimal", "photo"]),
   fontSize: z.number().min(10).max(100),
   background: z.string().max(500),
   textColor: z.string().max(50),
@@ -31,7 +31,7 @@ const XiaohongshuConfigSchema = z.object({
 
 // WeChat config schema
 const WechatConfigSchema = z.object({
-  template: z.enum(['default', 'tech', 'minimal']),
+  template: z.enum(["default", "tech", "minimal"]),
   autoToc: z.boolean(),
   codeHighlight: z.boolean(),
 });
@@ -59,17 +59,14 @@ export const ChannelConfigSchema = z.object({
 
 // Create post request schema
 export const CreatePostSchema = z.object({
-  title: z.string()
-    .min(1, '标题不能为空')
-    .max(200, '标题最多 200 个字符'),
-  content: z.string()
-    .min(1, '内容不能为空')
-    .max(50000, '内容最多 50000 个字符'),
-  tags: z.array(
-    z.string()
-      .min(1, '标签不能为空')
-      .max(50, '标签最多 50 个字符')
-  ).max(10, '最多 10 个标签'),
+  title: z.string().min(1, "标题不能为空").max(200, "标题最多 200 个字符"),
+  content: z
+    .string()
+    .min(1, "内容不能为空")
+    .max(50000, "内容最多 50000 个字符"),
+  tags: z
+    .array(z.string().min(1, "标签不能为空").max(50, "标签最多 50 个字符"))
+    .max(10, "最多 10 个标签"),
   coverImage: z.string().url().optional(),
   publishStatus: PublishStatusSchema.optional(),
   channelConfig: ChannelConfigSchema.optional(),
@@ -77,19 +74,20 @@ export const CreatePostSchema = z.object({
 
 // Update post request schema (all fields optional)
 export const UpdatePostSchema = z.object({
-  title: z.string()
-    .min(1, '标题不能为空')
-    .max(200, '标题最多 200 个字符')
+  title: z
+    .string()
+    .min(1, "标题不能为空")
+    .max(200, "标题最多 200 个字符")
     .optional(),
-  content: z.string()
-    .min(1, '内容不能为空')
-    .max(50000, '内容最多 50000 个字符')
+  content: z
+    .string()
+    .min(1, "内容不能为空")
+    .max(50000, "内容最多 50000 个字符")
     .optional(),
-  tags: z.array(
-    z.string()
-      .min(1, '标签不能为空')
-      .max(50, '标签最多 50 个字符')
-  ).max(10, '最多 10 个标签').optional(),
+  tags: z
+    .array(z.string().min(1, "标签不能为空").max(50, "标签最多 50 个字符"))
+    .max(10, "最多 10 个标签")
+    .optional(),
   coverImage: z.string().url().optional(),
   publishStatus: PublishStatusSchema.optional(),
   channelConfig: ChannelConfigSchema.optional(),
@@ -124,14 +122,14 @@ export function validatePagination(data: unknown) {
 // Sanitize HTML content helper
 export function sanitizeHtml(input: string): string {
   return input
-    .replace(/[<>]/g, '') // Remove < and > to prevent HTML injection
+    .replace(/[<>]/g, "") // Remove < and > to prevent HTML injection
     .trim();
 }
 
 // Sanitize tag helper
 export function sanitizeTag(tag: string): string {
   return tag
-    .replace(/[#<>&\"']/g, '') // Remove special characters
+    .replace(/[#<>&"']/g, "") // Remove special characters
     .trim()
     .slice(0, 50); // Limit length
 }

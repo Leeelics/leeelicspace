@@ -1,7 +1,7 @@
-import type { Post } from '@/types';
-import { promises as fs } from 'fs';
-import path from 'path';
-import { logger } from './logger';
+import { promises as fs } from "fs";
+import path from "path";
+import type { Post } from "@/types";
+import { logger } from "./logger";
 
 // 简单的文件存储实现，适合Vercel环境
 export class FileStorage {
@@ -11,7 +11,7 @@ export class FileStorage {
 
   constructor() {
     // 使用临时目录，Vercel支持写入
-    this.dataPath = path.join(process.cwd(), 'tmp', 'posts.json');
+    this.dataPath = path.join(process.cwd(), "tmp", "posts.json");
   }
 
   private async ensureDir() {
@@ -28,7 +28,7 @@ export class FileStorage {
 
     try {
       await this.ensureDir();
-      const data = await fs.readFile(this.dataPath, 'utf-8');
+      const data = await fs.readFile(this.dataPath, "utf-8");
       this.posts = JSON.parse(data);
       this.initialized = true;
     } catch {
@@ -45,7 +45,10 @@ export class FileStorage {
       await this.ensureDir();
       await fs.writeFile(this.dataPath, JSON.stringify(this.posts, null, 2));
     } catch (error) {
-      logger.error('Failed to save data', error instanceof Error ? error : new Error(String(error)));
+      logger.error(
+        "Failed to save data",
+        error instanceof Error ? error : new Error(String(error)),
+      );
     }
   }
 
@@ -56,31 +59,36 @@ export class FileStorage {
 
   async getPostById(id: string): Promise<Post | null> {
     await this.loadData();
-    return this.posts.find(p => p.id === id) || null;
+    return this.posts.find((p) => p.id === id) || null;
   }
 
-  async createPost(postData: Omit<Post, 'id' | 'created_at' | 'updated_at'>): Promise<Post> {
+  async createPost(
+    postData: Omit<Post, "id" | "created_at" | "updated_at">,
+  ): Promise<Post> {
     await this.loadData();
-    
+
     const id = Math.random().toString(36).substring(2, 10);
     const now = new Date().toISOString();
     const newPost: Post = {
       id,
       ...postData,
       created_at: now,
-      updated_at: now
+      updated_at: now,
     };
-    
+
     this.posts.push(newPost);
     await this.saveData();
     return newPost;
   }
 
-  async updatePost(id: string, updateData: Partial<Omit<Post, 'id' | 'created_at'>>): Promise<Post | null> {
+  async updatePost(
+    id: string,
+    updateData: Partial<Omit<Post, "id" | "created_at">>,
+  ): Promise<Post | null> {
     await this.loadData();
-    const post = this.posts.find(p => p.id === id);
+    const post = this.posts.find((p) => p.id === id);
     if (!post) return null;
-    
+
     Object.assign(post, updateData);
     post.updated_at = new Date().toISOString();
     await this.saveData();
@@ -90,8 +98,8 @@ export class FileStorage {
   async deletePost(id: string): Promise<boolean> {
     await this.loadData();
     const initialLength = this.posts.length;
-    this.posts = this.posts.filter(p => p.id !== id);
-    
+    this.posts = this.posts.filter((p) => p.id !== id);
+
     if (this.posts.length < initialLength) {
       await this.saveData();
       return true;
@@ -113,7 +121,9 @@ export class FileStorage {
   async getSortedPosts(): Promise<Post[]> {
     await this.loadData();
     return [...this.posts].sort((a, b) => {
-      return new Date(b.updated_at).getTime() - new Date(a.updated_at).getTime();
+      return (
+        new Date(b.updated_at).getTime() - new Date(a.updated_at).getTime()
+      );
     });
   }
 }

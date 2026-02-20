@@ -1,23 +1,24 @@
-'use client';
+"use client";
 
-import React, { useEffect } from 'react';
-import { useRouter, useParams } from 'next/navigation';
-import Link from 'next/link';
 import {
-  LayoutDashboard,
-  PenLine,
   FileText,
-  Settings,
-  LogOut,
   Globe,
-} from 'lucide-react';
+  LayoutDashboard,
+  LogOut,
+  PenLine,
+  Settings,
+} from "lucide-react";
+import Link from "next/link";
+import { useParams, useRouter } from "next/navigation";
+import type React from "react";
+import { useEffect } from "react";
 
 const navItems = [
-  { href: '/dashboard', icon: LayoutDashboard, label: '总览' },
-  { href: '/dashboard/write', icon: PenLine, label: '写作' },
-  { href: '/dashboard/posts', icon: FileText, label: '文章管理' },
-  { href: '/dashboard/channels', icon: Globe, label: '渠道配置' },
-  { href: '/dashboard/settings', icon: Settings, label: '设置' },
+  { href: "/dashboard", icon: LayoutDashboard, label: "总览" },
+  { href: "/dashboard/write", icon: PenLine, label: "写作" },
+  { href: "/dashboard/posts", icon: FileText, label: "文章管理" },
+  { href: "/dashboard/channels", icon: Globe, label: "渠道配置" },
+  { href: "/dashboard/settings", icon: Settings, label: "设置" },
 ];
 
 export default function DashboardLayout({
@@ -27,17 +28,17 @@ export default function DashboardLayout({
 }) {
   const router = useRouter();
   const params = useParams();
-  const locale = (params?.locale as string) || 'zh';
+  const locale = (params?.locale as string) || "zh";
 
   useEffect(() => {
-    const isLoggedIn = localStorage.getItem('adminLoggedIn') === 'true';
+    const isLoggedIn = localStorage.getItem("adminLoggedIn") === "true";
     if (!isLoggedIn) {
       router.push(`/${locale}/dashboard/login`);
     }
   }, [router, locale]);
 
   const handleLogout = () => {
-    localStorage.removeItem('adminLoggedIn');
+    localStorage.removeItem("adminLoggedIn");
     router.push(`/${locale}/dashboard/login`);
   };
 
@@ -72,6 +73,7 @@ export default function DashboardLayout({
         {/* Logout */}
         <div className="p-4 border-t border-[var(--border)]">
           <button
+            type="button"
             onClick={handleLogout}
             className="flex items-center gap-3 px-4 py-2 w-full text-sm text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--surface-hover)] rounded-lg transition-colors"
           >
@@ -82,9 +84,7 @@ export default function DashboardLayout({
       </aside>
 
       {/* Main Content */}
-      <main className="flex-1 ml-64">
-        {children}
-      </main>
+      <main className="flex-1 ml-64">{children}</main>
     </div>
   );
 }
@@ -99,15 +99,16 @@ function NavLink({
   label: string;
 }) {
   // Use typeof window to check current path
-  const isActive = typeof window !== 'undefined' && window.location.pathname === href;
+  const isActive =
+    typeof window !== "undefined" && window.location.pathname === href;
 
   return (
     <Link
       href={href}
       className={`flex items-center gap-3 px-4 py-2.5 text-sm rounded-lg transition-colors ${
         isActive
-          ? 'bg-[var(--accent)]/10 text-[var(--accent)] font-medium'
-          : 'text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--surface-hover)]'
+          ? "bg-[var(--accent)]/10 text-[var(--accent)] font-medium"
+          : "text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--surface-hover)]"
       }`}
     >
       <Icon size={18} />
