@@ -225,7 +225,7 @@ export default function PostsManagement() {
                     <div className="flex items-center justify-end gap-2">
                       <Link
                         href={`/${locale}/dashboard/write/${post.id}`}
-                        className="p-2 hover:bg-[var(--background)] rounded-lg text-[var(--text-secondary)] hover:text-[var(--accent)]"
+                        className="p-2 hover:bg-[var(--background)] rounded-lg text-[var(--text-secondary)] hover:text-[var(--accent)] focus-ring"
                         title="编辑"
                       >
                         <Edit size={16} />
@@ -233,7 +233,7 @@ export default function PostsManagement() {
                       <Link
                         href={`/${locale}/posts/${post.id}`}
                         target="_blank"
-                        className="p-2 hover:bg-[var(--background)] rounded-lg text-[var(--text-secondary)] hover:text-[var(--accent)]"
+                        className="p-2 hover:bg-[var(--background)] rounded-lg text-[var(--text-secondary)] hover:text-[var(--accent)] focus-ring"
                         title="查看"
                       >
                         <ExternalLink size={16} />
@@ -241,7 +241,7 @@ export default function PostsManagement() {
                       <button
                         onClick={() => handleDelete(post.id)}
                         disabled={deleting === post.id}
-                        className="p-2 hover:bg-red-50 rounded-lg text-[var(--text-secondary)] hover:text-red-600 disabled:opacity-50"
+                        className="p-2 hover:bg-red-50 rounded-lg text-[var(--text-secondary)] hover:text-red-600 disabled:opacity-50 focus-ring"
                         title="删除"
                       >
                         <Trash2 size={16} />

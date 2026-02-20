@@ -81,7 +81,8 @@ export default function PublishModal({ postId, title, content, onClose }: Publis
           </div>
           <button
             onClick={onClose}
-            className="p-2 hover:bg-[var(--surface-hover)] rounded-lg transition-colors"
+            className="p-2 hover:bg-[var(--surface-hover)] rounded-lg transition-colors focus-ring"
+            aria-label="关闭"
           >
             <X size={20} />
           </button>

@@ -117,7 +117,7 @@ export default function DashboardOverview() {
       <div className="mb-8">
         <Link
           href={`/${locale}/dashboard/write`}
-          className="inline-flex items-center gap-2 px-6 py-3 bg-[var(--accent)] text-white rounded-lg hover:bg-[var(--accent-hover)] transition-colors font-medium"
+          className="inline-flex items-center gap-2 px-6 py-3 bg-[var(--accent)] text-white rounded-lg hover:bg-[var(--accent-hover)] transition-colors font-medium focus-ring"
         >
           <PenLine size={20} />
           开始写作

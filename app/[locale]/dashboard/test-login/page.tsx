@@ -32,7 +32,7 @@ export default function TestLogin() {
             localStorage.setItem('adminLoggedIn', 'true');
             router.push('/dashboard');
           }}
-          className="px-4 py-2 bg-blue-600 text-white rounded-lg"
+          className="px-4 py-2 bg-blue-600 text-white rounded-lg focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
         >
           强制登录并跳转到管理后台
         </button>
@@ -41,7 +41,7 @@ export default function TestLogin() {
             localStorage.removeItem('adminLoggedIn');
             router.push('/dashboard/login');
           }}
-          className="px-4 py-2 bg-red-600 text-white rounded-lg"
+          className="px-4 py-2 bg-red-600 text-white rounded-lg focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500"
         >
           强制登出并跳转到登录页
         </button>
@@ -49,7 +49,7 @@ export default function TestLogin() {
           onClick={() => {
             router.push('/dashboard/login');
           }}
-          className="px-4 py-2 bg-gray-600 text-white rounded-lg"
+          className="px-4 py-2 bg-gray-600 text-white rounded-lg focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500"
         >
           前往正常登录页
         </button>

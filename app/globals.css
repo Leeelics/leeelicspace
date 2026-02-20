@@ -691,3 +691,114 @@ pre code {
     display: none !important;
   }
 }
+
+/* ============================================
+   Accessibility Utilities
+   ============================================ */
+
+/* Focus ring utility class */
+.focus-ring {
+  outline: none;
+}
+
+.focus-ring:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
+/* ============================================
+   Reduced Motion Support
+   ============================================ */
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+  
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+  
+  /* Disable custom animations */
+  .animate-fade-in,
+  .animate-fade-in-up,
+  .hover-lift {
+    animation: none !important;
+    transition: none !important;
+  }
+  
+  .hover-lift:hover {
+    transform: none !important;
+  }
+  
+  /* Keep functionality but remove motion */
+  .card:hover {
+    transform: none !important;
+  }
+}
+
+/* ============================================
+   Touch Interaction Optimization
+   ============================================ */
+
+/* Prevent double-tap zoom delay on touch devices */
+button,
+a,
+[role="button"],
+input,
+textarea,
+select,
+.btn,
+.tag,
+.nav-link {
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: transparent;
+}
+
+/* Ensure buttons are large enough for touch */
+@media (pointer: coarse) {
+  .btn,
+  button,
+  [role="button"] {
+    min-height: 44px;
+    min-width: 44px;
+  }
+  
+  .btn-sm,
+  .btn-ghost {
+    min-height: 36px;
+    min-width: 36px;
+  }
+}
+
+/* ============================================
+   Screen Reader Only Content
+   ============================================ */
+
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border-width: 0;
+}
+
+.sr-only-focusable:focus {
+  position: static;
+  width: auto;
+  height: auto;
+  padding: inherit;
+  margin: inherit;
+  overflow: visible;
+  clip: auto;
+  white-space: normal;
+}
