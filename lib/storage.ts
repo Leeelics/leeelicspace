@@ -1,6 +1,7 @@
 import type { Post } from '@/types';
 import { promises as fs } from 'fs';
 import path from 'path';
+import { logger } from './logger';
 
 // 简单的文件存储实现，适合Vercel环境
 export class FileStorage {
@@ -17,7 +18,7 @@ export class FileStorage {
     const dir = path.dirname(this.dataPath);
     try {
       await fs.mkdir(dir, { recursive: true });
-    } catch (error) {
+    } catch {
       // 目录可能已存在
     }
   }
@@ -30,7 +31,7 @@ export class FileStorage {
       const data = await fs.readFile(this.dataPath, 'utf-8');
       this.posts = JSON.parse(data);
       this.initialized = true;
-    } catch (error) {
+    } catch {
       // 文件不存在或读取失败，使用空数组
       this.posts = [];
       this.initialized = true;
@@ -44,7 +45,7 @@ export class FileStorage {
       await this.ensureDir();
       await fs.writeFile(this.dataPath, JSON.stringify(this.posts, null, 2));
     } catch (error) {
-      console.error('Failed to save data:', error);
+      logger.error('Failed to save data', error instanceof Error ? error : new Error(String(error)));
     }
   }
 

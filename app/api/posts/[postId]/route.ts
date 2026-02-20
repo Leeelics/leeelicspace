@@ -1,34 +1,33 @@
-import { NextRequest, NextResponse } from "next/server";
+import { type NextRequest } from "next/server";
 import { postStore } from "../../data";
 import { isAuthenticated, getAuthDebugInfo } from "@/lib/auth";
 import { validateUpdatePost } from "@/lib/validation";
 import { checkRateLimit, RATE_LIMITS, getRateLimitHeaders } from "@/lib/rate-limit";
-
-// Helper for consistent logging
-function logError(context: string, postId: string | undefined, error: unknown) {
-  console.error(`[API] ${context} (postId: ${postId || 'unknown'}):`, 
-    error instanceof Error ? error.message : 'Unknown error'
-  );
-}
-
-// Helper for error response
-function errorResponse(message: string, status: number, details?: unknown) {
-  const response: { error: string; details?: unknown } = { error: message };
-  if (details && process.env.NODE_ENV === 'development') {
-    response.details = details;
-  }
-  return NextResponse.json(response, { status });
-}
+import { 
+  createSuccessResponse, 
+  createErrorResponse, 
+  ValidationError, 
+  UnauthorizedError,
+  NotFoundError,
+  handleApiError 
+} from "@/lib/errors";
+import { logger } from "@/lib/logger";
 
 // 获取单篇文章
-export async function GET(request: NextRequest, { params }: { params: Promise<{ postId: string }> }) {
+export async function GET(
+  request: NextRequest, 
+  { params }: { params: Promise<{ postId: string }> }
+) {
   let postId: string | undefined;
   
   try {
     // 速率限制检查（读操作）
     const rateLimitCheck = await checkRateLimit(request, RATE_LIMITS.read);
     if (!rateLimitCheck.allowed) {
-      return errorResponse('Too Many Requests', 429);
+      return createErrorResponse(
+        new UnauthorizedError('Rate limit exceeded'), 
+        request
+      );
     }
     
     const paramsData = await params;
@@ -36,13 +35,19 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
     
     // Validate postId format (should be alphanumeric)
     if (!postId || !/^[a-zA-Z0-9_-]+$/.test(postId)) {
-      return errorResponse('Invalid post ID format', 400);
+      return createErrorResponse(
+        new ValidationError('Invalid post ID format'), 
+        request
+      );
     }
     
     const post = await postStore.getPostById(postId);
-    const response = post 
-      ? NextResponse.json(post)
-      : NextResponse.json({ error: 'Post not found' }, { status: 404 });
+    
+    if (!post) {
+      return createErrorResponse(new NotFoundError('Post'), request);
+    }
+    
+    const response = createSuccessResponse(post);
     
     // 添加速率限制头
     if (rateLimitCheck.result) {
@@ -54,20 +59,31 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
     
     return response;
   } catch (error) {
-    logError('GET /api/posts/[postId]', postId, error);
-    return errorResponse('Failed to fetch post', 500);
+    logger.apiError(
+      request, 
+      `GET /api/posts/${postId} failed`, 
+      error instanceof Error ? error : new Error(String(error)),
+      { postId }
+    );
+    return handleApiError(error, request);
   }
 }
 
 // 更新文章
-export async function PUT(request: NextRequest, { params }: { params: Promise<{ postId: string }> }) {
+export async function PUT(
+  request: NextRequest, 
+  { params }: { params: Promise<{ postId: string }> }
+) {
   let postId: string | undefined;
   
   try {
     // 速率限制检查（写操作）
     const rateLimitCheck = await checkRateLimit(request, RATE_LIMITS.write);
     if (!rateLimitCheck.allowed) {
-      return errorResponse('Too Many Requests', 429);
+      return createErrorResponse(
+        new UnauthorizedError('Rate limit exceeded'), 
+        request
+      );
     }
     
     const paramsData = await params;
@@ -75,7 +91,10 @@ export async function PUT(request: NextRequest, { params }: { params: Promise<{ 
     
     // Validate postId format
     if (!postId || !/^[a-zA-Z0-9_-]+$/.test(postId)) {
-      return errorResponse('Invalid post ID format', 400);
+      return createErrorResponse(
+        new ValidationError('Invalid post ID format'), 
+        request
+      );
     }
     
     // 获取请求体
@@ -83,26 +102,26 @@ export async function PUT(request: NextRequest, { params }: { params: Promise<{ 
     
     // Debug info only in development
     if (process.env.NODE_ENV === 'development') {
-      console.log(`PUT /api/posts/${postId} - Auth debug:`, getAuthDebugInfo(request));
+      const debugInfo = getAuthDebugInfo(request);
+      if (debugInfo) {
+        logger.debug(`PUT /api/posts/${postId} - Auth debug`, debugInfo);
+      }
     }
     
     // 权限验证
     if (!isAuthenticated(request)) {
-      console.log(`[AUTH] PUT /api/posts/${postId} - Authentication failed`);
-      return NextResponse.json({ 
-        error: 'Unauthorized',
-        message: 'Missing or invalid authentication credentials'
-      }, { status: 401 });
+      logger.warn(`Authentication failed for PUT /api/posts/${postId}`);
+      return createErrorResponse(new UnauthorizedError(), request);
     }
     
     // 验证输入数据
     const validationResult = validateUpdatePost(data);
     if (!validationResult.success) {
-      console.log(`[VALIDATION] PUT /api/posts/${postId} - Validation failed:`, validationResult.error.format());
-      return NextResponse.json({ 
-        error: 'Invalid input',
-        details: validationResult.error.format()
-      }, { status: 400 });
+      logger.debug(`PUT /api/posts/${postId} - Validation failed`, validationResult.error.format() as Record<string, unknown>);
+      return createErrorResponse(
+        new ValidationError('Validation failed', { errors: validationResult.error.format() as Record<string, unknown> }), 
+        request
+      );
     }
     
     const validatedData = validationResult.data;
@@ -118,9 +137,11 @@ export async function PUT(request: NextRequest, { params }: { params: Promise<{ 
     
     const updatedPost = await postStore.updatePost(postId, updateData);
     
-    const response = updatedPost
-      ? NextResponse.json(updatedPost)
-      : NextResponse.json({ error: 'Post not found' }, { status: 404 });
+    if (!updatedPost) {
+      return createErrorResponse(new NotFoundError('Post'), request);
+    }
+    
+    const response = createSuccessResponse(updatedPost);
     
     // 添加速率限制头
     if (rateLimitCheck.result) {
@@ -130,22 +151,34 @@ export async function PUT(request: NextRequest, { params }: { params: Promise<{ 
       });
     }
     
+    logger.api(request, 'Post updated successfully', { postId });
     return response;
   } catch (error) {
-    logError('PUT /api/posts/[postId]', postId, error);
-    return errorResponse('Failed to update post', 500);
+    logger.apiError(
+      request, 
+      `PUT /api/posts/${postId} failed`, 
+      error instanceof Error ? error : new Error(String(error)),
+      { postId }
+    );
+    return handleApiError(error, request);
   }
 }
 
 // 删除文章
-export async function DELETE(request: NextRequest, { params }: { params: Promise<{ postId: string }> }) {
+export async function DELETE(
+  request: NextRequest, 
+  { params }: { params: Promise<{ postId: string }> }
+) {
   let postId: string | undefined;
   
   try {
     // 速率限制检查（写操作）
     const rateLimitCheck = await checkRateLimit(request, RATE_LIMITS.write);
     if (!rateLimitCheck.allowed) {
-      return errorResponse('Too Many Requests', 429);
+      return createErrorResponse(
+        new UnauthorizedError('Rate limit exceeded'), 
+        request
+      );
     }
     
     const paramsData = await params;
@@ -153,29 +186,34 @@ export async function DELETE(request: NextRequest, { params }: { params: Promise
     
     // Validate postId format
     if (!postId || !/^[a-zA-Z0-9_-]+$/.test(postId)) {
-      return errorResponse('Invalid post ID format', 400);
+      return createErrorResponse(
+        new ValidationError('Invalid post ID format'), 
+        request
+      );
     }
     
     // Debug info only in development
     if (process.env.NODE_ENV === 'development') {
-      console.log(`DELETE /api/posts/${postId} - Auth debug:`, getAuthDebugInfo(request));
+      const debugInfo = getAuthDebugInfo(request);
+      if (debugInfo) {
+        logger.debug(`DELETE /api/posts/${postId} - Auth debug`, debugInfo);
+      }
     }
     
     // 权限验证
     if (!isAuthenticated(request)) {
-      console.log(`[AUTH] DELETE /api/posts/${postId} - Authentication failed`);
-      return NextResponse.json({ 
-        error: 'Unauthorized',
-        message: 'Missing or invalid authentication credentials'
-      }, { status: 401 });
+      logger.warn(`Authentication failed for DELETE /api/posts/${postId}`);
+      return createErrorResponse(new UnauthorizedError(), request);
     }
     
     // 删除文章
     const success = await postStore.deletePost(postId);
     
-    const response = success
-      ? NextResponse.json({ message: 'Post deleted' })
-      : NextResponse.json({ error: 'Post not found' }, { status: 404 });
+    if (!success) {
+      return createErrorResponse(new NotFoundError('Post'), request);
+    }
+    
+    const response = createSuccessResponse({ message: 'Post deleted' });
     
     // 添加速率限制头
     if (rateLimitCheck.result) {
@@ -185,9 +223,15 @@ export async function DELETE(request: NextRequest, { params }: { params: Promise
       });
     }
     
+    logger.api(request, 'Post deleted successfully', { postId });
     return response;
   } catch (error) {
-    logError('DELETE /api/posts/[postId]', postId, error);
-    return errorResponse('Failed to delete post', 500);
+    logger.apiError(
+      request, 
+      `DELETE /api/posts/${postId} failed`, 
+      error instanceof Error ? error : new Error(String(error)),
+      { postId }
+    );
+    return handleApiError(error, request);
   }
 }

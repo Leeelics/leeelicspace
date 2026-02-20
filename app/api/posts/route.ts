@@ -1,28 +1,17 @@
-import { type NextRequest, NextResponse } from "next/server";
+import { type NextRequest } from "next/server";
 import { postStore } from "../data";
 import { isAuthenticated, getAuthDebugInfo } from "@/lib/auth";
 import type { Post } from "@/types";
 import { validateCreatePost, validatePagination } from "@/lib/validation";
 import { checkRateLimit, RATE_LIMITS, getRateLimitHeaders } from "@/lib/rate-limit";
-
-// Helper for consistent error logging
-function logError(context: string, error: unknown, request: NextRequest) {
-  console.error(`[API] ${context}:`, {
-    error: error instanceof Error ? error.message : 'Unknown error',
-    url: request.url,
-    method: request.method,
-    timestamp: new Date().toISOString(),
-  });
-}
-
-// Helper for error response
-function errorResponse(message: string, status: number, details?: unknown) {
-  const response: { error: string; details?: unknown } = { error: message };
-  if (details && process.env.NODE_ENV === 'development') {
-    response.details = details;
-  }
-  return NextResponse.json(response, { status });
-}
+import { 
+  createSuccessResponse, 
+  createErrorResponse, 
+  ValidationError, 
+  UnauthorizedError,
+  handleApiError 
+} from "@/lib/errors";
+import { logger } from "@/lib/logger";
 
 // 获取所有文章，支持分页、标签筛选和关键词搜索
 export async function GET(request: NextRequest) {
@@ -30,7 +19,10 @@ export async function GET(request: NextRequest) {
     // 速率限制检查（读操作）
     const rateLimitCheck = await checkRateLimit(request, RATE_LIMITS.read);
     if (!rateLimitCheck.allowed) {
-      return errorResponse('Too Many Requests', 429);
+      return createErrorResponse(
+        new UnauthorizedError('Rate limit exceeded'), 
+        request
+      );
     }
     
     // 获取并验证查询参数
@@ -43,7 +35,12 @@ export async function GET(request: NextRequest) {
     });
     
     if (!paramsResult.success) {
-      return errorResponse('Invalid query parameters', 400, paramsResult.error.format());
+      return createErrorResponse(
+        new ValidationError('Invalid query parameters', { 
+          errors: paramsResult.error.format() 
+        }), 
+        request
+      );
     }
     
     const { page, per_page, tag, search } = paramsResult.data;
@@ -78,15 +75,15 @@ export async function GET(request: NextRequest) {
     const total_pages = Math.ceil(total / per_page);
     
     // 返回结果
-    const response = NextResponse.json({
-      posts: paginatedPosts,
-      pagination: {
+    const response = createSuccessResponse(
+      { posts: paginatedPosts },
+      {
         page,
         per_page,
         total,
         total_pages
       }
-    });
+    );
     
     // 添加速率限制头
     if (rateLimitCheck.result) {
@@ -98,8 +95,8 @@ export async function GET(request: NextRequest) {
     
     return response;
   } catch (error) {
-    logError('GET /api/posts error', error, request);
-    return errorResponse('Failed to fetch posts', 500);
+    logger.apiError(request, 'GET /api/posts failed', error instanceof Error ? error : new Error(String(error)));
+    return handleApiError(error, request);
   }
 }
 
@@ -109,7 +106,10 @@ export async function POST(request: NextRequest) {
     // 速率限制检查（写操作）
     const rateLimitCheck = await checkRateLimit(request, RATE_LIMITS.write);
     if (!rateLimitCheck.allowed) {
-      return errorResponse('Too Many Requests', 429);
+      return createErrorResponse(
+        new UnauthorizedError('Rate limit exceeded'), 
+        request
+      );
     }
     
     // 获取请求体
@@ -117,26 +117,26 @@ export async function POST(request: NextRequest) {
     
     // Debug info only in development
     if (process.env.NODE_ENV === 'development') {
-      console.log('POST /api/posts - Auth debug:', getAuthDebugInfo(request));
+      const debugInfo = getAuthDebugInfo(request);
+      if (debugInfo) {
+        logger.debug('POST /api/posts - Auth debug', debugInfo);
+      }
     }
     
     // 权限验证
     if (!isAuthenticated(request)) {
-      console.log('[AUTH] POST /api/posts - Authentication failed');
-      return NextResponse.json({ 
-        error: 'Unauthorized',
-        message: 'Missing or invalid authentication credentials'
-      }, { status: 401 });
+      logger.warn('Authentication failed for POST /api/posts');
+      return createErrorResponse(new UnauthorizedError(), request);
     }
     
     // 验证输入数据
     const validationResult = validateCreatePost(data);
     if (!validationResult.success) {
-      console.log('[VALIDATION] POST /api/posts - Validation failed:', validationResult.error.format());
-      return NextResponse.json({ 
-        error: 'Invalid input',
-        details: validationResult.error.format()
-      }, { status: 400 });
+      logger.debug('POST /api/posts - Validation failed', validationResult.error.format() as Record<string, unknown>);
+      return createErrorResponse(
+        new ValidationError('Validation failed', { errors: validationResult.error.format() as Record<string, unknown> }), 
+        request
+      );
     }
     
     const validatedData = validationResult.data;
@@ -151,7 +151,7 @@ export async function POST(request: NextRequest) {
       ...(validatedData.channelConfig && { channelConfig: validatedData.channelConfig }),
     });
     
-    const response = NextResponse.json(newPost, { status: 201 });
+    const response = createSuccessResponse(newPost);
     
     // 添加速率限制头
     if (rateLimitCheck.result) {
@@ -161,9 +161,10 @@ export async function POST(request: NextRequest) {
       });
     }
     
+    logger.api(request, 'Post created successfully', { postId: newPost.id });
     return response;
   } catch (error) {
-    logError('POST /api/posts error', error, request);
-    return errorResponse('Failed to create post', 500);
+    logger.apiError(request, 'POST /api/posts failed', error instanceof Error ? error : new Error(String(error)));
+    return handleApiError(error, request);
   }
 }

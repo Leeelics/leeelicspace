@@ -1,10 +1,22 @@
 import { kv } from '@vercel/kv';
 import type { Post } from '@/types';
 import { defaultPublishStatus, defaultChannelConfig } from '@/types';
+import { logger } from './logger';
 
 const POSTS_KEY = 'blog:posts';
 const POST_IDS_KEY = 'blog:post_ids';
 const TAGS_KEY = 'blog:tags';
+
+// Storage interface for type safety
+interface StorageInfo {
+  type: string;
+  post_count: number;
+  tag_count: number;
+  writable: boolean;
+  connected: boolean;
+  fallback?: boolean;
+  error?: string;
+}
 
 // 内存存储回退（当 KV 不可用时使用）
 class MemoryStorage {
@@ -65,19 +77,19 @@ export class KVStorage {
   async initialize(): Promise<void> {
     if (this.initialized) return;
 
-    console.log('[KV] Initializing storage...');
+    logger.info('Initializing storage...');
 
     // 首先测试 KV 连接
     try {
       await kv.ping();
-      console.log('[KV] Connection successful');
+      logger.info('KV connection successful');
     } catch (error) {
-      console.error('[KV] Connection failed, switching to memory storage:', error);
+      logger.error('KV connection failed, switching to memory storage', error instanceof Error ? error : new Error(String(error)));
       this.useMemory = true;
       // 内存存储也需要初始化数据
       const existingPosts = await this.memoryStorage.getAllPosts();
       if (existingPosts.length === 0) {
-        console.log('[Memory] Creating initial posts...');
+        logger.debug('Creating initial posts in memory storage...');
         await this.createInitialPosts();
       }
       this.initialized = true;
@@ -87,17 +99,17 @@ export class KVStorage {
     try {
       // 检查是否已有数据
       const existingPosts = await this.getAllPosts();
-      console.log('[KV] Found existing posts:', existingPosts.length);
+      logger.debug(`Found ${existingPosts.length} existing posts`);
 
       if (existingPosts.length === 0) {
-        console.log('[KV] No existing data, creating initial posts...');
+        logger.debug('No existing data, creating initial posts...');
         await this.createInitialPosts();
       }
 
       this.initialized = true;
-      console.log('[KV] Storage initialization completed');
+      logger.info('Storage initialization completed');
     } catch (error) {
-      console.error('[KV] Failed to initialize storage:', error);
+      logger.error('Failed to initialize storage', error instanceof Error ? error : new Error(String(error)));
       throw error;
     }
   }
@@ -138,7 +150,7 @@ export class KVStorage {
       await this.createPost(postData);
     }
     
-    console.log('[KV] Initial posts created successfully');
+    logger.info('Initial posts created successfully');
   }
 
   async getAllPosts(): Promise<Post[]> {
@@ -149,7 +161,7 @@ export class KVStorage {
     try {
       const postIds = await kv.smembers(POST_IDS_KEY);
       if (!postIds || postIds.length === 0) {
-        console.log('[KV] No post IDs found');
+        logger.debug('No post IDs found');
         return [];
       }
 
@@ -162,10 +174,10 @@ export class KVStorage {
         }
       }
       
-      console.log('[KV] Retrieved posts:', posts.length);
+      logger.debug(`Retrieved ${posts.length} posts`);
       return posts;
     } catch (error) {
-      console.error('[KV] Error getting all posts:', error);
+      logger.error('Error getting all posts', error instanceof Error ? error : new Error(String(error)));
       // 切换到内存存储
       this.useMemory = true;
       return this.memoryStorage.getAllPosts();
@@ -178,11 +190,11 @@ export class KVStorage {
     }
 
     try {
-      console.log('[KV] Getting post by ID:', id);
+      logger.debug(`Getting post by ID: ${id}`);
       const post = await kv.hgetall(`${POSTS_KEY}:${id}`);
       return post ? (post as unknown as Post) : null;
     } catch (error) {
-      console.error('[KV] Error getting post by ID:', error);
+      logger.error(`Error getting post by ID: ${id}`, error instanceof Error ? error : new Error(String(error)));
       return null;
     }
   }
@@ -217,10 +229,10 @@ export class KVStorage {
         await kv.sadd(TAGS_KEY, tag);
       }
 
-      console.log('[KV] Created post:', id);
+      logger.debug(`Created post: ${id}`);
       return newPost;
     } catch (error) {
-      console.error('[KV] Error creating post:', error);
+      logger.error('Error creating post', error instanceof Error ? error : new Error(String(error)));
       // 切换到内存存储并继续
       this.useMemory = true;
       return this.memoryStorage.createPost(postData);
@@ -233,11 +245,11 @@ export class KVStorage {
     }
 
     try {
-      console.log('[KV] Updating post:', id);
+      logger.debug(`Updating post: ${id}`);
 
       const existingPost = await this.getPostById(id);
       if (!existingPost) {
-        console.log('[KV] Post not found for update:', id);
+        logger.debug(`Post not found for update: ${id}`);
         return null;
       }
 
@@ -269,10 +281,10 @@ export class KVStorage {
         }
       }
       
-      console.log('[KV] Updated post:', id);
+      logger.debug(`Updated post: ${id}`);
       return updatedPost;
     } catch (error) {
-      console.error('[KV] Error updating post:', error);
+      logger.error(`Error updating post: ${id}`, error instanceof Error ? error : new Error(String(error)));
       return null;
     }
   }
@@ -283,11 +295,11 @@ export class KVStorage {
     }
 
     try {
-      console.log('[KV] Deleting post:', id);
+      logger.debug(`Deleting post: ${id}`);
 
       const existingPost = await this.getPostById(id);
       if (!existingPost) {
-        console.log('[KV] Post not found for deletion:', id);
+        logger.debug(`Post not found for deletion: ${id}`);
         return false;
       }
 
@@ -310,10 +322,10 @@ export class KVStorage {
         await kv.sadd(TAGS_KEY, Array.from(allTags));
       }
 
-      console.log('[KV] Deleted post:', id);
+      logger.debug(`Deleted post: ${id}`);
       return true;
     } catch (error) {
-      console.error('[KV] Error deleting post:', error);
+      logger.error(`Error deleting post: ${id}`, error instanceof Error ? error : new Error(String(error)));
       return false;
     }
   }
@@ -324,12 +336,12 @@ export class KVStorage {
     }
 
     try {
-      console.log('[KV] Getting all tags');
+      logger.debug('Getting all tags');
       const tags = await kv.smembers(TAGS_KEY);
-      console.log('[KV] Retrieved tags:', tags.length);
+      logger.debug(`Retrieved ${tags.length} tags`);
       return tags || [];
     } catch (error) {
-      console.error('[KV] Error getting all tags:', error);
+      logger.error('Error getting all tags', error instanceof Error ? error : new Error(String(error)));
       return [];
     }
   }
@@ -340,20 +352,20 @@ export class KVStorage {
     }
 
     try {
-      console.log('[KV] Getting sorted posts');
+      logger.debug('Getting sorted posts');
       const posts = await this.getAllPosts();
       const sorted = posts.sort((a, b) => {
         return new Date(b.updated_at).getTime() - new Date(a.updated_at).getTime();
       });
-      console.log('[KV] Sorted posts:', sorted.length);
+      logger.debug(`Sorted ${sorted.length} posts`);
       return sorted;
     } catch (error) {
-      console.error('[KV] Error getting sorted posts:', error);
+      logger.error('Error getting sorted posts', error instanceof Error ? error : new Error(String(error)));
       return [];
     }
   }
 
-  async getStorageInfo(): Promise<any> {
+  async getStorageInfo(): Promise<StorageInfo> {
     if (this.useMemory) {
       const posts = await this.memoryStorage.getAllPosts();
       const tags = await this.memoryStorage.getAllTags();
@@ -379,7 +391,7 @@ export class KVStorage {
         connected: true
       };
     } catch (error) {
-      console.error('[KV] Error getting storage info:', error);
+      logger.error('Error getting storage info', error instanceof Error ? error : new Error(String(error)));
       return {
         type: 'kv-storage',
         post_count: 0,

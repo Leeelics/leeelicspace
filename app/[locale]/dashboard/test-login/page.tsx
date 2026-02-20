@@ -19,26 +19,7 @@ export default function TestLogin() {
       }
     };
 
-    console.log('localStorage可用:', testLocalStorage());
-    console.log('当前登录状态:', localStorage.getItem('adminLoggedIn'));
-
-    // 简单的登录测试
-    const loginTest = () => {
-      localStorage.setItem('adminLoggedIn', 'true');
-      console.log('设置登录状态后:', localStorage.getItem('adminLoggedIn'));
-      setTimeout(() => {
-        router.push('/dashboard');
-      }, 1000);
-    };
-
-    // 简单的登出测试
-    const logoutTest = () => {
-      localStorage.removeItem('adminLoggedIn');
-      console.log('登出后:', localStorage.getItem('adminLoggedIn'));
-      setTimeout(() => {
-        router.push('/dashboard/login');
-      }, 1000);
-    };
+    // 测试页面功能已简化
   }, [router]);
 
   return (

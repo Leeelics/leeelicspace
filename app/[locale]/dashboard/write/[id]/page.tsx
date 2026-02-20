@@ -41,8 +41,7 @@ export default function EditPostPage() {
       setTitle(post.title);
       setContent(post.content);
       setTags(post.tags.join(', '));
-    } catch (error) {
-      console.error('Failed to fetch post:', error);
+    } catch {
       alert('文章加载失败');
       router.push(`/${locale}/dashboard/posts`);
     } finally {
@@ -76,8 +75,7 @@ export default function EditPostPage() {
       } else {
         throw new Error('Update failed');
       }
-    } catch (error) {
-      console.error('Save failed:', error);
+    } catch {
       alert('保存失败，请重试');
       setSaveStatus('idle');
     } finally {

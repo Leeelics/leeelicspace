@@ -1,7 +1,9 @@
-import { NextResponse } from 'next/server';
+import { type NextRequest } from 'next/server';
 import { getGreeting } from '@/lib/edge-config';
+import { createSuccessResponse, createErrorResponse, NotFoundError, handleApiError } from '@/lib/errors';
+import { logger } from '@/lib/logger';
 
-export async function GET(request: Request) {
+export async function GET(request: NextRequest) {
   try {
     const { searchParams } = new URL(request.url);
     const errorType = searchParams.get('error');
@@ -9,57 +11,24 @@ export async function GET(request: Request) {
     const greeting = await getGreeting();
     
     if (errorType === 'not_found') {
-      return NextResponse.json({ 
-        error: 'Greeting not found in Edge Config',
-        timestamp: new Date().toISOString(),
-        debug: {
-          hasEdgeConfig: !!process.env.EDGE_CONFIG,
-          errorType
-        }
-      }, { status: 404 });
+      return createErrorResponse(new NotFoundError('Greeting'), request);
     }
     
     if (errorType === 'server_error') {
-      return NextResponse.json({ 
-        error: 'Server error accessing Edge Config',
-        timestamp: new Date().toISOString(),
-        debug: {
-          hasEdgeConfig: !!process.env.EDGE_CONFIG,
-          errorType
-        }
-      }, { status: 500 });
+      // 模拟服务器错误
+      throw new Error('Simulated server error');
     }
     
     if (greeting) {
-      return NextResponse.json({ 
-        success: true,
+      return createSuccessResponse({
         greeting,
-        timestamp: new Date().toISOString(),
         source: 'edge-config',
-        debug: {
-          hasEdgeConfig: !!process.env.EDGE_CONFIG,
-          connectionStringLength: process.env.EDGE_CONFIG?.length || 0
-        }
       });
     } else {
-      return NextResponse.json({ 
-        error: 'Greeting not found in Edge Config',
-        timestamp: new Date().toISOString(),
-        debug: {
-          hasEdgeConfig: !!process.env.EDGE_CONFIG,
-          connectionStringLength: process.env.EDGE_CONFIG?.length || 0
-        }
-      }, { status: 404 });
+      return createErrorResponse(new NotFoundError('Greeting'), request);
     }
   } catch (error) {
-    console.error('API Welcome error:', error);
-    return NextResponse.json({ 
-      error: 'Failed to retrieve greeting from Edge Config',
-      timestamp: new Date().toISOString(),
-      debug: {
-        hasEdgeConfig: !!process.env.EDGE_CONFIG,
-        error: error instanceof Error ? error.message : String(error)
-      }
-    }, { status: 500 });
+    logger.apiError(request, 'Failed to retrieve greeting', error instanceof Error ? error : new Error(String(error)));
+    return handleApiError(error, request);
   }
 }

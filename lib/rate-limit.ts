@@ -1,4 +1,5 @@
 import { kv } from '@vercel/kv';
+import { logger } from './logger';
 
 interface RateLimitConfig {
   maxRequests: number;
@@ -38,7 +39,7 @@ export async function rateLimit(
   try {
     // If KV is not configured, allow the request (fail open)
     if (!process.env.KV_REST_API_URL) {
-      console.warn('[RATE_LIMIT] KV not configured, skipping rate limit check');
+      logger.warn('KV not configured, skipping rate limit check');
       return {
         success: true,
         limit: maxRequests,
@@ -75,7 +76,7 @@ export async function rateLimit(
       reset: now + windowSeconds,
     };
   } catch (error) {
-    console.error('[RATE_LIMIT] Error:', error);
+    logger.error('Rate limit check failed', error instanceof Error ? error : new Error(String(error)));
     // Fail open - allow request if rate limiting fails
     return {
       success: true,

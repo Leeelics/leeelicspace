@@ -45,8 +45,7 @@ export default function AdminCreatePost() {
         secret: 'admin-secret' // 添加权限验证参数
       });
       router.push('/dashboard/posts');
-    } catch (error: any) {
-      console.error('创建文章失败:', error);
+    } catch {
       setError('创建文章失败，请重试');
     } finally {
       setIsSubmitting(false);

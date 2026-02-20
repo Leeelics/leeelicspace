@@ -338,7 +338,8 @@ function ArticleCard({
 }: {
   post: Post;
   locale: string;
-  t: any;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  t: Awaited<ReturnType<typeof getTranslations>>;
   isEn: boolean;
 }) {
   return (

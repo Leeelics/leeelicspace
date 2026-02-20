@@ -64,8 +64,7 @@ export default function WritePage() {
         setSaveStatus('saved');
         setTimeout(() => setSaveStatus('idle'), 2000);
       }
-    } catch (error) {
-      console.error('Auto-save failed:', error);
+    } catch {
       setSaveStatus('idle');
     }
   };
@@ -100,8 +99,7 @@ export default function WritePage() {
       } else {
         throw new Error('Failed to save');
       }
-    } catch (error) {
-      console.error('Save failed:', error);
+    } catch {
       alert('保存失败，请重试');
     } finally {
       setSaving(false);

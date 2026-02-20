@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import { kvStorage } from '@/lib/kv-storage';
 import { kv } from '@vercel/kv';
+import { logger } from '@/lib/logger';
 
 interface HealthInfo {
   status: string;
@@ -24,7 +25,7 @@ interface HealthInfo {
   version: string;
 }
 
-const APP_VERSION = '1.0.0'; // 可以改为从 package.json 读取
+const APP_VERSION = '1.0.0';
 
 export async function GET() {
   try {
@@ -55,7 +56,7 @@ export async function GET() {
         healthInfo.storage.post_count = storageInfo.post_count;
         healthInfo.storage.initialized = storageInfo.connected;
       } catch (error) {
-        console.error('[HEALTH] KV storage check failed:', error);
+        logger.error('KV storage check failed', error instanceof Error ? error : new Error(String(error)));
         healthInfo.storage.error = 'Storage check failed';
       }
 
@@ -71,7 +72,7 @@ export async function GET() {
           healthInfo.storage.writable = true;
         }
       } catch (error) {
-        console.error('[HEALTH] KV storage write test failed:', error);
+        logger.error('KV storage write test failed', error instanceof Error ? error : new Error(String(error)));
         healthInfo.storage.writable = false;
         healthInfo.storage.error = 'Storage write test failed';
       }
@@ -99,7 +100,7 @@ export async function GET() {
     
     return NextResponse.json(healthInfo, { status: statusCode });
   } catch (error) {
-    console.error('[HEALTH] Health check failed:', error);
+    logger.error('Health check failed', error instanceof Error ? error : new Error(String(error)));
     return NextResponse.json({
       status: 'unhealthy',
       timestamp: new Date().toISOString(),

@@ -1,4 +1,5 @@
 import { get } from '@vercel/edge-config';
+import { logger } from './logger';
 
 export interface EdgeConfigItems {
   greeting?: string;
@@ -17,18 +18,14 @@ export async function getEdgeConfigItem<T extends keyof EdgeConfigItems>(
     // 未配置 Edge Config 时，直接跳过远程调用
     if (!process.env.EDGE_CONFIG) {
       if (process.env.NODE_ENV !== 'production') {
-        console.warn(
-          `[edge-config] EDGE_CONFIG env not set, skip fetching key '${String(
-            key,
-          )}'`,
-        );
+        logger.debug(`EDGE_CONFIG env not set, skip fetching key '${String(key)}'`);
       }
       return undefined;
     }
 
     return (await get(key)) as EdgeConfigItems[T] | undefined;
   } catch (error) {
-    console.error(`Failed to get Edge Config item '${String(key)}':`, error);
+    logger.error(`Failed to get Edge Config item '${String(key)}'`, error instanceof Error ? error : new Error(String(error)));
     return undefined;
   }
 }

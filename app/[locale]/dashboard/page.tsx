@@ -80,8 +80,7 @@ export default function DashboardOverview() {
         platformStats,
         recentPosts: posts.slice(0, 5),
       });
-    } catch (error) {
-      console.error('Failed to fetch stats:', error);
+    } catch {
     } finally {
       setLoading(false);
     }

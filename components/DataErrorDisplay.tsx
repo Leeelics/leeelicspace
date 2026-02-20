@@ -8,7 +8,7 @@ interface DataErrorDisplayProps {
 }
 
 export function DataErrorDisplay({ error, retryUrl }: DataErrorDisplayProps) {
-  const [debugInfo, setDebugInfo] = useState<any>(null);
+  const [debugInfo, setDebugInfo] = useState<Record<string, unknown> | null>(null);
   
   useEffect(() => {
     // 收集调试信息
@@ -26,8 +26,8 @@ export function DataErrorDisplay({ error, retryUrl }: DataErrorDisplayProps) {
             theme: localStorage.getItem('theme'),
           },
         });
-      } catch (e) {
-        console.error('Failed to collect debug info:', e);
+      } catch {
+        // Silently ignore debug info collection errors
       }
     };
     

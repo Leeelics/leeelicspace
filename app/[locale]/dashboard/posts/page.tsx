@@ -36,8 +36,7 @@ export default function PostsManagement() {
       const response = await fetch('/api/posts');
       const data = await response.json();
       setPosts(data.posts || []);
-    } catch (error) {
-      console.error('Failed to fetch posts:', error);
+    } catch {
     } finally {
       setLoading(false);
     }
@@ -57,8 +56,7 @@ export default function PostsManagement() {
       } else {
         throw new Error('Delete failed');
       }
-    } catch (error) {
-      console.error('Delete failed:', error);
+    } catch {
       alert('删除失败，请重试');
     } finally {
       setDeleting(null);

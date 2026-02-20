@@ -1,4 +1,5 @@
 import { NextRequest } from 'next/server';
+import { logger } from './logger';
 
 /**
  * Simple authentication utility for API routes
@@ -17,13 +18,13 @@ function getSecret(config?: AuthConfig): string | null {
   const secret = config?.secret || process.env.API_SECRET;
   
   if (!secret) {
-    console.error('[AUTH] ERROR: API_SECRET environment variable is not set');
+    logger.error('API_SECRET environment variable is not set');
     return null;
   }
   
   // Minimum secret length check
   if (secret.length < 16) {
-    console.error('[AUTH] ERROR: API_SECRET must be at least 16 characters long');
+    logger.error('API_SECRET must be at least 16 characters long');
     return null;
   }
   
@@ -66,7 +67,7 @@ export function isAuthenticated(
 
     return false;
   } catch (error) {
-    console.error('[AUTH] Auth check failed:', error);
+    logger.error('Auth check failed', error instanceof Error ? error : new Error(String(error)));
     return false;
   }
 }
@@ -100,7 +101,7 @@ export function requireAuth(
  * Get authentication info for debugging
  * WARNING: Only use in development environment
  */
-export function getAuthDebugInfo(request: NextRequest): Record<string, any> | null {
+export function getAuthDebugInfo(request: NextRequest): Record<string, unknown> | null {
   // Only return debug info in development
   if (process.env.NODE_ENV === 'production') {
     return null;

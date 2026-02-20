@@ -56,8 +56,8 @@ export default function PublishModal({ postId, title, content, onClose }: Publis
             },
           }),
         });
-      } catch (error) {
-        console.error(`Failed to update ${platform} status:`, error);
+      } catch {
+        // Silently handle publish status update errors
       }
     }
     
