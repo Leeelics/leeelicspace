@@ -1,4 +1,6 @@
 import { v4 as uuidv4 } from "uuid";
+import type { Post, PublishStatus, ChannelConfig, PlatformStatus } from '@/types';
+import { defaultPublishStatus, defaultChannelConfig } from '@/types';
 
 // 生成短哈希ID的函数
 export async function generateShortId(title: string): Promise<string> {
@@ -19,14 +21,13 @@ export async function generateShortId(title: string): Promise<string> {
   }
 }
 
-// 定义文章类型
-export interface Post {
-  id: string;
-  title: string;
-  content: string;
-  tags: string[];
-  created_at: string;
-  updated_at: string;
+// Migration: Add publishStatus and channelConfig to legacy posts
+function migratePost(post: any): Post {
+  return {
+    ...post,
+    publishStatus: post.publishStatus || { ...defaultPublishStatus },
+    channelConfig: post.channelConfig || { ...defaultChannelConfig },
+  };
 }
 
 // 导入KV存储
@@ -203,22 +204,29 @@ class PostStore {
     this.initialized = true;
   }
 
-  // 获取所有文章
-  async getAllPosts() {
+  // 获取所有文章（带迁移）
+  async getAllPosts(): Promise<Post[]> {
     await this.initialize();
-    return storage.getAllPosts();
+    const posts = await storage.getAllPosts();
+    return posts.map(migratePost);
   }
 
-  // 获取单篇文章
-  async getPostById(id: string) {
+  // 获取单篇文章（带迁移）
+  async getPostById(id: string): Promise<Post | null> {
     await this.initialize();
-    return storage.getPostById(id);
+    const post = await storage.getPostById(id);
+    return post ? migratePost(post) : null;
   }
 
   // 创建新文章
-  async createPost(postData: Omit<Post, 'id' | 'created_at' | 'updated_at'>) {
+  async createPost(postData: Omit<Post, 'id' | 'created_at' | 'updated_at' | 'publishStatus' | 'channelConfig'>) {
     await this.initialize();
-    return storage.createPost(postData);
+    const fullPostData = {
+      ...postData,
+      publishStatus: { ...defaultPublishStatus },
+      channelConfig: { ...defaultChannelConfig },
+    };
+    return storage.createPost(fullPostData);
   }
 
   // 更新文章
@@ -240,9 +248,27 @@ class PostStore {
   }
 
   // 获取排序后的文章
-  async getSortedPosts() {
+  async getSortedPosts(): Promise<Post[]> {
     await this.initialize();
-    return storage.getSortedPosts();
+    const posts = await storage.getSortedPosts();
+    return posts.map(migratePost);
+  }
+
+  // 更新发布状态
+  async updatePublishStatus(id: string, platform: keyof PublishStatus, status: Partial<PlatformStatus>) {
+    await this.initialize();
+    const post = await this.getPostById(id);
+    if (!post) return null;
+    
+    const newPublishStatus = {
+      ...post.publishStatus,
+      [platform]: {
+        ...post.publishStatus[platform],
+        ...status,
+      },
+    };
+    
+    return this.updatePost(id, { publishStatus: newPublishStatus });
   }
 
   // 批量修复所有文章 id（兼容原有接口）

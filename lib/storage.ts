@@ -1,4 +1,4 @@
-import { Post } from '@/app/api/data';
+import type { Post } from '@/types';
 import { promises as fs } from 'fs';
 import path from 'path';
 

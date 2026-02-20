@@ -1,208 +1,352 @@
 'use client';
 
-import React, { useEffect } from 'react';
-import { useRouter } from 'next/navigation';
+import React, { useEffect, useState } from 'react';
+import { useRouter, useParams } from 'next/navigation';
 import Link from 'next/link';
+import {
+  FileText,
+  Share2,
+  Clock,
+  TrendingUp,
+  PenLine,
+  ExternalLink,
+  BookOpen,
+  MessageSquare,
+  Twitter,
+} from 'lucide-react';
+import type { Post, Platform } from '@/types';
+import { platforms } from '@/types';
 
-export default function AdminDashboard() {
+interface Stats {
+  totalPosts: number;
+  publishedPosts: number;
+  platformStats: Record<Platform, number>;
+  recentPosts: Post[];
+}
+
+export default function DashboardOverview() {
   const router = useRouter();
+  const params = useParams();
+  const locale = (params?.locale as string) || 'zh';
+  const [stats, setStats] = useState<Stats>({
+    totalPosts: 0,
+    publishedPosts: 0,
+    platformStats: {
+      blog: 0,
+      xiaohongshu: 0,
+      wechat: 0,
+      jike: 0,
+      x: 0,
+    },
+    recentPosts: [],
+  });
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    // 检查登录状态
-    const isLoggedIn = localStorage.getItem('adminLoggedIn') === 'true';
-    if (!isLoggedIn) {
-      router.push('/dashboard/login');
-    }
-  }, [router]);
+    fetchStats();
+  }, []);
 
-  const handleLogout = () => {
-    localStorage.removeItem('adminLoggedIn');
-    router.push('/dashboard/login');
+  const fetchStats = async () => {
+    try {
+      const response = await fetch('/api/posts');
+      const data = await response.json();
+      const posts: Post[] = data.posts || [];
+
+      // Calculate stats
+      const platformStats = {
+        blog: 0,
+        xiaohongshu: 0,
+        wechat: 0,
+        jike: 0,
+        x: 0,
+      };
+
+      let publishedPosts = 0;
+
+      posts.forEach((post) => {
+        let isPublished = false;
+        (Object.keys(post.publishStatus) as Platform[]).forEach((platform) => {
+          if (post.publishStatus[platform].published) {
+            platformStats[platform]++;
+            isPublished = true;
+          }
+        });
+        if (isPublished) publishedPosts++;
+      });
+
+      setStats({
+        totalPosts: posts.length,
+        publishedPosts,
+        platformStats,
+        recentPosts: posts.slice(0, 5),
+      });
+    } catch (error) {
+      console.error('Failed to fetch stats:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  if (loading) {
+    return (
+      <div className="p-8">
+        <div className="animate-pulse space-y-4">
+          <div className="h-8 bg-[var(--surface)] rounded w-1/4"></div>
+          <div className="grid grid-cols-4 gap-4">
+            {[1, 2, 3, 4].map((i) => (
+              <div key={i} className="h-24 bg-[var(--surface)] rounded"></div>
+            ))}
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <div className="p-8 max-w-7xl">
+      {/* Header */}
+      <div className="mb-8">
+        <h1 className="text-2xl font-bold text-[var(--text-primary)]">
+          内容管理中台
+        </h1>
+        <p className="text-[var(--text-secondary)] mt-1">
+          一次写作，多平台发布
+        </p>
+      </div>
+
+      {/* Quick Actions */}
+      <div className="mb-8">
+        <Link
+          href={`/${locale}/dashboard/write`}
+          className="inline-flex items-center gap-2 px-6 py-3 bg-[var(--accent)] text-white rounded-lg hover:bg-[var(--accent-hover)] transition-colors font-medium"
+        >
+          <PenLine size={20} />
+          开始写作
+        </Link>
+      </div>
+
+      {/* Stats Grid */}
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
+        <StatCard
+          icon={FileText}
+          label="总文章数"
+          value={stats.totalPosts}
+          color="blue"
+        />
+        <StatCard
+          icon={Share2}
+          label="已发布文章"
+          value={stats.publishedPosts}
+          color="green"
+        />
+        <StatCard
+          icon={Clock}
+          label="待发布文章"
+          value={stats.totalPosts - stats.publishedPosts}
+          color="orange"
+        />
+        <StatCard
+          icon={TrendingUp}
+          label="发布率"
+          value={`${stats.totalPosts > 0 ? Math.round((stats.publishedPosts / stats.totalPosts) * 100) : 0}%`}
+          color="purple"
+        />
+      </div>
+
+      {/* Platform Distribution */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
+        <div className="bg-[var(--surface)] rounded-lg border border-[var(--border)] p-6">
+          <h2 className="text-lg font-semibold text-[var(--text-primary)] mb-4">
+            平台分布
+          </h2>
+          <div className="space-y-3">
+            {platforms.map((platform) => (
+              <div key={platform.id} className="flex items-center justify-between">
+                <div className="flex items-center gap-3">
+                  <div
+                    className="w-3 h-3 rounded-full"
+                    style={{ backgroundColor: platform.color }}
+                  />
+                  <span className="text-[var(--text-secondary)]">{platform.name}</span>
+                </div>
+                <div className="flex items-center gap-4">
+                  <span className="text-[var(--text-primary)] font-medium">
+                    {stats.platformStats[platform.id]}
+                  </span>
+                  <span className="text-xs text-[var(--text-muted)]">
+                    篇
+                  </span>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        {/* Recent Posts */}
+        <div className="bg-[var(--surface)] rounded-lg border border-[var(--border)] p-6">
+          <div className="flex items-center justify-between mb-4">
+            <h2 className="text-lg font-semibold text-[var(--text-primary)]">
+              最近文章
+            </h2>
+            <Link
+              href={`/${locale}/dashboard/posts`}
+              className="text-sm text-[var(--accent)] hover:underline"
+            >
+              查看全部
+            </Link>
+          </div>
+          <div className="space-y-3">
+            {stats.recentPosts.length === 0 ? (
+              <p className="text-[var(--text-muted)] text-center py-4">
+                还没有文章，开始写作吧！
+              </p>
+            ) : (
+              stats.recentPosts.map((post) => (
+                <div
+                  key={post.id}
+                  className="flex items-center justify-between py-2 border-b border-[var(--border)] last:border-0"
+                >
+                  <div className="flex-1 min-w-0">
+                    <Link
+                      href={`/${locale}/dashboard/write/${post.id}`}
+                      className="text-[var(--text-primary)] hover:text-[var(--accent)] truncate block"
+                    >
+                      {post.title}
+                    </Link>
+                    <p className="text-xs text-[var(--text-muted)] mt-0.5">
+                      {new Date(post.updated_at).toLocaleDateString('zh-CN')}
+                    </p>
+                  </div>
+                  <div className="flex items-center gap-1 ml-4">
+                    {getPublishedPlatforms(post).map((platform) => (
+                      <div
+                        key={platform.id}
+                        className="w-2 h-2 rounded-full"
+                        style={{ backgroundColor: platform.color }}
+                        title={platform.name}
+                      />
+                    ))}
+                  </div>
+                </div>
+              ))
+            )}
+          </div>
+        </div>
+      </div>
+
+      {/* Platform Links */}
+      <div className="bg-[var(--surface)] rounded-lg border border-[var(--border)] p-6">
+        <h2 className="text-lg font-semibold text-[var(--text-primary)] mb-4">
+          快速访问
+        </h2>
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+          <PlatformLink
+            name="博客首页"
+            icon={BookOpen}
+            href={`/${locale}`}
+            color="#3b82f6"
+          />
+          <PlatformLink
+            name="小红书"
+            icon={MessageSquare}
+            href="https://www.xiaohongshu.com"
+            color="#ff2442"
+            external
+          />
+          <PlatformLink
+            name="公众号"
+            icon={FileText}
+            href="https://mp.weixin.qq.com"
+            color="#07c160"
+            external
+          />
+          <PlatformLink
+            name="X / Twitter"
+            icon={Twitter}
+            href="https://x.com"
+            color="#000000"
+            external
+          />
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function StatCard({
+  icon: Icon,
+  label,
+  value,
+  color,
+}: {
+  icon: React.ElementType;
+  label: string;
+  value: number | string;
+  color: 'blue' | 'green' | 'orange' | 'purple';
+}) {
+  const colorClasses = {
+    blue: 'bg-blue-500/10 text-blue-600',
+    green: 'bg-green-500/10 text-green-600',
+    orange: 'bg-orange-500/10 text-orange-600',
+    purple: 'bg-purple-500/10 text-purple-600',
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 dark:bg-catppuccin-base">
-      {/* 导航栏 */}
-      <header className="bg-white shadow dark:bg-catppuccin-surface0 dark:border-b dark:border-catppuccin-surface1">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between h-16">
-            <div className="flex items-center">
-              <h1 className="text-xl font-bold text-gray-900 dark:text-catppuccin-text">管理后台</h1>
-            </div>
-            <div className="flex items-center space-x-4">
-              <button
-                type="button"
-                onClick={handleLogout}
-                className="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg shadow-sm hover:bg-gray-50 dark:bg-catppuccin-surface1 dark:border-catppuccin-surface2 dark:text-catppuccin-text dark:hover:bg-catppuccin-surface0"
-              >
-                退出登录
-              </button>
-            </div>
-          </div>
+    <div className="bg-[var(--surface)] rounded-lg border border-[var(--border)] p-5">
+      <div className="flex items-center gap-3">
+        <div className={`p-2 rounded-lg ${colorClasses[color]}`}>
+          <Icon size={20} />
         </div>
-      </header>
-
-      {/* 主要内容 */}
-      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-          {/* 侧边导航 */}
-          <div className="md:col-span-1">
-            <div className="bg-white rounded-lg shadow p-6 dark:bg-catppuccin-surface0 dark:border dark:border-catppuccin-surface1">
-              <h2 className="text-lg font-semibold mb-4 text-gray-900 dark:text-catppuccin-text">管理菜单</h2>
-              <nav className="space-y-2">
-                <Link
-                  href="/dashboard"
-                  className="block px-4 py-2 text-gray-700 bg-gray-50 rounded-lg hover:bg-gray-100 dark:bg-catppuccin-surface1 dark:text-catppuccin-text dark:hover:bg-catppuccin-surface0"
-                >
-                  仪表板
-                </Link>
-                <Link
-                  href="/dashboard/posts"
-                  className="block px-4 py-2 text-gray-700 bg-gray-50 rounded-lg hover:bg-gray-100 dark:bg-catppuccin-surface1 dark:text-catppuccin-text dark:hover:bg-catppuccin-surface0"
-                >
-                  文章管理
-                </Link>
-                <Link
-                  href="/dashboard/create"
-                  className="block px-4 py-2 text-gray-700 bg-gray-50 rounded-lg hover:bg-gray-100 dark:bg-catppuccin-surface1 dark:text-catppuccin-text dark:hover:bg-catppuccin-surface0"
-                >
-                  撰写文章
-                </Link>
-                <Link
-                  href="/dashboard/settings"
-                  className="block px-4 py-2 text-gray-700 bg-gray-50 rounded-lg hover:bg-gray-100 dark:bg-catppuccin-surface1 dark:text-catppuccin-text dark:hover:bg-catppuccin-surface0"
-                >
-                  网站设置
-                </Link>
-              </nav>
-            </div>
-          </div>
-
-          {/* 主要内容 */}
-          <div className="md:col-span-2">
-            <div className="bg-white rounded-lg shadow p-6 dark:bg-catppuccin-surface0 dark:border dark:border-catppuccin-surface1">
-              <h2 className="text-xl font-bold mb-6 text-gray-900 dark:text-catppuccin-text">欢迎来到管理后台</h2>
-              
-              {/* 统计卡片 */}
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-                {/* 文章浏览量 */}
-                <div className="p-4 bg-blue-50 rounded-lg dark:bg-blue-900/20">
-                  <div className="flex items-center justify-between">
-                    <div>
-                      <p className="text-sm font-medium text-blue-600 dark:text-blue-400">总文章浏览量</p>
-                      <h3 className="text-2xl font-bold mt-1 text-blue-900 dark:text-blue-300">12,456</h3>
-                      <p className="text-xs text-green-600 dark:text-green-400 mt-1">+12% 较上月</p>
-                    </div>
-                    <div className="bg-blue-100 p-3 rounded-full dark:bg-blue-800">
-                      <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 text-blue-600 dark:text-blue-300" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-label="文章浏览量">
-                        <title>文章浏览量</title>
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
-                      </svg>
-                    </div>
-                  </div>
-                </div>
-                
-                {/* 网站访问量 */}
-                <div className="p-4 bg-green-50 rounded-lg dark:bg-green-900/20">
-                  <div className="flex items-center justify-between">
-                    <div>
-                      <p className="text-sm font-medium text-green-600 dark:text-green-400">总网站访问量</p>
-                      <h3 className="text-2xl font-bold mt-1 text-green-900 dark:text-green-300">34,892</h3>
-                      <p className="text-xs text-green-600 dark:text-green-400 mt-1">+8% 较上月</p>
-                    </div>
-                    <div className="bg-green-100 p-3 rounded-full dark:bg-green-800">
-                      <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 text-green-600 dark:text-green-300" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-label="网站访问量">
-                        <title>网站访问量</title>
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
-                      </svg>
-                    </div>
-                  </div>
-                </div>
-                
-                {/* 安全监控 */}
-                <div className="p-4 bg-purple-50 rounded-lg dark:bg-purple-900/20">
-                  <div className="flex items-center justify-between">
-                    <div>
-                      <p className="text-sm font-medium text-purple-600 dark:text-purple-400">安全状态</p>
-                      <h3 className="text-2xl font-bold mt-1 text-purple-900 dark:text-purple-300">安全</h3>
-                      <p className="text-xs text-green-600 dark:text-green-400 mt-1">0 次异常登录</p>
-                    </div>
-                    <div className="bg-purple-100 p-3 rounded-full dark:bg-purple-800">
-                      <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 text-purple-600 dark:text-purple-300" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-label="安全状态">
-                        <title>安全状态</title>
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
-                      </svg>
-                    </div>
-                  </div>
-                </div>
-              </div>
-              
-              {/* 主要功能入口 */}
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div className="p-4 bg-blue-50 rounded-lg dark:bg-blue-900/20">
-                  <h3 className="text-lg font-medium text-blue-800 dark:text-blue-300">文章管理</h3>
-                  <p className="mt-2 text-sm text-blue-600 dark:text-blue-400">
-                    查看、编辑和删除您的博客文章
-                  </p>
-                  <Link
-                    href="/dashboard/posts"
-                    className="inline-block mt-4 text-sm font-medium text-blue-700 hover:text-blue-900 dark:text-blue-400 dark:hover:text-blue-300"
-                  >
-                    管理文章 →
-                  </Link>
-                </div>
-                
-                <div className="p-4 bg-green-50 rounded-lg dark:bg-green-900/20">
-                  <h3 className="text-lg font-medium text-green-800 dark:text-green-300">撰写文章</h3>
-                  <p className="mt-2 text-sm text-green-600 dark:text-green-400">
-                    创建新的博客文章，支持Markdown格式
-                  </p>
-                  <Link
-                    href="/dashboard/create"
-                    className="inline-block mt-4 text-sm font-medium text-green-700 hover:text-green-900 dark:text-green-400 dark:hover:text-green-300"
-                  >
-                    撰写文章 →
-                  </Link>
-                </div>
-              </div>
-              
-              {/* 最近文章统计 */}
-              <div className="mt-8">
-                <h3 className="text-lg font-semibold mb-4 text-gray-900 dark:text-catppuccin-text">最近文章浏览量</h3>
-                <div className="bg-white rounded-lg shadow p-4 dark:bg-catppuccin-base dark:border dark:border-catppuccin-surface1">
-                  <table className="min-w-full divide-y divide-gray-200 dark:divide-catppuccin-surface1">
-                    <thead className="bg-gray-50 dark:bg-catppuccin-surface0">
-                      <tr>
-                        <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider dark:text-catppuccin-subtext0">文章标题</th>
-                        <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider dark:text-catppuccin-subtext0">浏览量</th>
-                        <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider dark:text-catppuccin-subtext0">发布日期</th>
-                      </tr>
-                    </thead>
-                    <tbody className="bg-white divide-y divide-gray-200 dark:bg-catppuccin-base dark:divide-catppuccin-surface1">
-                      <tr>
-                        <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900 dark:text-catppuccin-text">如何学习Next.js 16</td>
-                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-catppuccin-subtext0">2,345</td>
-                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-catppuccin-subtext0">2025-12-01</td>
-                      </tr>
-                      <tr>
-                        <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900 dark:text-catppuccin-text">Tailwind CSS v4 新特性</td>
-                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-catppuccin-subtext0">1,890</td>
-                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-catppuccin-subtext0">2025-11-28</td>
-                      </tr>
-                      <tr>
-                        <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900 dark:text-catppuccin-text">Flask 3 REST API 最佳实践</td>
-                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-catppuccin-subtext0">1,567</td>
-                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-catppuccin-subtext0">2025-11-25</td>
-                      </tr>
-                    </tbody>
-                  </table>
-                </div>
-              </div>
-            </div>
-          </div>
+        <div>
+          <p className="text-sm text-[var(--text-muted)]">{label}</p>
+          <p className="text-2xl font-bold text-[var(--text-primary)]">{value}</p>
         </div>
-      </main>
+      </div>
     </div>
   );
+}
+
+function PlatformLink({
+  name,
+  icon: Icon,
+  href,
+  color,
+  external = false,
+}: {
+  name: string;
+  icon: React.ElementType;
+  href: string;
+  color: string;
+  external?: boolean;
+}) {
+  const content = (
+    <div className="flex items-center gap-3 p-3 rounded-lg hover:bg-[var(--surface-hover)] transition-colors group">
+      <div
+        className="p-2 rounded-lg text-white"
+        style={{ backgroundColor: color }}
+      >
+        <Icon size={18} />
+      </div>
+      <span className="text-[var(--text-secondary)] group-hover:text-[var(--text-primary)]">
+        {name}
+      </span>
+      {external && (
+        <ExternalLink size={14} className="text-[var(--text-muted)] ml-auto" />
+      )}
+    </div>
+  );
+
+  if (external) {
+    return (
+      <a href={href} target="_blank" rel="noopener noreferrer">
+        {content}
+      </a>
+    );
+  }
+
+  return <Link href={href}>{content}</Link>;
+}
+
+function getPublishedPlatforms(post: Post) {
+  return platforms.filter((p) => post.publishStatus[p.id]?.published);
 }

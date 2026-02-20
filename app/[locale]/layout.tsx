@@ -90,6 +90,12 @@ export default async function RootLayout({
                     >
                       {t('nav.about')}
                     </Link>
+                    <Link 
+                      href={`/${locale}/tools/media-card`} 
+                      className="text-sm font-medium text-[var(--text-secondary)] hover:text-[var(--text-primary)] transition-colors"
+                    >
+                      工具
+                    </Link>
                   </div>
 
                   {/* Right Section */}

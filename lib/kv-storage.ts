@@ -1,5 +1,6 @@
 import { kv } from '@vercel/kv';
-import { Post } from '@/app/api/data';
+import type { Post } from '@/types';
+import { defaultPublishStatus, defaultChannelConfig } from '@/types';
 
 const POSTS_KEY = 'blog:posts';
 const POST_IDS_KEY = 'blog:post_ids';
@@ -106,22 +107,30 @@ export class KVStorage {
       {
         title: "欢迎来到我的博客",
         content: "这是我的第一篇博客文章，使用Next.js和Vercel KV构建。\n\n我将在这个博客中分享我的学习心得、技术笔记和生活感悟。希望能对大家有所帮助。",
-        tags: ["技术", "博客"]
+        tags: ["技术", "博客"],
+        publishStatus: { ...defaultPublishStatus },
+        channelConfig: { ...defaultChannelConfig },
       },
       {
         title: "Next.js 16 新特性介绍",
         content: "Next.js 16 带来了许多令人兴奋的新特性，包括：\n\n- Turbopack 构建速度提升\n- React 19 支持\n- 更好的服务器组件支持\n- 改进的开发体验\n\n这些新特性让Next.js在构建现代Web应用时更加高效和便捷。",
-        tags: ["Next.js", "React", "前端"]
+        tags: ["Next.js", "React", "前端"],
+        publishStatus: { ...defaultPublishStatus },
+        channelConfig: { ...defaultChannelConfig },
       },
       {
         title: "Vercel KV 存储最佳实践",
         content: "Vercel KV 是一个基于Redis的键值存储服务，非常适合在Serverless环境中使用。\n\n主要优势：\n- 持久化存储\n- 自动扩展\n- 低延迟访问\n- 与Vercel完美集成\n\n使用Vercel KV可以解决传统文件存储在Serverless环境中的限制。",
-        tags: ["Vercel", "KV", "存储"]
+        tags: ["Vercel", "KV", "存储"],
+        publishStatus: { ...defaultPublishStatus },
+        channelConfig: { ...defaultChannelConfig },
       },
       {
         title: "前端性能优化指南",
         content: "前端性能优化是提升用户体验的重要手段。以下是一些优化策略：\n\n## 1. 资源加载优化\n\n- 压缩CSS和JavaScript\n- 图片优化（压缩、懒加载、WebP格式）\n- 使用CDN加速资源加载\n\n## 2. 渲染优化\n\n- 减少DOM操作\n- 使用虚拟DOM\n- 优化CSS选择器\n- 使用requestAnimationFrame\n\n通过持续优化，可以显著提升前端应用的性能和用户体验。",
-        tags: ["前端", "性能优化", "用户体验"]
+        tags: ["前端", "性能优化", "用户体验"],
+        publishStatus: { ...defaultPublishStatus },
+        channelConfig: { ...defaultChannelConfig },
       }
     ];
 
