@@ -5,24 +5,94 @@ const POSTS_KEY = 'blog:posts';
 const POST_IDS_KEY = 'blog:post_ids';
 const TAGS_KEY = 'blog:tags';
 
+// 内存存储回退（当 KV 不可用时使用）
+class MemoryStorage {
+  private posts: Map<string, Post> = new Map();
+  private tags: Set<string> = new Set();
+
+  async getAllPosts(): Promise<Post[]> {
+    return Array.from(this.posts.values());
+  }
+
+  async getPostById(id: string): Promise<Post | null> {
+    return this.posts.get(id) || null;
+  }
+
+  async createPost(postData: Omit<Post, 'id' | 'created_at' | 'updated_at'>): Promise<Post> {
+    const id = Math.random().toString(36).substring(2, 10);
+    const now = new Date().toISOString();
+    const newPost: Post = {
+      id,
+      ...postData,
+      created_at: now,
+      updated_at: now
+    };
+    this.posts.set(id, newPost);
+    for (const tag of postData.tags) {
+      this.tags.add(tag);
+    }
+    return newPost;
+  }
+
+  async updatePost(id: string, updateData: Partial<Omit<Post, 'id' | 'created_at'>>): Promise<Post | null> {
+    const existing = this.posts.get(id);
+    if (!existing) return null;
+    const updated: Post = { ...existing, ...updateData, id, updated_at: new Date().toISOString() };
+    this.posts.set(id, updated);
+    return updated;
+  }
+
+  async deletePost(id: string): Promise<boolean> {
+    return this.posts.delete(id);
+  }
+
+  async getAllTags(): Promise<string[]> {
+    return Array.from(this.tags);
+  }
+
+  async getSortedPosts(): Promise<Post[]> {
+    const posts = Array.from(this.posts.values());
+    return posts.sort((a, b) => new Date(b.updated_at).getTime() - new Date(a.updated_at).getTime());
+  }
+}
+
 export class KVStorage {
   private initialized = false;
+  private useMemory = false;
+  private memoryStorage = new MemoryStorage();
 
   async initialize(): Promise<void> {
     if (this.initialized) return;
-    
+
     console.log('[KV] Initializing storage...');
-    
+
+    // 首先测试 KV 连接
+    try {
+      await kv.ping();
+      console.log('[KV] Connection successful');
+    } catch (error) {
+      console.error('[KV] Connection failed, switching to memory storage:', error);
+      this.useMemory = true;
+      // 内存存储也需要初始化数据
+      const existingPosts = await this.memoryStorage.getAllPosts();
+      if (existingPosts.length === 0) {
+        console.log('[Memory] Creating initial posts...');
+        await this.createInitialPosts();
+      }
+      this.initialized = true;
+      return;
+    }
+
     try {
       // 检查是否已有数据
       const existingPosts = await this.getAllPosts();
       console.log('[KV] Found existing posts:', existingPosts.length);
-      
+
       if (existingPosts.length === 0) {
         console.log('[KV] No existing data, creating initial posts...');
         await this.createInitialPosts();
       }
-      
+
       this.initialized = true;
       console.log('[KV] Storage initialization completed');
     } catch (error) {
@@ -63,6 +133,10 @@ export class KVStorage {
   }
 
   async getAllPosts(): Promise<Post[]> {
+    if (this.useMemory) {
+      return this.memoryStorage.getAllPosts();
+    }
+
     try {
       const postIds = await kv.smembers(POST_IDS_KEY);
       if (!postIds || postIds.length === 0) {
@@ -83,11 +157,17 @@ export class KVStorage {
       return posts;
     } catch (error) {
       console.error('[KV] Error getting all posts:', error);
-      return [];
+      // 切换到内存存储
+      this.useMemory = true;
+      return this.memoryStorage.getAllPosts();
     }
   }
 
   async getPostById(id: string): Promise<Post | null> {
+    if (this.useMemory) {
+      return this.memoryStorage.getPostById(id);
+    }
+
     try {
       console.log('[KV] Getting post by ID:', id);
       const post = await kv.hgetall(`${POSTS_KEY}:${id}`);
@@ -99,10 +179,14 @@ export class KVStorage {
   }
 
   async createPost(postData: Omit<Post, 'id' | 'created_at' | 'updated_at'>): Promise<Post> {
+    if (this.useMemory) {
+      return this.memoryStorage.createPost(postData);
+    }
+
     try {
       const id = Math.random().toString(36).substring(2, 10);
       const now = new Date().toISOString();
-      
+
       const newPost: Post = {
         id,
         ...postData,
@@ -115,27 +199,33 @@ export class KVStorage {
         `${POSTS_KEY}:${id}`,
         newPost as unknown as Record<string, unknown>,
       );
-      
+
       // 添加到文章ID集合
       await kv.sadd(POST_IDS_KEY, id);
-      
+
       // 更新标签集合
       for (const tag of postData.tags) {
         await kv.sadd(TAGS_KEY, tag);
       }
-      
+
       console.log('[KV] Created post:', id);
       return newPost;
     } catch (error) {
       console.error('[KV] Error creating post:', error);
-      throw error;
+      // 切换到内存存储并继续
+      this.useMemory = true;
+      return this.memoryStorage.createPost(postData);
     }
   }
 
   async updatePost(id: string, updateData: Partial<Omit<Post, 'id' | 'created_at'>>): Promise<Post | null> {
+    if (this.useMemory) {
+      return this.memoryStorage.updatePost(id, updateData);
+    }
+
     try {
       console.log('[KV] Updating post:', id);
-      
+
       const existingPost = await this.getPostById(id);
       if (!existingPost) {
         console.log('[KV] Post not found for update:', id);
@@ -153,7 +243,7 @@ export class KVStorage {
         `${POSTS_KEY}:${id}`,
         updatedPost as unknown as Record<string, unknown>,
       );
-      
+
       // 如果标签有变化，更新标签集合
       if (updateData.tags) {
         // 重新计算所有标签
@@ -179,9 +269,13 @@ export class KVStorage {
   }
 
   async deletePost(id: string): Promise<boolean> {
+    if (this.useMemory) {
+      return this.memoryStorage.deletePost(id);
+    }
+
     try {
       console.log('[KV] Deleting post:', id);
-      
+
       const existingPost = await this.getPostById(id);
       if (!existingPost) {
         console.log('[KV] Post not found for deletion:', id);
@@ -190,10 +284,10 @@ export class KVStorage {
 
       // 删除文章数据
       await kv.del(`${POSTS_KEY}:${id}`);
-      
+
       // 从文章ID集合中移除
       await kv.srem(POST_IDS_KEY, id);
-      
+
       // 重新计算标签集合
       const allPosts = await this.getAllPosts();
       const allTags = new Set<string>();
@@ -206,7 +300,7 @@ export class KVStorage {
       if (allTags.size > 0) {
         await kv.sadd(TAGS_KEY, Array.from(allTags));
       }
-      
+
       console.log('[KV] Deleted post:', id);
       return true;
     } catch (error) {
@@ -216,6 +310,10 @@ export class KVStorage {
   }
 
   async getAllTags(): Promise<string[]> {
+    if (this.useMemory) {
+      return this.memoryStorage.getAllTags();
+    }
+
     try {
       console.log('[KV] Getting all tags');
       const tags = await kv.smembers(TAGS_KEY);
@@ -228,6 +326,10 @@ export class KVStorage {
   }
 
   async getSortedPosts(): Promise<Post[]> {
+    if (this.useMemory) {
+      return this.memoryStorage.getSortedPosts();
+    }
+
     try {
       console.log('[KV] Getting sorted posts');
       const posts = await this.getAllPosts();
@@ -243,6 +345,19 @@ export class KVStorage {
   }
 
   async getStorageInfo(): Promise<any> {
+    if (this.useMemory) {
+      const posts = await this.memoryStorage.getAllPosts();
+      const tags = await this.memoryStorage.getAllTags();
+      return {
+        type: 'memory-storage',
+        post_count: posts.length,
+        tag_count: tags.length,
+        writable: true,
+        connected: true,
+        fallback: true
+      };
+    }
+
     try {
       const postIds = await kv.smembers(POST_IDS_KEY);
       const tags = await kv.smembers(TAGS_KEY);
