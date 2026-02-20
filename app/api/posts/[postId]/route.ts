@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { postStore } from "../../data";
 import { isAuthenticated, getAuthDebugInfo } from "@/lib/auth";
 import { validateUpdatePost } from "@/lib/validation";
+import { checkRateLimit, RATE_LIMITS, getRateLimitHeaders } from "@/lib/rate-limit";
 
 // Helper for consistent logging
 function logError(context: string, postId: string | undefined, error: unknown) {
@@ -24,6 +25,12 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
   let postId: string | undefined;
   
   try {
+    // 速率限制检查（读操作）
+    const rateLimitCheck = await checkRateLimit(request, RATE_LIMITS.read);
+    if (!rateLimitCheck.allowed) {
+      return errorResponse('Too Many Requests', 429);
+    }
+    
     const paramsData = await params;
     postId = paramsData.postId;
     
@@ -33,10 +40,19 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
     }
     
     const post = await postStore.getPostById(postId);
-    if (post) {
-      return NextResponse.json(post);
+    const response = post 
+      ? NextResponse.json(post)
+      : NextResponse.json({ error: 'Post not found' }, { status: 404 });
+    
+    // 添加速率限制头
+    if (rateLimitCheck.result) {
+      const headers = getRateLimitHeaders(rateLimitCheck.result);
+      Object.entries(headers).forEach(([key, value]) => {
+        response.headers.set(key, value);
+      });
     }
-    return NextResponse.json({ error: 'Post not found' }, { status: 404 });
+    
+    return response;
   } catch (error) {
     logError('GET /api/posts/[postId]', postId, error);
     return errorResponse('Failed to fetch post', 500);
@@ -48,6 +64,12 @@ export async function PUT(request: NextRequest, { params }: { params: Promise<{ 
   let postId: string | undefined;
   
   try {
+    // 速率限制检查（写操作）
+    const rateLimitCheck = await checkRateLimit(request, RATE_LIMITS.write);
+    if (!rateLimitCheck.allowed) {
+      return errorResponse('Too Many Requests', 429);
+    }
+    
     const paramsData = await params;
     postId = paramsData.postId;
     
@@ -96,10 +118,19 @@ export async function PUT(request: NextRequest, { params }: { params: Promise<{ 
     
     const updatedPost = await postStore.updatePost(postId, updateData);
     
-    if (updatedPost) {
-      return NextResponse.json(updatedPost);
+    const response = updatedPost
+      ? NextResponse.json(updatedPost)
+      : NextResponse.json({ error: 'Post not found' }, { status: 404 });
+    
+    // 添加速率限制头
+    if (rateLimitCheck.result) {
+      const headers = getRateLimitHeaders(rateLimitCheck.result);
+      Object.entries(headers).forEach(([key, value]) => {
+        response.headers.set(key, value);
+      });
     }
-    return NextResponse.json({ error: 'Post not found' }, { status: 404 });
+    
+    return response;
   } catch (error) {
     logError('PUT /api/posts/[postId]', postId, error);
     return errorResponse('Failed to update post', 500);
@@ -111,6 +142,12 @@ export async function DELETE(request: NextRequest, { params }: { params: Promise
   let postId: string | undefined;
   
   try {
+    // 速率限制检查（写操作）
+    const rateLimitCheck = await checkRateLimit(request, RATE_LIMITS.write);
+    if (!rateLimitCheck.allowed) {
+      return errorResponse('Too Many Requests', 429);
+    }
+    
     const paramsData = await params;
     postId = paramsData.postId;
     
@@ -136,10 +173,19 @@ export async function DELETE(request: NextRequest, { params }: { params: Promise
     // 删除文章
     const success = await postStore.deletePost(postId);
     
-    if (success) {
-      return NextResponse.json({ message: 'Post deleted' });
+    const response = success
+      ? NextResponse.json({ message: 'Post deleted' })
+      : NextResponse.json({ error: 'Post not found' }, { status: 404 });
+    
+    // 添加速率限制头
+    if (rateLimitCheck.result) {
+      const headers = getRateLimitHeaders(rateLimitCheck.result);
+      Object.entries(headers).forEach(([key, value]) => {
+        response.headers.set(key, value);
+      });
     }
-    return NextResponse.json({ error: 'Post not found' }, { status: 404 });
+    
+    return response;
   } catch (error) {
     logError('DELETE /api/posts/[postId]', postId, error);
     return errorResponse('Failed to delete post', 500);

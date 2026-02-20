@@ -1,16 +1,13 @@
 import { NextResponse } from 'next/server';
 import { kvStorage } from '@/lib/kv-storage';
 import { kv } from '@vercel/kv';
-import path from 'path';
 
 interface HealthInfo {
   status: string;
   timestamp: string;
+  // 简化的环境信息，不包含敏感数据
   environment: {
     node_env?: string;
-    vercel_env?: string;
-    vercel_url?: string;
-    next_public_site_url?: string;
   };
   storage: {
     type: string;
@@ -19,14 +16,15 @@ interface HealthInfo {
     initialized: boolean;
     error?: string;
   };
+  // 仅返回认证是否配置，不暴露细节
   auth: {
-    has_api_secret: boolean;
-    using_default_secret: boolean;
+    configured: boolean;
   };
-  memory: {
-    cwd: string;
-  };
+  // 版本信息
+  version: string;
 }
+
+const APP_VERSION = '1.0.0'; // 可以改为从 package.json 读取
 
 export async function GET() {
   try {
@@ -35,23 +33,17 @@ export async function GET() {
       timestamp: new Date().toISOString(),
       environment: {
         node_env: process.env.NODE_ENV,
-        vercel_env: process.env.VERCEL_ENV,
-        vercel_url: process.env.VERCEL_URL,
-        next_public_site_url: process.env.NEXT_PUBLIC_SITE_URL,
       },
       storage: {
         type: 'vercel-kv',
-        writable: true,
+        writable: false,
         post_count: 0,
         initialized: false,
       },
       auth: {
-        has_api_secret: !!process.env.API_SECRET,
-        using_default_secret: !process.env.API_SECRET
+        configured: !!process.env.API_SECRET && process.env.API_SECRET.length >= 16,
       },
-      memory: {
-        cwd: process.cwd(),
-      }
+      version: APP_VERSION,
     };
 
     // 检查KV存储状态（可选）
@@ -62,11 +54,9 @@ export async function GET() {
         const storageInfo = await kvStorage.getStorageInfo();
         healthInfo.storage.post_count = storageInfo.post_count;
         healthInfo.storage.initialized = storageInfo.connected;
-        console.log('KV storage info:', storageInfo);
       } catch (error) {
-        console.error('KV storage check failed:', error);
-        healthInfo.storage.error = error instanceof Error ? error.message : 'Unknown error';
-        // Don't set status to degraded for KV issues - Edge Config can work independently
+        console.error('[HEALTH] KV storage check failed:', error);
+        healthInfo.storage.error = 'Storage check failed';
       }
 
       // 测试KV存储写入
@@ -79,47 +69,41 @@ export async function GET() {
         
         if (JSON.stringify(retrieved) === JSON.stringify(testValue)) {
           healthInfo.storage.writable = true;
-        } else {
-          throw new Error('KV storage read/write test failed');
         }
       } catch (error) {
-        console.error('KV storage write test failed', error);
+        console.error('[HEALTH] KV storage write test failed:', error);
         healthInfo.storage.writable = false;
+        healthInfo.storage.error = 'Storage write test failed';
       }
     } else {
-      console.log('KV storage not configured - skipping KV checks');
-      healthInfo.storage.writable = false;
-      healthInfo.storage.initialized = false;
-      healthInfo.storage.error = 'KV storage not configured - set KV_REST_API_URL and KV_REST_API_TOKEN to enable';
+      healthInfo.storage.error = 'Storage not configured';
     }
 
     // Determine overall status based on available services
-    const hasEdgeConfig = !!process.env.EDGE_CONFIG;
-    const hasAuth = !!process.env.API_SECRET;
+    const hasAuth = healthInfo.auth.configured;
 
     if (!hasAuth) {
       healthInfo.status = 'degraded';
     } else if (hasKvConfig && healthInfo.storage.writable) {
-      // If KV is configured and working
-      healthInfo.status = 'healthy';
-    } else if (hasEdgeConfig) {
-      // If only Edge Config is available, we're functional
       healthInfo.status = 'healthy';
     } else if (hasKvConfig) {
       // KV is configured but not working properly
       healthInfo.status = 'degraded';
     } else {
-      // No storage services configured, but auth is working
+      // No KV configured, but auth is working (using memory storage)
       healthInfo.status = 'healthy';
     }
 
-    return NextResponse.json(healthInfo);
+    // 根据状态返回不同的 HTTP 状态码
+    const statusCode = healthInfo.status === 'unhealthy' ? 503 : 200;
+    
+    return NextResponse.json(healthInfo, { status: statusCode });
   } catch (error) {
-    console.error('Health check failed:', error);
+    console.error('[HEALTH] Health check failed:', error);
     return NextResponse.json({
       status: 'unhealthy',
-      error: error instanceof Error ? error.message : 'Unknown error',
       timestamp: new Date().toISOString(),
-    }, { status: 500 });
+      version: APP_VERSION,
+    }, { status: 503 });
   }
 }

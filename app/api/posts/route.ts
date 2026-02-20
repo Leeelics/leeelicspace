@@ -3,6 +3,7 @@ import { postStore } from "../data";
 import { isAuthenticated, getAuthDebugInfo } from "@/lib/auth";
 import type { Post } from "@/types";
 import { validateCreatePost, validatePagination } from "@/lib/validation";
+import { checkRateLimit, RATE_LIMITS, getRateLimitHeaders } from "@/lib/rate-limit";
 
 // Helper for consistent error logging
 function logError(context: string, error: unknown, request: NextRequest) {
@@ -26,6 +27,12 @@ function errorResponse(message: string, status: number, details?: unknown) {
 // 获取所有文章，支持分页、标签筛选和关键词搜索
 export async function GET(request: NextRequest) {
   try {
+    // 速率限制检查（读操作）
+    const rateLimitCheck = await checkRateLimit(request, RATE_LIMITS.read);
+    if (!rateLimitCheck.allowed) {
+      return errorResponse('Too Many Requests', 429);
+    }
+    
     // 获取并验证查询参数
     const searchParams = request.nextUrl.searchParams;
     const paramsResult = validatePagination({
@@ -71,7 +78,7 @@ export async function GET(request: NextRequest) {
     const total_pages = Math.ceil(total / per_page);
     
     // 返回结果
-    return NextResponse.json({
+    const response = NextResponse.json({
       posts: paginatedPosts,
       pagination: {
         page,
@@ -80,6 +87,16 @@ export async function GET(request: NextRequest) {
         total_pages
       }
     });
+    
+    // 添加速率限制头
+    if (rateLimitCheck.result) {
+      const headers = getRateLimitHeaders(rateLimitCheck.result);
+      Object.entries(headers).forEach(([key, value]) => {
+        response.headers.set(key, value);
+      });
+    }
+    
+    return response;
   } catch (error) {
     logError('GET /api/posts error', error, request);
     return errorResponse('Failed to fetch posts', 500);
@@ -89,6 +106,12 @@ export async function GET(request: NextRequest) {
 // 创建新文章（需要管理员权限）
 export async function POST(request: NextRequest) {
   try {
+    // 速率限制检查（写操作）
+    const rateLimitCheck = await checkRateLimit(request, RATE_LIMITS.write);
+    if (!rateLimitCheck.allowed) {
+      return errorResponse('Too Many Requests', 429);
+    }
+    
     // 获取请求体
     const data = await request.json();
     
@@ -128,7 +151,17 @@ export async function POST(request: NextRequest) {
       ...(validatedData.channelConfig && { channelConfig: validatedData.channelConfig }),
     });
     
-    return NextResponse.json(newPost, { status: 201 });
+    const response = NextResponse.json(newPost, { status: 201 });
+    
+    // 添加速率限制头
+    if (rateLimitCheck.result) {
+      const headers = getRateLimitHeaders(rateLimitCheck.result);
+      Object.entries(headers).forEach(([key, value]) => {
+        response.headers.set(key, value);
+      });
+    }
+    
+    return response;
   } catch (error) {
     logError('POST /api/posts error', error, request);
     return errorResponse('Failed to create post', 500);
