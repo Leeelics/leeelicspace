@@ -8,7 +8,6 @@ const nextConfig: NextConfig = {
   reactCompiler: true,
   
   // 内存优化
-  swcMinify: true,
   poweredByHeader: false,
   generateEtags: false,
   
@@ -16,8 +15,6 @@ const nextConfig: NextConfig = {
   experimental: {
     // 禁用某些实验性功能以减少内存
     optimizeCss: false,
-    // 减少并行编译数量
-    workerThreads: false,
   },
   
   async redirects() {
