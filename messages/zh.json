@@ -51,7 +51,8 @@
   "footer": {
     "copyright": "© {year} leelicspace. Built with Next.js & Tailwind CSS.",
     "rss": "RSS",
-    "github": "GitHub"
+    "github": "GitHub",
+    "builtWith": "构建于"
   },
   "language": {
     "switchTo": "切换到",

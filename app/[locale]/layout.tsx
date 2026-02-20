@@ -139,29 +139,23 @@ export default async function RootLayout({
 
             {/* Footer */}
             <footer className="border-t border-[var(--border)] mt-auto">
-              <div className="container py-8">
-                <div className="flex flex-col md:flex-row items-center justify-between gap-4">
-                  {/* Copyright */}
-                  <div className="text-sm text-[var(--text-tertiary)]"
->                    © {new Date().getFullYear()} leelicspace. Built with Next.js & Tailwind CSS.
+              <div className="container py-12 md:py-16">
+                <div className="flex flex-col items-center text-center gap-4">
+                  {/* Brand */}
+                  <div className="text-2xl font-bold tracking-tight">
+                    <span className="text-gradient">lee</span>
+                    <span className="text-[var(--text-primary)]">lic</span>
+                    <span className="text-[var(--text-muted)]">space</span>
                   </div>
-
-                  {/* Links */}
-                  <div className="flex items-center gap-4">
-                    <a 
-                      href="/api/rss" 
-                      target="_blank" 
-                      rel="noopener noreferrer"
-                      className="text-sm text-[var(--text-tertiary)] hover:text-[var(--accent)] transition-colors flex items-center gap-1"
-                    >
-                      <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-label={t('nav.rss')}>
-                        <title>{t('nav.rss')}</title>
-                        <path d="M4 11a9 9 0 0 1 9 9"/>
-                        <path d="M4 4a16 16 0 0 1 16 16"/>
-                        <circle cx="5" cy="19" r="1"/>
-                      </svg>
-                      {t('nav.rss')}
-                    </a>
+                  
+                  {/* Tagline */}
+                  <p className="text-sm text-[var(--text-secondary)]">
+                    {t('metadata.description')}
+                  </p>
+                  
+                  {/* Copyright */}
+                  <div className="text-sm text-[var(--text-tertiary)] pt-4 border-t border-[var(--border)] w-full max-w-md">
+                    © {new Date().getFullYear()} leelicspace. {t('footer.builtWith') || 'Built with'} Next.js & Tailwind CSS.
                   </div>
                 </div>
               </div>
