@@ -107,6 +107,11 @@ npm run format
 # KV 存储测试
 npm run test:kv
 npm run migrate:kv
+
+# E2E 测试（Playwright）
+npx playwright test
+npx playwright test --ui          # UI 模式
+npx playwright test --reporter=list
 ```
 
 ### 认证方式
@@ -262,6 +267,77 @@ if (!isAuthenticated(request)) {
 3. **图片存储**: 不支持图片上传，需使用外部图床
 4. **文章备份**: 无自动备份机制
 
+## AI Skills
+
+本地安装的 AI Skills 路径（用于代码审查和优化）：
+
+```
+~/.claude/skills/
+├── react-best-practices/     # Vercel React 最佳实践（57条规则）
+├── web-design-guidelines/    # Web 界面设计规范
+├── composition-patterns/     # React 组合模式
+└── react-native-skills/      # React Native 开发技能
+```
+
+### Skill 使用场景
+
+| Skill | 用途 | 触发条件 |
+|-------|------|---------|
+| react-best-practices | React/Next.js 性能优化 | 组件开发、代码审查、性能优化 |
+| web-design-guidelines | UI/UX 设计规范审查 | 样式调整、可访问性检查 |
+| composition-patterns | 组件架构设计 | 复杂组件重构、props 设计 |
+
+## 端到端测试 (E2E)
+
+使用 **Playwright** 进行端到端测试。
+
+### 测试配置
+
+- **测试目录**: `e2e/`
+- **配置文件**: `playwright.config.ts`
+- **浏览器**: Chromium
+- **测试数量**: 20 个测试用例
+
+### 测试覆盖
+
+| 测试类别 | 数量 | 说明 |
+|---------|------|------|
+| 首页功能 | 3 | 加载、导航、文章链接 |
+| 页面测试 | 3 | 文章详情、关于、项目 |
+| API 接口 | 6 | CRUD、RSS、Health Check |
+| 管理后台 | 2 | 登录流程、认证检查 |
+| 响应式布局 | 2 | 移动端 (375px)、平板 (768px) |
+| 性能测试 | 2 | 加载时间、性能指标 |
+| 无障碍测试 | 2 | 标题结构、表单标签 |
+
+### 运行测试
+
+```bash
+# 运行所有测试
+npx playwright test
+
+# 运行特定测试文件
+npx playwright test e2e/blog.spec.ts
+
+# UI 模式（交互式调试）
+npx playwright test --ui
+
+# 生成报告
+npx playwright test --reporter=html
+```
+
+### 测试截图
+
+测试运行时会自动截图保存到 `e2e/screenshots/`:
+- `homepage.png` - 桌面端首页
+- `mobile-homepage.png` - 移动端首页
+- `tablet-homepage.png` - 平板端首页
+- `login.png` - 登录页面
+- `dashboard.png` - 管理后台
+- `post-detail.png` - 文章详情页
+
+**注意**: 截图和测试报告已添加到 `.gitignore`，不会被提交到仓库。
+
 ## 参考文档
 
 - [Next.js 16 文档](https://nextjs.org/docs)
@@ -269,7 +345,8 @@ if (!isAuthenticated(request)) {
 - [Vercel KV](https://vercel.com/docs/storage/vercel-kv)
 - [Catppuccin 主题](https://catppuccin.com/)
 - [Biome 配置](https://biomejs.dev/guides/getting-started/)
+- [Playwright 文档](https://playwright.dev/docs/intro)
 
 ---
 
-*最后更新: 2025-02-19*
+*最后更新: 2026-02-21*
