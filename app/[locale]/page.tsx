@@ -79,10 +79,11 @@ export default async function Home({
     }
 
     const postsResponseData = await postsResponse.json();
-    tags = await tagsResponse.json();
+    const tagsResponseData = await tagsResponse.json();
 
-    posts = postsResponseData.posts || [];
-    pagination = postsResponseData.pagination || {
+    posts = postsResponseData.data?.posts || [];
+    tags = tagsResponseData.data || [];
+    pagination = postsResponseData.data?.pagination || {
       page: 1,
       per_page: 10,
       total: 0,
