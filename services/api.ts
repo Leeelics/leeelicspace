@@ -25,7 +25,8 @@ export const fetchPosts = async (
   if (!response.ok) {
     throw new Error("Failed to fetch posts");
   }
-  return response.json();
+  const result = await response.json();
+  return result.data || result;
 };
 
 // 获取单篇文章
@@ -34,7 +35,8 @@ export const fetchPost = async (postId: string): Promise<Post> => {
   if (!response.ok) {
     throw new Error("Failed to fetch post");
   }
-  return response.json();
+  const result = await response.json();
+  return result.data || result;
 };
 
 // 获取所有标签
@@ -43,7 +45,8 @@ export const fetchTags = async (): Promise<string[]> => {
   if (!response.ok) {
     throw new Error("Failed to fetch tags");
   }
-  return response.json();
+  const result = await response.json();
+  return result.data || result;
 };
 
 // 创建新文章

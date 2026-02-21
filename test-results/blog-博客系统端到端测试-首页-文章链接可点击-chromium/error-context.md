@@ -1,0 +1,175 @@
+# Page snapshot
+
+```yaml
+- generic [ref=e1]:
+  - generic [ref=e2]:
+    - banner [ref=e3]:
+      - navigation [ref=e5]:
+        - link "leelicspace" [ref=e6] [cursor=pointer]:
+          - /url: /zh
+          - generic [ref=e7]: leelicspace
+        - generic [ref=e8]:
+          - link "首页" [ref=e9] [cursor=pointer]:
+            - /url: /zh
+          - link "关于" [ref=e10] [cursor=pointer]:
+            - /url: /zh/about
+          - link "工具" [ref=e11] [cursor=pointer]:
+            - /url: /zh/tools/media-card
+        - generic [ref=e12]:
+          - textbox "搜索文章..." [ref=e15]
+          - button "Switch to English" [ref=e16] [cursor=pointer]:
+            - generic [ref=e17]: EN
+          - button "切换到暗色模式" [ref=e18] [cursor=pointer]:
+            - img "切换到暗色模式" [ref=e19]
+          - link "RSS" [ref=e21] [cursor=pointer]:
+            - /url: /api/rss
+            - img [ref=e22]
+    - main [ref=e26]:
+      - generic [ref=e27]:
+        - generic [ref=e30]:
+          - generic [ref=e31]:
+            - generic [ref=e32]: 思考
+            - generic [ref=e33]: 探索
+          - generic [ref=e35]: leelicspace
+          - generic [ref=e36]:
+            - generic [ref=e37]: 记录
+            - generic [ref=e38]: 分享
+        - generic [ref=e43]:
+          - complementary [ref=e44]:
+            - generic [ref=e45]:
+              - generic [ref=e46]:
+                - heading "按类别浏览" [level=2] [ref=e47]
+                - generic [ref=e48]:
+                  - link "全部" [ref=e49] [cursor=pointer]:
+                    - /url: /zh
+                  - link "Git" [ref=e50] [cursor=pointer]:
+                    - /url: /zh?tag=Git
+                  - link "开发工具" [ref=e51] [cursor=pointer]:
+                    - /url: /zh?tag=开发工具
+                  - link "版本控制" [ref=e52] [cursor=pointer]:
+                    - /url: /zh?tag=版本控制
+                  - link "Docker" [ref=e53] [cursor=pointer]:
+                    - /url: /zh?tag=Docker
+                  - link "容器化" [ref=e54] [cursor=pointer]:
+                    - /url: /zh?tag=容器化
+                  - link "DevOps" [ref=e55] [cursor=pointer]:
+                    - /url: /zh?tag=DevOps
+                  - link "数据结构" [ref=e56] [cursor=pointer]:
+                    - /url: /zh?tag=数据结构
+                  - link "算法" [ref=e57] [cursor=pointer]:
+                    - /url: /zh?tag=算法
+                  - link "编程基础" [ref=e58] [cursor=pointer]:
+                    - /url: /zh?tag=编程基础
+                  - link "前端" [ref=e59] [cursor=pointer]:
+                    - /url: /zh?tag=前端
+                  - link "性能优化" [ref=e60] [cursor=pointer]:
+                    - /url: /zh?tag=性能优化
+                  - link "用户体验" [ref=e61] [cursor=pointer]:
+                    - /url: /zh?tag=用户体验
+                  - link "Next.js" [ref=e62] [cursor=pointer]:
+                    - /url: /zh?tag=Next.js
+                  - link "React" [ref=e63] [cursor=pointer]:
+                    - /url: /zh?tag=React
+              - generic [ref=e64]:
+                - heading "专辑" [level=2] [ref=e65]
+                - navigation [ref=e66]:
+                  - link "Next.js 系列教程 5" [ref=e67] [cursor=pointer]:
+                    - /url: /zh/collection/1
+                    - generic [ref=e68]: Next.js 系列教程
+                    - generic [ref=e69]: "5"
+                  - link "React 进阶指南 8" [ref=e70] [cursor=pointer]:
+                    - /url: /zh/collection/2
+                    - generic [ref=e71]: React 进阶指南
+                    - generic [ref=e72]: "8"
+                  - link "TypeScript 实战 6" [ref=e73] [cursor=pointer]:
+                    - /url: /zh/collection/3
+                    - generic [ref=e74]: TypeScript 实战
+                    - generic [ref=e75]: "6"
+              - generic [ref=e76]:
+                - heading "热门内容" [level=2] [ref=e77]
+                - navigation [ref=e78]:
+                  - link "→ Git 高级技巧分享" [active] [ref=e79] [cursor=pointer]:
+                    - /url: /zh/posts/4wllboht
+                    - generic [ref=e80]: →
+                    - text: Git 高级技巧分享
+                  - link "→ Docker 容器化最佳实践" [ref=e81] [cursor=pointer]:
+                    - /url: /zh/posts/m3epxf5q
+                    - generic [ref=e82]: →
+                    - text: Docker 容器化最佳实践
+                  - link "→ 数据结构与算法学习心得" [ref=e83] [cursor=pointer]:
+                    - /url: /zh/posts/fvfl1hse
+                    - generic [ref=e84]: →
+                    - text: 数据结构与算法学习心得
+                  - link "→ 前端性能优化指南" [ref=e85] [cursor=pointer]:
+                    - /url: /zh/posts/m53ef8wo
+                    - generic [ref=e86]: →
+                    - text: 前端性能优化指南
+                  - link "→ Next.js 16 新特性介绍" [ref=e87] [cursor=pointer]:
+                    - /url: /zh/posts/bat4e4ma
+                    - generic [ref=e88]: →
+                    - text: Next.js 16 新特性介绍
+          - generic [ref=e90]:
+            - article [ref=e91]:
+              - 'link "Git 高级技巧分享 昨天 Git 开发工具 版本控制 Git 是现代开发中不可或缺的版本控制工具。以下是一些高级技巧： 1. 交互式rebase 使用 git rebase -i 可以交互式地修改提交历史，包括合并、编辑和删除提交。 2. 重置和恢复 - git reset: 重置分支指向和工作目录 - git checkout --: 恢...阅读全文" [ref=e92] [cursor=pointer]':
+                - /url: /zh/posts/4wllboht
+                - generic [ref=e93]:
+                  - heading "Git 高级技巧分享" [level=3] [ref=e94]
+                  - generic [ref=e95]: 昨天
+                  - generic [ref=e96]: Git
+                  - generic [ref=e97]: 开发工具
+                  - generic [ref=e98]: 版本控制
+                - paragraph [ref=e99]: "Git 是现代开发中不可或缺的版本控制工具。以下是一些高级技巧： 1. 交互式rebase 使用 git rebase -i 可以交互式地修改提交历史，包括合并、编辑和删除提交。 2. 重置和恢复 - git reset: 重置分支指向和工作目录 - git checkout --: 恢...阅读全文"
+            - article [ref=e100]:
+              - link "Docker 容器化最佳实践 昨天 Docker 容器化 DevOps Docker 容器化已经成为现代应用部署的标准方式。以下是一些最佳实践： 1. 镜像优化 - 使用多阶段构建减少镜像大小 - 选择合适的基础镜像（如Alpine） - 最小化镜像层数 2. 容器安全 - 使用非root用户运行容器 - 定期更新基础镜像和依赖 - 扫描镜像漏洞 3. 编排和管...阅读全文" [ref=e101] [cursor=pointer]:
+                - /url: /zh/posts/m3epxf5q
+                - generic [ref=e102]:
+                  - heading "Docker 容器化最佳实践" [level=3] [ref=e103]
+                  - generic [ref=e104]: 昨天
+                  - generic [ref=e105]: Docker
+                  - generic [ref=e106]: 容器化
+                  - generic [ref=e107]: DevOps
+                - paragraph [ref=e108]: Docker 容器化已经成为现代应用部署的标准方式。以下是一些最佳实践： 1. 镜像优化 - 使用多阶段构建减少镜像大小 - 选择合适的基础镜像（如Alpine） - 最小化镜像层数 2. 容器安全 - 使用非root用户运行容器 - 定期更新基础镜像和依赖 - 扫描镜像漏洞 3. 编排和管...阅读全文
+            - article [ref=e109]:
+              - link "数据结构与算法学习心得 昨天 数据结构 算法 编程基础 数据结构与算法是程序员的基本功。以下是我的学习心得： 1. 学习方法 - 理解基本概念和原理 - 动手实现常见数据结构和算法 - 刷LeetCode等平台的题目 - 学习算法复杂度分析 2. 重点数据结构 - 数组、链表、栈、队列 - 树、图 - 哈希表、集合 - 堆、优先队列 3. 重点算...阅读全文" [ref=e110] [cursor=pointer]:
+                - /url: /zh/posts/fvfl1hse
+                - generic [ref=e111]:
+                  - heading "数据结构与算法学习心得" [level=3] [ref=e112]
+                  - generic [ref=e113]: 昨天
+                  - generic [ref=e114]: 数据结构
+                  - generic [ref=e115]: 算法
+                  - generic [ref=e116]: 编程基础
+                - paragraph [ref=e117]: 数据结构与算法是程序员的基本功。以下是我的学习心得： 1. 学习方法 - 理解基本概念和原理 - 动手实现常见数据结构和算法 - 刷LeetCode等平台的题目 - 学习算法复杂度分析 2. 重点数据结构 - 数组、链表、栈、队列 - 树、图 - 哈希表、集合 - 堆、优先队列 3. 重点算...阅读全文
+            - article [ref=e118]:
+              - link "前端性能优化指南 昨天 前端 性能优化 用户体验 前端性能优化是提升用户体验的重要手段。以下是一些优化策略： 1. 资源加载优化 - 压缩CSS和JavaScript - 图片优化（压缩、懒加载、WebP格式） - 使用CDN加速资源加载 2. 渲染优化 - 减少DOM操作 - 使用虚拟DOM - 优化CSS选择器 - 使用requestAnima...阅读全文" [ref=e119] [cursor=pointer]:
+                - /url: /zh/posts/m53ef8wo
+                - generic [ref=e120]:
+                  - heading "前端性能优化指南" [level=3] [ref=e121]
+                  - generic [ref=e122]: 昨天
+                  - generic [ref=e123]: 前端
+                  - generic [ref=e124]: 性能优化
+                  - generic [ref=e125]: 用户体验
+                - paragraph [ref=e126]: 前端性能优化是提升用户体验的重要手段。以下是一些优化策略： 1. 资源加载优化 - 压缩CSS和JavaScript - 图片优化（压缩、懒加载、WebP格式） - 使用CDN加速资源加载 2. 渲染优化 - 减少DOM操作 - 使用虚拟DOM - 优化CSS选择器 - 使用requestAnima...阅读全文
+            - article [ref=e127]:
+              - link "Next.js 16 新特性介绍 昨天 Next.js React 前端 Next.js 16 带来了许多令人兴奋的新特性，包括： - Turbopack 构建速度提升 - React 19 支持 - 更好的服务器组件支持 - 改进的开发体验 这些新特性让Next.js在构建现代Web应用时更加高效和便捷。...阅读全文" [ref=e128] [cursor=pointer]:
+                - /url: /zh/posts/bat4e4ma
+                - generic [ref=e129]:
+                  - heading "Next.js 16 新特性介绍" [level=3] [ref=e130]
+                  - generic [ref=e131]: 昨天
+                  - generic [ref=e132]: Next.js
+                  - generic [ref=e133]: React
+                  - generic [ref=e134]: 前端
+                - paragraph [ref=e135]: Next.js 16 带来了许多令人兴奋的新特性，包括： - Turbopack 构建速度提升 - React 19 支持 - 更好的服务器组件支持 - 改进的开发体验 这些新特性让Next.js在构建现代Web应用时更加高效和便捷。...阅读全文
+    - contentinfo [ref=e136]:
+      - generic [ref=e138]:
+        - generic [ref=e139]: leelicspace
+        - paragraph [ref=e140]: Lee的数字空间 - 记录技术、设计与思考
+        - generic [ref=e141]: © 2026 leelicspace. 构建于 Next.js & Tailwind CSS.
+  - button "Open Next.js Dev Tools" [ref=e147] [cursor=pointer]:
+    - generic [ref=e150]:
+      - text: Rendering
+      - generic [ref=e151]:
+        - generic [ref=e152]: .
+        - generic [ref=e153]: .
+        - generic [ref=e154]: .
+  - alert [ref=e155]
+```
