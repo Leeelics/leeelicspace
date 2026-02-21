@@ -9,9 +9,9 @@ import {
   Settings,
 } from "lucide-react";
 import Link from "next/link";
-import { useParams, useRouter } from "next/navigation";
+import { useParams, usePathname, useRouter } from "next/navigation";
 import type React from "react";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 
 const navItems = [
   { href: "/dashboard", icon: LayoutDashboard, label: "总览" },
@@ -28,19 +28,53 @@ export default function DashboardLayout({
 }) {
   const router = useRouter();
   const params = useParams();
+  const pathname = usePathname();
   const locale = (params?.locale as string) || "zh";
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
+
+  // 检查当前是否是登录页
+  const isLoginPage = pathname?.includes("/dashboard/login");
 
   useEffect(() => {
-    const isLoggedIn = localStorage.getItem("adminLoggedIn") === "true";
-    if (!isLoggedIn) {
+    // 登录页不需要检查登录状态
+    if (isLoginPage) {
+      setIsLoading(false);
+      return;
+    }
+
+    const loggedIn = localStorage.getItem("adminLoggedIn") === "true";
+    setIsLoggedIn(loggedIn);
+    setIsLoading(false);
+
+    if (!loggedIn) {
       router.push(`/${locale}/dashboard/login`);
     }
-  }, [router, locale]);
+  }, [router, locale, isLoginPage]);
 
   const handleLogout = () => {
     localStorage.removeItem("adminLoggedIn");
     router.push(`/${locale}/dashboard/login`);
   };
+
+  // 登录页独立渲染，不使用管理后台布局
+  if (isLoginPage) {
+    return <>{children}</>;
+  }
+
+  // 加载中显示空白或加载动画
+  if (isLoading) {
+    return (
+      <div className="min-h-screen bg-[var(--background)] flex items-center justify-center">
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-[var(--accent)]" />
+      </div>
+    );
+  }
+
+  // 未登录不渲染内容（会被重定向）
+  if (!isLoggedIn) {
+    return null;
+  }
 
   return (
     <div className="min-h-screen bg-[var(--background)] flex">
