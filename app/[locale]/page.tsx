@@ -96,33 +96,18 @@ export default async function Home({
         <section className="relative overflow-hidden bg-gradient-to-b from-[var(--hero-gradient-start)] to-[var(--hero-gradient-end)]">
           <div className="container relative z-10 py-24 md:py-36">
             <div className="flex items-center justify-center gap-6 md:gap-10">
-              {/* 左侧副标题 */}
-              <div className="hidden sm:flex flex-col items-end gap-3">
-                <span className="text-lg md:text-xl font-bold text-[var(--text-muted)] opacity-25 tracking-widest">
-                  思考
-                </span>
-                <span className="text-base md:text-lg font-bold text-[var(--text-muted)] opacity-15 tracking-widest">
-                  探索
-                </span>
-              </div>
-
               {/* Logo */}
-              <div>
+              <div className="text-center">
                 <span className="text-5xl md:text-6xl font-bold tracking-tight">
                   <span className="text-gradient">lee</span>
                   <span className="text-[var(--text-primary)]">lic</span>
                   <span className="text-[var(--text-muted)]">space</span>
                 </span>
-              </div>
-
-              {/* 右侧副标题 */}
-              <div className="hidden sm:flex flex-col items-start gap-3">
-                <span className="text-base md:text-lg font-bold text-[var(--text-muted)] opacity-15 tracking-widest">
-                  记录
-                </span>
-                <span className="text-lg md:text-xl font-bold text-[var(--text-muted)] opacity-25 tracking-widest">
-                  分享
-                </span>
+                <p className="mt-3 text-sm md:text-base text-[var(--text-secondary)] font-medium">
+                  {isEn
+                    ? "Recording Technology, Design & Thoughts"
+                    : "记录技术、设计与思考"}
+                </p>
               </div>
             </div>
           </div>
@@ -150,7 +135,7 @@ export default async function Home({
                         href={
                           search ? `/${locale}?search=${search}` : `/${locale}`
                         }
-                        className={`tag ${!tag ? "active" : ""}`}
+                        className={`tag ${!tag ? "active" : ""} transition-all duration-200 hover:scale-105`}
                       >
                         {t("tags.all")}
                       </Link>
@@ -158,7 +143,7 @@ export default async function Home({
                         <Link
                           key={t}
                           href={`/${locale}?tag=${t}${search ? `&search=${search}` : ""}`}
-                          className={`tag ${tag === t ? "active" : ""}`}
+                          className={`tag ${tag === t ? "active" : ""} transition-all duration-200 hover:scale-105`}
                         >
                           {t}
                         </Link>
@@ -176,12 +161,17 @@ export default async function Home({
                         <Link
                           key={collection.id}
                           href={`/${locale}/collection/${collection.id}`}
-                          className="group flex items-center justify-between py-2 px-3 -mx-3 rounded-lg hover:bg-[var(--surface-hover)] transition-colors"
+                          className="group flex items-center justify-between py-2 px-3 -mx-3 rounded-lg 
+                            hover:bg-[var(--surface-hover)] transition-all duration-200 
+                            hover:translate-x-1"
                         >
-                          <span className="text-sm text-[var(--text-secondary)] group-hover:text-[var(--text-primary)]">
+                          <span className="text-sm text-[var(--text-secondary)] group-hover:text-[var(--text-primary)] transition-colors duration-200">
                             {isEn ? collection.titleEn : collection.title}
                           </span>
-                          <span className="text-xs text-[var(--text-muted)] bg-[var(--surface)] px-2 py-0.5 rounded-full">
+                          <span
+                            className="text-xs text-[var(--text-muted)] bg-[var(--surface)] px-2 py-0.5 rounded-full
+                            group-hover:bg-[var(--accent)] group-hover:text-white transition-colors duration-200"
+                          >
                             {collection.count}
                           </span>
                         </Link>
@@ -199,12 +189,14 @@ export default async function Home({
                         <Link
                           key={post.id}
                           href={`/${locale}/posts/${post.id}`}
-                          className="group block py-1.5 text-sm text-[var(--text-tertiary)] hover:text-[var(--text-primary)] transition-colors line-clamp-2"
+                          className="group flex items-start gap-2 py-1.5 text-sm text-[var(--text-tertiary)] 
+                            hover:text-[var(--text-primary)] transition-all duration-200 
+                            hover:translate-x-1"
                         >
-                          <span className="inline-block mr-2 text-[var(--accent)]">
+                          <span className="inline-block mt-0.5 text-[var(--accent)] transform group-hover:translate-x-1 transition-transform duration-200">
                             →
                           </span>
-                          {post.title}
+                          <span className="line-clamp-2">{post.title}</span>
                         </Link>
                       ))}
                     </nav>
@@ -265,7 +257,8 @@ export default async function Home({
                             ...(tag ? { tag } : {}),
                             ...(search ? { search } : {}),
                           })}`}
-                          className={`btn btn-secondary ${page === pagination.total_pages ? "opacity-50 pointer-events-none" : ""}`}
+                          className={`btn btn-secondary transition-all duration-200 
+                            ${page === pagination.total_pages ? "opacity-50 pointer-events-none" : "hover:scale-105 active:scale-95"}`}
                         >
                           {t("pagination.next")}
                         </Link>
@@ -303,7 +296,7 @@ export default async function Home({
                     {(tag || search) && (
                       <Link
                         href={`/${locale}`}
-                        className="btn btn-primary mt-4"
+                        className="btn btn-primary mt-4 transition-all duration-200 hover:scale-105 active:scale-95"
                       >
                         {t("empty.viewAll")}
                       </Link>
@@ -329,7 +322,7 @@ export default async function Home({
   }
 }
 
-// Article Card Component - Josh W. Comeau Style
+// Article Card Component - Enhanced with better interactions
 function ArticleCard({
   post,
   locale,
@@ -344,22 +337,29 @@ function ArticleCard({
     <article className="group animate-fade-in-up">
       <Link
         href={`/${locale}/posts/${post.id}`}
-        className="block py-10 border-b border-[var(--border)] last:border-b-0 hover-lift"
+        className="block py-10 border-b border-[var(--border)] last:border-b-0 
+          transition-all duration-300 ease-out
+          hover:py-12
+          focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--accent)] focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--background)]"
       >
         {/* Title row with date and tags */}
         <div className="flex flex-wrap items-baseline gap-x-4 gap-y-2 mb-4">
-          <h3 className="text-2xl md:text-3xl font-bold text-[var(--text-primary)] group-hover:text-[var(--accent)] transition-colors leading-tight">
+          <h3 className="text-2xl md:text-3xl font-bold text-[var(--text-primary)] group-hover:text-[var(--accent)] transition-colors duration-300 leading-tight">
             {post.title}
           </h3>
 
-          <span className="text-sm text-[var(--text-muted)]">
+          <time
+            dateTime={post.created_at}
+            className="text-sm text-[var(--text-muted)] group-hover:text-[var(--text-secondary)] transition-colors duration-300"
+          >
             {formatDate(post.created_at, locale)}
-          </span>
+          </time>
 
-          {post.tags.slice(0, 3).map((tag) => (
+          {post.tags.slice(0, 3).map((tag, index) => (
             <span
               key={tag}
-              className="text-sm text-[var(--text-tertiary)] hover:text-[var(--accent)] transition-colors"
+              className="text-sm text-[var(--text-tertiary)] group-hover:text-[var(--accent)] transition-colors duration-300"
+              style={{ transitionDelay: `${index * 50}ms` }}
             >
               {tag}
             </span>
@@ -367,11 +367,32 @@ function ArticleCard({
         </div>
 
         {/* Summary with Read More inline */}
-        <p className="text-[var(--text-secondary)] leading-relaxed">
+        <p className="text-[var(--text-secondary)] leading-relaxed group-hover:text-[var(--text-primary)] transition-colors duration-300">
           {post.content.slice(0, 160).replace(/[#*`]/g, "")}
-          <span className="text-[var(--text-muted)]">...</span>
-          <span className="text-sm font-medium text-[var(--accent)] group-hover:underline ml-2">
+          <span className="text-[var(--text-muted)] group-hover:text-[var(--text-secondary)] transition-colors duration-300">
+            ...
+          </span>
+          <span
+            className="inline-flex items-center gap-1 text-sm font-medium text-[var(--accent)] ml-2 
+            group-hover:gap-2 transition-all duration-300"
+          >
             {t("article.readMore")}
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              width="16"
+              height="16"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              className="transform group-hover:translate-x-1 transition-transform duration-300"
+              aria-hidden="true"
+            >
+              <path d="M5 12h14" />
+              <path d="m12 5 7 7-7 7" />
+            </svg>
           </span>
         </p>
       </Link>
