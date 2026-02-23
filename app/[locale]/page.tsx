@@ -6,7 +6,7 @@ import type { Post } from "@/types";
 
 export const dynamic = "force-dynamic";
 
-// 模拟专辑数据（后续可以从数据库获取）
+// Mock collection data
 const collections = [
   {
     id: "1",
@@ -75,7 +75,7 @@ export default async function Home({
     ]);
 
     if (!postsResponse.ok || !tagsResponse.ok) {
-      throw new Error(`Failed to fetch data`);
+      throw new Error("Failed to fetch data");
     }
 
     const postsResponseData = await postsResponse.json();
@@ -92,50 +92,40 @@ export default async function Home({
 
     return (
       <div className="min-h-screen">
-        {/* Hero Section - leelicspace Brand */}
-        <section className="relative overflow-hidden bg-gradient-to-b from-[var(--hero-gradient-start)] to-[var(--hero-gradient-end)]">
-          <div className="container relative z-10 py-24 md:py-36">
-            <div className="flex items-center justify-center gap-6 md:gap-10">
-              {/* Logo */}
-              <div className="text-center">
-                <span className="text-5xl md:text-6xl font-bold tracking-tight">
-                  <span className="text-gradient">lee</span>
-                  <span className="text-[var(--text-primary)]">lic</span>
-                  <span className="text-[var(--text-muted)]">space</span>
-                </span>
-                <p className="mt-3 text-sm md:text-base text-[var(--text-secondary)] font-medium">
-                  {isEn
-                    ? "Recording Technology, Design & Thoughts"
-                    : "记录技术、设计与思考"}
-                </p>
-              </div>
+        {/* Hero Section */}
+        <section className="border-b border-[var(--border)]">
+          <div className="container py-12 md:py-16">
+            <div className="max-w-2xl">
+              <h1 className="text-[var(--font-size-hero)] font-semibold text-[var(--text-primary)] leading-tight mb-4">
+                leelicspace
+              </h1>
+              <p className="text-[var(--font-size-body)] text-[var(--text-secondary)] leading-relaxed">
+                {isEn
+                  ? "Recording Technology, Design & Thoughts"
+                  : "记录技术、设计与思考"}
+              </p>
             </div>
           </div>
         </section>
 
-        {/* Divider */}
-        <div className="container">
-          <div className="h-px bg-gradient-to-r from-transparent via-[var(--border)] to-transparent"></div>
-        </div>
-
         {/* Main Content - Two Column Layout */}
-        <section className="pt-16 pb-28 md:pt-24 md:pb-36">
+        <section className="py-8 md:py-12">
           <div className="container">
-            <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-16">
-              {/* Left Sidebar - Categories & Collections */}
+            <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12">
+              {/* Left Sidebar */}
               <aside className="lg:col-span-3 order-2 lg:order-1">
-                <div className="lg:sticky lg:top-28 space-y-10">
-                  {/* Browse by Category */}
+                <div className="lg:sticky lg:top-24 space-y-8">
+                  {/* Tags */}
                   <div>
-                    <h2 className="text-xs font-bold tracking-wider text-[var(--accent)] uppercase mb-4">
-                      {isEn ? "Browse by Category" : "按类别浏览"}
+                    <h2 className="text-[var(--font-size-small)] font-semibold text-[var(--text-tertiary)] uppercase tracking-wider mb-3">
+                      {isEn ? "Tags" : "标签"}
                     </h2>
                     <div className="flex flex-wrap gap-2">
                       <Link
                         href={
                           search ? `/${locale}?search=${search}` : `/${locale}`
                         }
-                        className={`tag ${!tag ? "active" : ""} transition-all duration-200 hover:scale-105`}
+                        className={`tag ${!tag ? "active" : ""}`}
                       >
                         {t("tags.all")}
                       </Link>
@@ -143,7 +133,7 @@ export default async function Home({
                         <Link
                           key={t}
                           href={`/${locale}?tag=${t}${search ? `&search=${search}` : ""}`}
-                          className={`tag ${tag === t ? "active" : ""} transition-all duration-200 hover:scale-105`}
+                          className={`tag ${tag === t ? "active" : ""}`}
                         >
                           {t}
                         </Link>
@@ -151,9 +141,9 @@ export default async function Home({
                     </div>
                   </div>
 
-                  {/* Collections / Series */}
+                  {/* Collections */}
                   <div>
-                    <h2 className="text-xs font-bold tracking-wider text-[var(--accent)] uppercase mb-4">
+                    <h2 className="text-[var(--font-size-small)] font-semibold text-[var(--text-tertiary)] uppercase tracking-wider mb-3">
                       {isEn ? "Collections" : "专辑"}
                     </h2>
                     <nav className="space-y-1">
@@ -161,17 +151,12 @@ export default async function Home({
                         <Link
                           key={collection.id}
                           href={`/${locale}/collection/${collection.id}`}
-                          className="group flex items-center justify-between py-2 px-3 -mx-3 rounded-lg 
-                            hover:bg-[var(--surface-hover)] transition-all duration-200 
-                            hover:translate-x-1"
+                          className="group flex items-center justify-between py-2 text-[var(--font-size-body)] text-[var(--text-secondary)] hover:text-[var(--text-primary)] transition-colors"
                         >
-                          <span className="text-sm text-[var(--text-secondary)] group-hover:text-[var(--text-primary)] transition-colors duration-200">
+                          <span className="truncate">
                             {isEn ? collection.titleEn : collection.title}
                           </span>
-                          <span
-                            className="text-xs text-[var(--text-muted)] bg-[var(--surface)] px-2 py-0.5 rounded-full
-                            group-hover:bg-[var(--accent)] group-hover:text-white transition-colors duration-200"
-                          >
+                          <span className="text-[var(--font-size-small)] text-[var(--text-muted)] ml-2">
                             {collection.count}
                           </span>
                         </Link>
@@ -179,41 +164,39 @@ export default async function Home({
                     </nav>
                   </div>
 
-                  {/* Popular Content Placeholder */}
-                  <div>
-                    <h2 className="text-xs font-bold tracking-wider text-[var(--accent)] uppercase mb-4">
-                      {isEn ? "Popular" : "热门内容"}
-                    </h2>
-                    <nav className="space-y-2">
-                      {posts.slice(0, 5).map((post: Post) => (
-                        <Link
-                          key={post.id}
-                          href={`/${locale}/posts/${post.id}`}
-                          className="group flex items-start gap-2 py-1.5 text-sm text-[var(--text-tertiary)] 
-                            hover:text-[var(--text-primary)] transition-all duration-200 
-                            hover:translate-x-1"
-                        >
-                          <span className="inline-block mt-0.5 text-[var(--accent)] transform group-hover:translate-x-1 transition-transform duration-200">
-                            →
-                          </span>
-                          <span className="line-clamp-2">{post.title}</span>
-                        </Link>
-                      ))}
-                    </nav>
-                  </div>
+                  {/* Popular Posts */}
+                  {posts.length > 0 && (
+                    <div>
+                      <h2 className="text-[var(--font-size-small)] font-semibold text-[var(--text-tertiary)] uppercase tracking-wider mb-3">
+                        {isEn ? "Popular" : "热门"}
+                      </h2>
+                      <nav className="space-y-2">
+                        {posts.slice(0, 5).map((post: Post) => (
+                          <Link
+                            key={post.id}
+                            href={`/${locale}/posts/${post.id}`}
+                            className="block text-[var(--font-size-body)] text-[var(--text-secondary)] hover:text-[var(--text-primary)] transition-colors line-clamp-2"
+                          >
+                            {post.title}
+                          </Link>
+                        ))}
+                      </nav>
+                    </div>
+                  )}
                 </div>
               </aside>
 
-              {/* Main Content - Articles List */}
+              {/* Main Content - Articles */}
               <div className="lg:col-span-9 order-1 lg:order-2">
+                {/* Filter Indicator */}
                 {(tag || search) && (
-                  <div className="mb-8 p-4 bg-[var(--surface)] rounded-lg border border-[var(--border)]">
-                    <h3 className="text-lg font-semibold text-[var(--text-primary)]">
+                  <div className="mb-8 p-4 bg-[var(--bg-subtle)] border border-[var(--border)] rounded-lg">
+                    <h2 className="text-[var(--font-size-h3)] font-semibold text-[var(--text-primary)]">
                       {search
                         ? `${t("tags.searchResults")}: "${search}"`
                         : `${t("tags.tag")}: ${tag}`}
-                    </h3>
-                    <p className="text-[var(--text-tertiary)] mt-1 text-sm">
+                    </h2>
+                    <p className="text-[var(--font-size-body)] text-[var(--text-tertiary)] mt-1">
                       {t("tags.articlesCount", { count: pagination.total })}
                     </p>
                   </div>
@@ -221,33 +204,34 @@ export default async function Home({
 
                 {posts.length > 0 ? (
                   <>
-                    <div className="space-y-20 mt-8">
-                      {posts.map((post: Post) => (
+                    <div className="space-y-8">
+                      {posts.map((post: Post, index: number) => (
                         <ArticleCard
                           key={post.id}
                           post={post}
                           locale={locale}
                           t={t}
-                          // isEn prop removed - not used in component
+                          isEn={isEn}
+                          index={index}
                         />
                       ))}
                     </div>
 
                     {/* Pagination */}
                     {pagination.total_pages > 1 && (
-                      <div className="mt-12 flex items-center justify-center gap-3">
+                      <div className="mt-12 flex items-center justify-center gap-2">
                         <Link
                           href={`/${locale}?${new URLSearchParams({
                             page: (page - 1).toString(),
                             ...(tag ? { tag } : {}),
                             ...(search ? { search } : {}),
                           })}`}
-                          className={`btn btn-secondary ${page === 1 ? "opacity-50 pointer-events-none" : ""}`}
+                          className={`btn btn-secondary btn-md ${page === 1 ? "opacity-50 pointer-events-none" : ""}`}
                         >
                           {t("pagination.previous")}
                         </Link>
 
-                        <span className="px-4 py-2 text-sm font-medium text-[var(--text-secondary)] bg-[var(--surface)] rounded-lg">
+                        <span className="px-4 py-2 text-[var(--font-size-body)] text-[var(--text-secondary)] bg-[var(--bg-subtle)] rounded-md">
                           {page} / {pagination.total_pages}
                         </span>
 
@@ -257,8 +241,7 @@ export default async function Home({
                             ...(tag ? { tag } : {}),
                             ...(search ? { search } : {}),
                           })}`}
-                          className={`btn btn-secondary transition-all duration-200 
-                            ${page === pagination.total_pages ? "opacity-50 pointer-events-none" : "hover:scale-105 active:scale-95"}`}
+                          className={`btn btn-secondary btn-md ${page === pagination.total_pages ? "opacity-50 pointer-events-none" : ""}`}
                         >
                           {t("pagination.next")}
                         </Link>
@@ -266,42 +249,7 @@ export default async function Home({
                     )}
                   </>
                 ) : (
-                  <div className="text-center py-16">
-                    <div className="w-16 h-16 mx-auto mb-4 rounded-full bg-[var(--surface)] flex items-center justify-center">
-                      <svg
-                        xmlns="http://www.w3.org/2000/svg"
-                        width="24"
-                        height="24"
-                        viewBox="0 0 24 24"
-                        fill="none"
-                        stroke="currentColor"
-                        strokeWidth="1.5"
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        className="text-[var(--text-muted)]"
-                        aria-hidden="true"
-                      >
-                        <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
-                        <polyline points="14 2 14 8 20 8" />
-                        <line x1="16" y1="13" x2="8" y2="13" />
-                        <line x1="16" y1="17" x2="8" y2="17" />
-                        <polyline points="10 9 9 9 8 9" />
-                      </svg>
-                    </div>
-                    <p className="text-[var(--text-tertiary)]">
-                      {search
-                        ? t("empty.noSearchResults")
-                        : t("empty.noArticles")}
-                    </p>
-                    {(tag || search) && (
-                      <Link
-                        href={`/${locale}`}
-                        className="btn btn-primary mt-4 transition-all duration-200 hover:scale-105 active:scale-95"
-                      >
-                        {t("empty.viewAll")}
-                      </Link>
-                    )}
-                  </div>
+                  <EmptyState search={search} tag={tag} t={t} locale={locale} />
                 )}
               </div>
             </div>
@@ -322,92 +270,138 @@ export default async function Home({
   }
 }
 
-// Article Card Component - Enhanced with better interactions
+// Article Card Component
 function ArticleCard({
   post,
   locale,
   t,
+  isEn,
+  index,
 }: {
   post: Post;
   locale: string;
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   t: Awaited<ReturnType<typeof getTranslations>>;
+  isEn: boolean;
+  index: number;
 }) {
   return (
-    <article className="group animate-fade-in-up">
+    <article
+      className="group animate-fade-in-up"
+      style={{ animationDelay: `${index * 0.05}s` }}
+    >
       <Link
         href={`/${locale}/posts/${post.id}`}
-        className="block py-10 border-b border-[var(--border)] last:border-b-0 
-          transition-all duration-300 ease-out
-          hover:py-12
-          focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--accent)] focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--background)]"
+        className="block py-6 border-b border-[var(--border)] last:border-b-0 transition-colors"
       >
-        {/* Title row with date and tags */}
-        <div className="flex flex-wrap items-baseline gap-x-4 gap-y-2 mb-4">
-          <h3 className="text-2xl md:text-3xl font-bold text-[var(--text-primary)] group-hover:text-[var(--accent)] transition-colors duration-300 leading-tight">
-            {post.title}
-          </h3>
+        {/* Title */}
+        <h3 className="text-[var(--font-size-h2)] font-semibold text-[var(--text-primary)] group-hover:text-[var(--accent)] transition-colors leading-snug mb-3">
+          {post.title}
+        </h3>
 
+        {/* Meta */}
+        <div className="flex items-center gap-3 mb-3">
           <time
             dateTime={post.created_at}
-            className="text-sm text-[var(--text-muted)] group-hover:text-[var(--text-secondary)] transition-colors duration-300"
+            className="text-[var(--font-size-small)] text-[var(--text-muted)]"
           >
-            {formatDate(post.created_at, locale)}
+            {formatDate(post.created_at, isEn)}
           </time>
 
-          {post.tags.slice(0, 3).map((tag, index) => (
-            <span
-              key={tag}
-              className="text-sm text-[var(--text-tertiary)] group-hover:text-[var(--accent)] transition-colors duration-300"
-              style={{ transitionDelay: `${index * 50}ms` }}
-            >
-              {tag}
-            </span>
-          ))}
+          {post.tags.length > 0 && (
+            <>
+              <span className="text-[var(--border-strong)]">·</span>
+              <span className="text-[var(--font-size-small)] text-[var(--text-tertiary)]">
+                {post.tags.slice(0, 3).join(", ")}
+              </span>
+            </>
+          )}
         </div>
 
-        {/* Summary with Read More inline */}
-        <p className="text-[var(--text-secondary)] leading-relaxed group-hover:text-[var(--text-primary)] transition-colors duration-300">
-          {post.content.slice(0, 160).replace(/[#*`]/g, "")}
-          <span className="text-[var(--text-muted)] group-hover:text-[var(--text-secondary)] transition-colors duration-300">
-            ...
-          </span>
-          <span
-            className="inline-flex items-center gap-1 text-sm font-medium text-[var(--accent)] ml-2 
-            group-hover:gap-2 transition-all duration-300"
-          >
-            {t("article.readMore")}
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              width="16"
-              height="16"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth="2"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              className="transform group-hover:translate-x-1 transition-transform duration-300"
-              aria-hidden="true"
-            >
-              <path d="M5 12h14" />
-              <path d="m12 5 7 7-7 7" />
-            </svg>
-          </span>
+        {/* Excerpt - Max 3 lines */}
+        <p className="text-[var(--font-size-body)] text-[var(--text-secondary)] leading-relaxed line-clamp-3">
+          {post.content.slice(0, 200).replace(/[#*`[\]]/g, "")}
         </p>
+
+        {/* Read More */}
+        <div className="mt-4 flex items-center text-[var(--font-size-body)] text-[var(--accent)]">
+          <span className="font-medium">{t("article.readMore")}</span>
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            width="16"
+            height="16"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="2"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            className="ml-1 transform group-hover:translate-x-1 transition-transform"
+            aria-hidden="true"
+          >
+            <title>Read more arrow</title>
+            <path d="M5 12h14" />
+            <path d="m12 5 7 7-7 7" />
+          </svg>
+        </div>
       </Link>
     </article>
   );
 }
 
+// Empty State Component
+function EmptyState({
+  search,
+  tag,
+  t,
+  locale,
+}: {
+  search?: string;
+  tag?: string;
+  t: Awaited<ReturnType<typeof getTranslations>>;
+  locale: string;
+}) {
+  return (
+    <div className="text-center py-16">
+      <div className="w-12 h-12 mx-auto mb-4 rounded-full bg-[var(--bg-subtle)] flex items-center justify-center">
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          width="20"
+          height="20"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          strokeWidth="1.5"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+          className="text-[var(--text-muted)]"
+          aria-hidden="true"
+        >
+          <title>No articles icon</title>
+          <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
+          <polyline points="14 2 14 8 20 8" />
+          <line x1="16" y1="13" x2="8" y2="13" />
+          <line x1="16" y1="17" x2="8" y2="17" />
+          <polyline points="10 9 9 9 8 9" />
+        </svg>
+      </div>
+      <p className="text-[var(--font-size-body)] text-[var(--text-tertiary)]">
+        {search ? t("empty.noSearchResults") : t("empty.noArticles")}
+      </p>
+      {(tag || search) && (
+        <Link href={`/${locale}`} className="btn btn-primary btn-md mt-6">
+          {t("empty.viewAll")}
+        </Link>
+      )}
+    </div>
+  );
+}
+
 // Date formatting helper
-function formatDate(dateString: string, locale: string): string {
+function formatDate(dateString: string, isEn: boolean): string {
   const date = new Date(dateString);
   const now = new Date();
   const diffTime = Math.abs(now.getTime() - date.getTime());
   const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-
-  const isEn = locale === "en";
 
   if (diffDays === 1) return isEn ? "Yesterday" : "昨天";
   if (diffDays < 7) return `${diffDays} ${isEn ? "days ago" : "天前"}`;
@@ -416,7 +410,7 @@ function formatDate(dateString: string, locale: string): string {
 
   return date.toLocaleDateString(isEn ? "en-US" : "zh-CN", {
     year: "numeric",
-    month: "long",
+    month: "short",
     day: "numeric",
   });
 }

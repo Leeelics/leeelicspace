@@ -57,7 +57,7 @@ export default async function RootLayout({
 }) {
   const { locale } = await params;
 
-  // 验证语言是否支持
+  // Validate locale
   if (!(locales as readonly string[]).includes(locale)) {
     notFound();
   }
@@ -72,70 +72,56 @@ export default async function RootLayout({
         suppressHydrationWarning
         className={`${notoSansSC.variable} ${notoSerifSC.variable}`}
       >
-        <body className="antialiased min-h-screen flex flex-col bg-[var(--background)]">
+        <body className="antialiased min-h-screen flex flex-col bg-[var(--bg-default)]">
           <NextIntlClientProvider messages={messages} locale={locale}>
-            {/* Navigation */}
+            {/* Header */}
             <header className="sticky top-0 z-50 glass border-b border-[var(--border)]">
               <div className="container">
                 <nav className="flex items-center justify-between h-16">
-                  {/* Logo - leelicspace */}
+                  {/* Logo */}
                   <Link
                     href={`/${locale}`}
-                    className="flex items-center gap-1 group"
+                    className="text-[var(--font-size-h3)] font-semibold text-[var(--text-primary)] hover:text-[var(--accent)] transition-colors"
                   >
-                    <span className="text-xl font-bold tracking-tight">
-                      <span className="text-gradient group-hover:opacity-80 transition-opacity">
-                        lee
-                      </span>
-                      <span className="text-[var(--text-primary)]">lic</span>
-                      <span className="text-[var(--text-muted)]">space</span>
-                    </span>
+                    leelicspace
                   </Link>
 
                   {/* Desktop Navigation */}
-                  <div className="hidden md:flex items-center gap-6">
-                    <Link
-                      href={`/${locale}`}
-                      className="text-sm font-medium text-[var(--text-secondary)] hover:text-[var(--text-primary)] transition-colors focus-ring rounded"
-                    >
+                  <div className="hidden md:flex items-center gap-1">
+                    <Link href={`/${locale}`} className="nav-link">
                       {t("nav.home")}
                     </Link>
-                    <Link
-                      href={`/${locale}/about`}
-                      className="text-sm font-medium text-[var(--text-secondary)] hover:text-[var(--text-primary)] transition-colors focus-ring rounded"
-                    >
+                    <Link href={`/${locale}/about`} className="nav-link">
                       {t("nav.about")}
                     </Link>
                     <Link
                       href={`/${locale}/tools/media-card`}
-                      className="text-sm font-medium text-[var(--text-secondary)] hover:text-[var(--text-primary)] transition-colors focus-ring rounded"
+                      className="nav-link"
                     >
                       工具
                     </Link>
                   </div>
 
                   {/* Right Section */}
-                  <div className="flex items-center gap-3">
+                  <div className="flex items-center gap-2">
                     {/* Search */}
                     <form
                       action={`/${locale}`}
                       method="GET"
                       className="hidden sm:block"
                     >
-                      <div className="relative">
-                        <input
-                          type="text"
-                          name="search"
-                          placeholder={t("nav.searchPlaceholder")}
-                          className="input input-search w-48 lg:w-64 text-sm"
-                        />
-                      </div>
+                      <input
+                        type="text"
+                        name="search"
+                        placeholder={t("nav.searchPlaceholder")}
+                        className="input input-search w-40 lg:w-48"
+                      />
                     </form>
 
                     {/* Language Switcher */}
                     <LanguageSwitcher currentLocale={locale} />
 
-                    {/* Theme Toggle - Already has focus styles */}
+                    {/* Theme Toggle */}
                     <ThemeToggle />
 
                     {/* RSS */}
@@ -143,8 +129,7 @@ export default async function RootLayout({
                       href="/api/rss"
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="btn btn-ghost btn-sm focus-ring"
-                      aria-label={t("nav.rss")}
+                      className="btn btn-ghost btn-sm"
                       title={t("nav.rss")}
                     >
                       <svg
@@ -163,6 +148,7 @@ export default async function RootLayout({
                         <path d="M4 4a16 16 0 0 1 16 16" />
                         <circle cx="5" cy="19" r="1" />
                       </svg>
+                      <span className="sr-only">{t("nav.rss")}</span>
                     </a>
                   </div>
                 </nav>
@@ -174,22 +160,20 @@ export default async function RootLayout({
 
             {/* Footer */}
             <footer className="border-t border-[var(--border)] mt-auto">
-              <div className="container py-12 md:py-16">
+              <div className="container py-8 md:py-12">
                 <div className="flex flex-col items-center text-center gap-4">
                   {/* Brand */}
-                  <div className="text-2xl font-bold tracking-tight">
-                    <span className="text-gradient">lee</span>
-                    <span className="text-[var(--text-primary)]">lic</span>
-                    <span className="text-[var(--text-muted)]">space</span>
+                  <div className="text-[var(--font-size-h2)] font-semibold text-[var(--text-primary)]">
+                    leelicspace
                   </div>
 
                   {/* Tagline */}
-                  <p className="text-sm text-[var(--text-secondary)]">
+                  <p className="text-[var(--font-size-body)] text-[var(--text-secondary)]">
                     {t("metadata.description")}
                   </p>
 
                   {/* Copyright */}
-                  <div className="text-sm text-[var(--text-tertiary)] pt-4 border-t border-[var(--border)] w-full max-w-md">
+                  <div className="text-[var(--font-size-small)] text-[var(--text-muted)] pt-4 border-t border-[var(--border)] w-full max-w-md">
                     © {new Date().getFullYear()} leelicspace.{" "}
                     {t("footer.builtWith") || "Built with"} Next.js & Tailwind
                     CSS.
