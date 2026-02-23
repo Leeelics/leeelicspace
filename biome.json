@@ -7,14 +7,7 @@
   },
   "files": {
     "ignoreUnknown": true,
-    "includes": [
-      "**",
-      "!node_modules",
-      "!.next",
-      "!dist",
-      "!build",
-      "!agent-skills-main"
-    ]
+    "includes": ["**", "!node_modules", "!.next", "!dist", "!build", "!tests"]
   },
   "formatter": {
     "enabled": true,

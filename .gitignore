@@ -44,3 +44,5 @@ next-env.d.ts
 /tests/e2e/screenshots/
 /tests/e2e/ui-review/
 /test-results/
+
+
