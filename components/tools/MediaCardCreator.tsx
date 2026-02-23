@@ -21,6 +21,7 @@ import {
 import React, { useCallback, useEffect, useRef, useState } from "react";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
+import { Button } from "@/components/ui/button";
 
 const FONTS = [
   { name: "默认黑体", value: "sans-serif" },
@@ -183,97 +184,109 @@ export default function MediaCardCreator() {
   }, [canvasWidth]);
 
   return (
-    <div className="min-h-full bg-gray-50 flex flex-col lg:flex-row font-sans text-gray-800">
+    <div className="min-h-full bg-muted flex flex-col lg:flex-row font-sans text-foreground">
       {/* Left Panel */}
-      <div className="w-full lg:w-[420px] bg-white border-r border-gray-200 h-[calc(100vh-73px)] overflow-y-auto flex flex-col">
-        <div className="p-6 border-b border-gray-100 sticky top-0 bg-white/95 backdrop-blur z-20">
-          <h1 className="text-xl font-bold text-gray-900">图文排版助手</h1>
-          <p className="text-sm text-gray-500 mt-1">
+      <div className="w-full lg:w-[420px] bg-card border-r border-border h-[calc(100vh-73px)] overflow-y-auto flex flex-col">
+        <div className="p-6 border-b border-border sticky top-0 bg-card/95 backdrop-blur z-20">
+          <h1 className="text-xl font-bold text-foreground">图文排版助手</h1>
+          <p className="text-sm text-muted-foreground mt-1">
             支持 Markdown 和多平台导出
           </p>
         </div>
 
-        <div className="p-6 space-y-6 pb-32">
+        <div className="p-8 space-y-10 pb-32">
           {/* Size Presets */}
           <section>
-            <h3 className="text-xs font-bold text-gray-400 uppercase tracking-wider mb-3 flex items-center gap-2">
+            <h3 className="text-xs font-bold text-muted-foreground uppercase tracking-wider mb-4 flex items-center gap-2">
               <Layout size={14} /> 画布尺寸
             </h3>
-            <div className="grid grid-cols-2 gap-2">
+            <div className="grid grid-cols-2 gap-3">
               {PRESETS.map((preset, idx) => (
-                <button
-                  key={idx}
+                <Button
+                  type="button"
+                  key={preset.name}
                   onClick={() => setConfig({ ...config, presetIndex: idx })}
-                  className={`flex items-center gap-2 p-3 text-sm rounded-lg border transition-all ${
-                    config.presetIndex === idx
-                      ? "border-purple-500 bg-purple-50 text-purple-700 font-medium ring-1 ring-purple-500"
-                      : "border-gray-200 hover:border-gray-300 text-gray-600"
+                  variant={config.presetIndex === idx ? "default" : "outline"}
+                  className={`flex items-center gap-2 p-4 text-sm justify-start h-auto ${
+                    config.presetIndex === idx ? "ring-1 ring-ring" : ""
                   }`}
                 >
                   {preset.icon}
                   {preset.name}
-                </button>
+                </Button>
               ))}
             </div>
           </section>
 
           {/* Content Editor */}
-          <section className="space-y-4">
-            <h3 className="text-xs font-bold text-gray-400 uppercase tracking-wider mb-3 flex items-center gap-2">
+          <section className="space-y-6">
+            <h3 className="text-xs font-bold text-muted-foreground uppercase tracking-wider mb-4 flex items-center gap-2">
               <Type size={14} /> 内容编辑
             </h3>
 
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
+              <label
+                htmlFor="title-input"
+                className="block text-sm font-medium text-foreground mb-2"
+              >
                 标题
               </label>
               <input
+                id="title-input"
                 type="text"
                 value={content.title}
                 onChange={(e) =>
                   setContent({ ...content, title: e.target.value })
                 }
-                className="w-full p-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                className="w-full p-3 border border-input rounded-md bg-background focus:outline-none focus:ring-2 focus:ring-ring focus:border-transparent"
               />
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
+              <label
+                htmlFor="body-input"
+                className="block text-sm font-medium text-foreground mb-2"
+              >
                 正文 (支持 Markdown)
               </label>
               <textarea
+                id="body-input"
                 rows={10}
                 value={content.body}
                 onChange={(e) =>
                   setContent({ ...content, body: e.target.value })
                 }
-                className="w-full p-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-purple-500 focus:border-transparent resize-none font-mono text-sm"
+                className="w-full p-3 border border-input rounded-md bg-background focus:outline-none focus:ring-2 focus:ring-ring focus:border-transparent resize-none font-mono text-sm"
               />
             </div>
 
             <div className="grid grid-cols-2 gap-4">
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
+                <label
+                  htmlFor="author-input"
+                  className="block text-sm font-medium text-foreground mb-2"
+                >
                   作者
                 </label>
                 <input
+                  id="author-input"
                   type="text"
                   value={content.author}
                   onChange={(e) =>
                     setContent({ ...content, author: e.target.value })
                   }
-                  className="w-full p-2 border border-gray-300 rounded-md"
+                  className="w-full p-3 border border-input rounded-md bg-background"
                 />
               </div>
               <div className="flex items-end">
-                <label className="flex items-center gap-2 cursor-pointer select-none text-sm text-gray-600 mb-2">
+                <label className="flex items-center gap-2 cursor-pointer select-none text-sm text-muted-foreground mb-2">
                   <input
                     type="checkbox"
                     checked={config.showDate}
                     onChange={(e) =>
                       setConfig({ ...config, showDate: e.target.checked })
                     }
-                    className="rounded text-purple-600"
+                    className="rounded border-border text-primary focus:ring-ring"
                   />
                   显示日期
                 </label>
@@ -282,20 +295,21 @@ export default function MediaCardCreator() {
           </section>
 
           {/* Style Settings */}
-          <section className="space-y-4">
-            <h3 className="text-xs font-bold text-gray-400 uppercase tracking-wider mb-3 flex items-center gap-2">
+          <section className="space-y-6">
+            <h3 className="text-xs font-bold text-muted-foreground uppercase tracking-wider mb-4 flex items-center gap-2">
               <Palette size={14} /> 外观样式
             </h3>
 
             {/* Background */}
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
+              <p className="block text-sm font-medium text-foreground mb-3">
                 背景主题
-              </label>
-              <div className="grid grid-cols-4 gap-2">
-                {GRADIENTS.map((bg, idx) => (
-                  <button
-                    key={idx}
+              </p>
+              <div className="grid grid-cols-4 gap-3">
+                {GRADIENTS.map((bg) => (
+                  <Button
+                    type="button"
+                    key={bg.name}
                     onClick={() => {
                       setConfig({
                         ...config,
@@ -303,10 +317,11 @@ export default function MediaCardCreator() {
                         textColor: bg.dark ? "#ffffff" : "#1f2937",
                       });
                     }}
-                    className={`w-full aspect-square rounded-lg border-2 transition-all ${
+                    variant="ghost"
+                    className={`w-full aspect-square p-0 border-2 transition-all ${
                       config.background.name === bg.name
-                        ? "border-purple-500 scale-105"
-                        : "border-gray-200"
+                        ? "border-primary scale-105"
+                        : "border-input"
                     }`}
                     style={
                       bg.type === "hex"
@@ -321,59 +336,61 @@ export default function MediaCardCreator() {
 
             {/* Font */}
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
+              <p className="block text-sm font-medium text-foreground mb-3">
                 字体风格
-              </label>
+              </p>
               <div className="flex flex-wrap gap-2">
                 {FONTS.map((font) => (
-                  <button
-                    key={font.value}
+                  <Button
+                    type="button"
+                    key={font.name}
                     onClick={() =>
                       setConfig({ ...config, fontFamily: font.value })
                     }
-                    className={`px-3 py-1.5 text-xs rounded-full border transition-all ${
-                      config.fontFamily === font.value
-                        ? "bg-gray-800 text-white border-gray-800"
-                        : "bg-white text-gray-600 border-gray-200 hover:border-gray-400"
-                    }`}
+                    variant={
+                      config.fontFamily === font.value ? "default" : "outline"
+                    }
+                    size="sm"
+                    className="text-xs rounded-full px-3 py-2"
                     style={{ fontFamily: font.value }}
                   >
                     {font.name}
-                  </button>
+                  </Button>
                 ))}
               </div>
             </div>
 
             {/* Alignment */}
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
+              <p className="block text-sm font-medium text-foreground mb-3">
                 对齐方式
-              </label>
-              <div className="flex bg-gray-100 rounded-lg p-1 w-fit">
+              </p>
+              <div className="flex bg-muted rounded-lg p-1 w-fit">
                 {[
                   { val: "left", icon: <AlignLeft size={16} /> },
                   { val: "center", icon: <AlignCenter size={16} /> },
                   { val: "right", icon: <AlignRight size={16} /> },
                 ].map((align) => (
-                  <button
+                  <Button
+                    type="button"
                     key={align.val}
                     onClick={() =>
                       setConfig({ ...config, textAlign: align.val as any })
                     }
-                    className={`p-2 rounded-md transition-all ${
-                      config.textAlign === align.val
-                        ? "bg-white shadow text-purple-600"
-                        : "text-gray-500 hover:text-gray-700"
-                    }`}
+                    variant={
+                      config.textAlign === align.val ? "secondary" : "ghost"
+                    }
+                    size="sm"
+                    className="p-2"
                   >
                     {align.icon}
-                  </button>
+                  </Button>
                 ))}
               </div>
             </div>
 
             {/* Sliders */}
-            <div className="space-y-3">
+            <div className="space-y-5">
               {[
                 {
                   label: "标题字号",
@@ -397,7 +414,7 @@ export default function MediaCardCreator() {
                 { label: "边距", key: "padding" as const, min: 20, max: 200 },
               ].map((control) => (
                 <div key={control.key}>
-                  <div className="flex justify-between text-xs text-gray-500 mb-1">
+                  <div className="flex justify-between text-sm text-muted-foreground mb-2">
                     <span>{control.label}</span>
                     <span>{config[control.key]}</span>
                   </div>
@@ -413,7 +430,7 @@ export default function MediaCardCreator() {
                         [control.key]: Number(e.target.value),
                       })
                     }
-                    className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer accent-purple-600"
+                    className="w-full h-2 bg-muted-foreground/20 rounded-lg appearance-none cursor-pointer accent-primary"
                   />
                 </div>
               ))}
@@ -423,24 +440,27 @@ export default function MediaCardCreator() {
       </div>
 
       {/* Right Panel - Preview */}
-      <div className="flex-1 bg-gray-100 overflow-hidden flex flex-col relative h-[calc(100vh-73px)]">
+      <div className="flex-1 bg-muted overflow-hidden flex flex-col relative h-[calc(100vh-73px)]">
         {/* Toolbar */}
-        <div className="h-14 bg-white border-b border-gray-200 flex items-center justify-between px-6 shadow-sm z-10">
-          <div className="text-sm text-gray-600">
+        <div className="h-14 bg-card border-b border-border flex items-center justify-between px-6 shadow-sm z-10">
+          <div className="text-sm text-muted-foreground">
             预览尺寸: {canvasWidth} × {canvasHeight}
           </div>
           <div className="flex items-center gap-3">
-            <button
+            <Button
+              type="button"
               onClick={handleCopyText}
-              className="flex items-center gap-2 px-4 py-2 border border-gray-200 text-gray-700 rounded-lg hover:border-purple-300 hover:text-purple-700 transition-colors"
+              variant="outline"
+              className="flex items-center gap-2"
             >
               {copied ? <Check size={18} /> : <Copy size={18} />}
               {copied ? "已复制" : "复制文本"}
-            </button>
-            <button
+            </Button>
+            <Button
+              type="button"
               onClick={handleDownload}
               disabled={isExporting}
-              className="flex items-center gap-2 bg-purple-600 hover:bg-purple-700 text-white px-4 py-2 rounded-lg font-medium transition-colors shadow-md disabled:opacity-50"
+              className="flex items-center gap-2"
             >
               {isExporting ? (
                 <>处理中...</>
@@ -450,7 +470,7 @@ export default function MediaCardCreator() {
                   下载图片
                 </>
               )}
-            </button>
+            </Button>
           </div>
         </div>
 
@@ -604,7 +624,7 @@ export default function MediaCardCreator() {
 
       <style jsx>{`
         .bg-dots {
-          background-image: radial-gradient(#cbd5e1 1px, transparent 1px);
+          background-image: radial-gradient(var(--border) 1px, transparent 1px);
           background-size: 20px 20px;
         }
       `}</style>

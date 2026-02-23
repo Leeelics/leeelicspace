@@ -4,6 +4,8 @@ import Link from "next/link";
 import { getTranslations } from "next-intl/server";
 import ArticleOutline from "@/components/ArticleOutline";
 import MarkdownRenderer from "@/components/MarkdownContent";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 import { fetchPost } from "@/services/api";
 
 export default async function PostDetail({
@@ -25,40 +27,39 @@ export default async function PostDetail({
     return (
       <div className="min-h-screen">
         {/* Article Header */}
-        <section className="border-b border-[var(--border)]">
+        <section className="border-b border-border">
           <div className="container py-8 md:py-12">
             <div className="max-w-3xl">
               {/* Back Link */}
-              <Link
-                href={`/${locale}`}
-                className="inline-flex items-center text-[var(--font-size-body)] text-[var(--text-tertiary)] hover:text-[var(--text-primary)] transition-colors mb-6"
-              >
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  width="16"
-                  height="16"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  strokeWidth="2"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  className="mr-2"
-                  aria-hidden="true"
-                >
-                  <title>Back arrow</title>
-                  <path d="m15 18-6-6 6-6" />
-                </svg>
-                {t("article.backToHome") || "返回首页"}
+              <Link href={`/${locale}`}>
+                <Button variant="ghost" size="sm" className="mb-6">
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    width="16"
+                    height="16"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="2"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    className="mr-2"
+                    aria-hidden="true"
+                  >
+                    <title>Back arrow</title>
+                    <path d="m15 18-6-6 6-6" />
+                  </svg>
+                  {t("article.backToHome") || "返回首页"}
+                </Button>
               </Link>
 
               {/* Title */}
-              <h1 className="text-[var(--font-size-hero)] font-semibold text-[var(--text-primary)] leading-tight mb-6">
+              <h1 className="text-4xl font-semibold text-foreground leading-tight mb-6">
                 {post.title}
               </h1>
 
               {/* Meta */}
-              <div className="flex flex-wrap items-center gap-4 text-[var(--font-size-body)] text-[var(--text-tertiary)] mb-6">
+              <div className="flex flex-wrap items-center gap-4 text-base text-muted-foreground mb-6">
                 <time dateTime={post.created_at}>
                   {new Date(post.created_at).toLocaleDateString(
                     isEn ? "en-US" : "zh-CN",
@@ -72,7 +73,7 @@ export default async function PostDetail({
 
                 {post.updated_at !== post.created_at && (
                   <>
-                    <span className="text-[var(--border-strong)]">·</span>
+                    <span>·</span>
                     <span>
                       {t("article.updated") || "更新于"}{" "}
                       {new Date(post.updated_at).toLocaleDateString(
@@ -91,12 +92,10 @@ export default async function PostDetail({
               {/* Tags */}
               <div className="flex flex-wrap gap-2">
                 {post.tags.map((tag: string) => (
-                  <Link
-                    key={tag}
-                    href={`/${locale}?tag=${tag}`}
-                    className="tag"
-                  >
-                    {tag}
+                  <Link key={tag} href={`/${locale}?tag=${tag}`}>
+                    <Badge variant="secondary" className="cursor-pointer">
+                      {tag}
+                    </Badge>
                   </Link>
                 ))}
               </div>
@@ -110,7 +109,7 @@ export default async function PostDetail({
             <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12">
               {/* Main Content */}
               <article className="lg:col-span-8 prose max-w-none">
-                <div className="text-[var(--text-primary)]">
+                <div className="text-foreground">
                   <MarkdownRenderer content={post.content} />
                 </div>
               </article>
@@ -126,14 +125,77 @@ export default async function PostDetail({
         </section>
 
         {/* Article Footer */}
-        <footer className="border-t border-[var(--border)] py-8 md:py-12">
+        <footer className="border-t border-border py-8 md:py-12">
           <div className="container">
             <div className="max-w-3xl flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
-              <p className="text-[var(--font-size-body)] text-[var(--text-muted)]">
+              <p className="text-base text-muted-foreground">
                 {t("article.thanks") || "感谢阅读"}
               </p>
 
-              <Link href={`/${locale}`} className="btn btn-secondary btn-md">
+              <Link href={`/${locale}`}>
+                <Button variant="outline">
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    width="16"
+                    height="16"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="2"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    className="mr-2"
+                    aria-hidden="true"
+                  >
+                    <title>Article list</title>
+                    <line x1="8" y1="6" x2="21" y2="6" />
+                    <line x1="8" y1="12" x2="21" y2="12" />
+                    <line x1="8" y1="18" x2="21" y2="18" />
+                    <line x1="3" y1="6" x2="3.01" y2="6" />
+                    <line x1="3" y1="12" x2="3.01" y2="12" />
+                    <line x1="3" y1="18" x2="3.01" y2="18" />
+                  </svg>
+                  {t("article.browseMore") || "浏览更多文章"}
+                </Button>
+              </Link>
+            </div>
+          </div>
+        </footer>
+      </div>
+    );
+  } catch {
+    return (
+      <div className="min-h-screen">
+        <div className="container py-20 text-center animate-fade-in-up">
+          <div className="w-16 h-16 mx-auto mb-6 rounded-full bg-muted flex items-center justify-center">
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              width="32"
+              height="32"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="1.5"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              className="text-muted-foreground"
+              aria-hidden="true"
+            >
+              <title>Error icon</title>
+              <circle cx="12" cy="12" r="10" />
+              <line x1="12" y1="8" x2="12" y2="12" />
+              <line x1="12" y1="16" x2="12.01" y2="16" />
+            </svg>
+          </div>
+          <h1 className="text-2xl font-semibold text-foreground mb-4">
+            文章加载失败
+          </h1>
+          <p className="text-base text-muted-foreground mb-8 max-w-md mx-auto">
+            无法加载指定的文章，请检查文章ID是否正确，或稍后再试。
+          </p>
+          <div className="flex flex-wrap items-center justify-center gap-3">
+            <Link href="/">
+              <Button>
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
                   width="16"
@@ -147,77 +209,14 @@ export default async function PostDetail({
                   className="mr-2"
                   aria-hidden="true"
                 >
-                  <title>Article list</title>
-                  <line x1="8" y1="6" x2="21" y2="6" />
-                  <line x1="8" y1="12" x2="21" y2="12" />
-                  <line x1="8" y1="18" x2="21" y2="18" />
-                  <line x1="3" y1="6" x2="3.01" y2="6" />
-                  <line x1="3" y1="12" x2="3.01" y2="12" />
-                  <line x1="3" y1="18" x2="3.01" y2="18" />
+                  <title>Home icon</title>
+                  <path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z" />
+                  <polyline points="9 22 9 12 15 12 15 22" />
                 </svg>
-                {t("article.browseMore") || "浏览更多文章"}
-              </Link>
-            </div>
-          </div>
-        </footer>
-      </div>
-    );
-  } catch {
-    return (
-      <div className="min-h-screen">
-        <div className="container py-20 text-center animate-fade-in-up">
-          <div className="w-16 h-16 mx-auto mb-6 rounded-full bg-[var(--bg-subtle)] flex items-center justify-center">
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              width="32"
-              height="32"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth="1.5"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              className="text-[var(--text-muted)]"
-              aria-hidden="true"
-            >
-              <title>Error icon</title>
-              <circle cx="12" cy="12" r="10" />
-              <line x1="12" y1="8" x2="12" y2="12" />
-              <line x1="12" y1="16" x2="12.01" y2="16" />
-            </svg>
-          </div>
-          <h1 className="text-[var(--font-size-h1)] font-semibold text-[var(--text-primary)] mb-4">
-            文章加载失败
-          </h1>
-          <p className="text-[var(--font-size-body)] text-[var(--text-secondary)] mb-8 max-w-md mx-auto">
-            无法加载指定的文章，请检查文章ID是否正确，或稍后再试。
-          </p>
-          <div className="flex flex-wrap items-center justify-center gap-3">
-            <Link href="/" className="btn btn-primary btn-md">
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                width="16"
-                height="16"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth="2"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                className="mr-2"
-                aria-hidden="true"
-              >
-                <title>Home icon</title>
-                <path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z" />
-                <polyline points="9 22 9 12 15 12 15 22" />
-              </svg>
-              返回首页
+                返回首页
+              </Button>
             </Link>
-            <button
-              type="button"
-              onClick={() => window.location.reload()}
-              className="btn btn-secondary btn-md"
-            >
+            <Button variant="outline" onClick={() => window.location.reload()}>
               <svg
                 xmlns="http://www.w3.org/2000/svg"
                 width="16"
@@ -238,7 +237,7 @@ export default async function PostDetail({
                 <path d="M8 16H3v5" />
               </svg>
               重新加载
-            </button>
+            </Button>
           </div>
         </div>
       </div>
