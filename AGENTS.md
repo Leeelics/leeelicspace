@@ -10,47 +10,66 @@ npm run dev              # Start dev server on port 3002
 
 # Build & Lint
 npm run build            # Production build
-npm run lint             # Check with Biome
-npm run format           # Format with Biome (auto-fix)
+npm run lint             # Check with Biome (auto-fix with --write)
+npm run format           # Format with Biome
 
-# Testing
-npx playwright test      # Run all E2E tests
-npx playwright test e2e/blog.spec.ts:26    # Run single test by line
-npx playwright test -g "导航栏"             # Run test by name pattern
-npx playwright test --ui                   # Interactive UI mode
-npx playwright test --reporter=list        # List format output
+# Testing (Playwright E2E)
+npx playwright test                      # Run all E2E tests
+npx playwright test e2e/blog.spec.ts:26  # Run single test by line
+npx playwright test -g "导航栏"           # Run test by name pattern
+npx playwright test --ui                 # Interactive UI mode
 
 # KV Storage
 npm run test:kv          # Test KV connection
 npm run migrate:kv       # Migrate data to KV
 ```
 
+## Project Standards
+
+### Version Management
+- **Format**: MAJOR.MINOR.PATCH (e.g., 0.68.0)
+- **PATCH**: Always 0, never changes
+- **MINOR**: Bump on any change (feature, fix, docs, style)
+- **MAJOR**: Only explicit manual decision
+- **Commit Convention**: `<type>(<scope>): <subject>`
+  - Types: feat, fix, docs, style, refactor, perf, test, build, ci, chore, revert
+  - Rules: Imperative mood, lowercase, no trailing period
+  - Example: `feat(auth): add OAuth login`
+  - See [docs/VERSIONING_RULES.md](docs/VERSIONING_RULES.md)
+
+### Testing Rules
+- **Framework**: Playwright for E2E
+- **Location**: Test files co-located with source (`Component.tsx` + `Component.test.tsx`)
+- **Naming**: `*.test.ts` for unit, `*.spec.ts` for E2E in `e2e/`
+- **Selectors**: Use `data-testid` for E2E, avoid implementation details
+- **Mocking**: Use MSW for API mocks
+- See [docs/TESTING_RULES.md](docs/TESTING_RULES.md)
+
 ## Project Structure
 
 ```
 app/
-  api/           # API routes (posts, tags, rss)
-  [locale]/      # i18n routes (zh, en)
-    page.tsx     # Home with posts list
-    posts/[id]/  # Post detail
-    dashboard/   # Admin panel (client components)
+  api/              # API routes with Zod validation
+  [locale]/         # i18n routes (zh, en)
+    page.tsx        # Home with posts list
+    posts/[id]/     # Post detail
+    dashboard/      # Admin panel ("use client")
 components/
-  ui/            # shadcn/ui components
-  dashboard/     # Admin-specific components
+  ui/               # shadcn/ui components
 lib/
-  auth.ts        # Auth utilities
-  errors.ts      # Error classes & handling
-  validation.ts  # Zod schemas
-  rate-limit.ts  # Rate limiting
+  auth.ts           # API_SECRET auth
+  errors.ts         # Error classes
+  validation.ts     # Zod schemas
+  rate-limit.ts     # Rate limiting (100/min read, 10/min write)
 types/
-  index.ts       # Shared TypeScript types
+  index.ts          # TypeScript types
 ```
 
 ## Code Style
 
 ### Imports (Auto-organized by Biome)
 
-Order: React/Next → Third-party → `@/` aliases → Types
+Order: React/Next → Third-party → `@/` → Types
 
 ```typescript
 import { useState } from "react"
@@ -62,28 +81,24 @@ import { Button } from "@/components/ui/button"
 import type { Post } from "@/types"
 ```
 
-### Formatting
+### Formatting (biome.json)
 
-- **Indent**: 2 spaces (Biome enforced)
-- **Quotes**: Double quotes
-- **Semicolons**: Always
-- **Trailing commas**: ES5 compatible
-- **Line width**: 80 characters
+- Indent: 2 spaces
+- Quotes: Double
+- Semicolons: Always
+- Line width: 80 chars
+- Organize imports: On
 
 ### TypeScript
 
 ```typescript
-// Use strict types - no 'any'
+// Strict types - no 'any'
 interface Props {
   post: Post
   onDelete?: (id: string) => void
 }
 
-// Type API responses
-const response = await fetch(url)
-const data: Post[] = await response.json()
-
-// Use Zod for validation
+// Zod validation
 const schema = z.object({
   title: z.string().min(1),
   content: z.string()
@@ -92,11 +107,11 @@ const schema = z.object({
 
 ### Naming
 
-- **Components**: PascalCase (`ArticleCard.tsx`)
-- **Functions**: camelCase (`handleSubmit`)
-- **Constants**: UPPER_SNAKE_CASE (`API_SECRET`)
-- **Types/Interfaces**: PascalCase (`Post`, `UserConfig`)
-- **Files**: kebab-case for utilities, PascalCase for components
+- Components: PascalCase (`ArticleCard.tsx`)
+- Functions: camelCase (`handleSubmit`)
+- Constants: UPPER_SNAKE_CASE
+- Types: PascalCase
+- Files: kebab-case (utils), PascalCase (components)
 
 ### Error Handling
 
@@ -104,7 +119,7 @@ const schema = z.object({
 import { createErrorResponse, ValidationError } from "@/lib/errors"
 import { logger } from "@/lib/logger"
 
-// API routes: use error classes
+// API: Use error classes
 try {
   const result = schema.parse(data)
 } catch (error) {
@@ -115,7 +130,7 @@ try {
   )
 }
 
-// Client components: handle gracefully
+// Client: Handle gracefully
 try {
   await createPost(data)
 } catch (error) {
@@ -123,22 +138,19 @@ try {
 }
 ```
 
-### Component Patterns
+### Components
 
 ```typescript
-// Use React.FC for simple components
-interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
-  variant?: "default" | "outline"
-}
+// Simple: React.FC
+interface Props { variant?: "default" | "outline" }
+export const Button: React.FC<Props> = ({ variant = "default", ...props }) => (
+  <button className={cn(styles[variant])} {...props} />
+)
 
-export const Button: React.FC<ButtonProps> = ({ variant = "default", ...props }) => {
-  return <button className={cn(styles[variant])} {...props} />
-}
-
-// Forward refs for polymorphic components
-const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
+// Polymorphic: forwardRef
+const Button = React.forwardRef<HTMLButtonElement, Props>(
   ({ className, ...props }, ref) => (
-    <button ref={ref} className={cn("base-styles", className)} {...props} />
+    <button ref={ref} className={cn("base", className)} {...props} />
   )
 )
 Button.displayName = "Button"
@@ -150,13 +162,9 @@ Button.displayName = "Button"
 import { cn } from "@/lib/utils"
 
 // Use cn() for conditional classes
-<div className={cn(
-  "base-styles",
-  isActive && "active-styles",
-  className
-)}>
+<div className={cn("base", isActive && "active", className)}>
 
-// Theme tokens only (Slate + Indigo)
+// Theme tokens (Slate + Indigo)
 // bg-background, text-foreground, border-border
 // text-primary, bg-primary, text-muted-foreground
 ```
@@ -170,13 +178,13 @@ import { checkRateLimit, RATE_LIMITS } from "@/lib/rate-limit"
 export const dynamic = "force-dynamic"
 
 export async function GET(request: NextRequest) {
-  // Always check rate limit first
+  // Rate limit first
   const rateCheck = await checkRateLimit(request, RATE_LIMITS.read)
   if (!rateCheck.allowed) {
     return createErrorResponse(new UnauthorizedError("Rate limit exceeded"), request)
   }
   
-  // Validate with Zod
+  // Zod validation
   const result = validatePagination(Object.fromEntries(request.nextUrl.searchParams))
   if (!result.success) {
     return createErrorResponse(new ValidationError("Invalid params"), request)
@@ -186,66 +194,42 @@ export async function GET(request: NextRequest) {
 }
 ```
 
-### Authentication
+### Auth & i18n
 
 ```typescript
+// API auth
 import { isAuthenticated } from "@/lib/auth"
-
-// API routes
 if (!isAuthenticated(request)) {
   return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
 }
 
-// Client-side auth check
+// Client auth
 const secret = localStorage.getItem("admin_secret")
 if (!secret) router.push(`/${locale}/dashboard/login`)
-```
 
-### i18n (next-intl)
-
-```typescript
-// Server components
+// i18n Server
 const t = await getTranslations()
-<h1>{t("nav.home")}</h1>
-
-// Client components
+// i18n Client
 "use client"
-import { useTranslations } from "next-intl"
 const t = useTranslations()
-```
-
-## Environment Variables
-
-Required in `.env.local`:
-```
-API_SECRET=your-admin-secret-here    # Min 16 chars, production only
 ```
 
 ## Tech Stack
 
-- **Framework**: Next.js 16 (App Router)
+- **Framework**: Next.js 16 + App Router
 - **Runtime**: React 19 + React Compiler
-- **Language**: TypeScript 5 (strict mode)
-- **Styling**: Tailwind CSS v4 + shadcn/ui + Radix Themes
-- **Linting**: Biome (replaces ESLint + Prettier)
+- **Language**: TypeScript 5 (strict)
+- **Styling**: Tailwind v4 + shadcn/ui + Radix Themes
+- **Linting**: Biome
 - **Testing**: Playwright (E2E)
-- **Storage**: Vercel KV (Redis) / Memory (dev)
-- **Auth**: Simple API Secret (admin only)
-
-## Key Files
-
-- `biome.json` - Code style configuration
-- `playwright.config.ts` - Test configuration
-- `app/globals.css` - Theme tokens and base styles
-- `lib/errors.ts` - Error classes and response helpers
-- `lib/validation.ts` - Zod validation schemas
-- `components/ui/*` - shadcn/ui components (use these)
+- **Storage**: Vercel KV / Memory
+- **Auth**: API_SECRET
 
 ## Notes
 
-- Dashboard routes use `"use client"` with SWR for data fetching
-- API routes use Zod validation + custom error handling
-- All API routes have rate limiting (read: 100/min, write: 10/min)
-- E2E screenshots and test results are gitignored
-- Use `cn()` from `@/lib/utils` for class merging
-- Always handle errors gracefully with user-friendly messages
+- Dashboard: `"use client"` + SWR
+- API: Zod validation + custom errors
+- Rate limits: 100/min read, 10/min write
+- E2E screenshots: gitignored
+- Use `cn()` for class merging
+- Graceful error handling always

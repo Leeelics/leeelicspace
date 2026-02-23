@@ -8,6 +8,12 @@
     "start": "next start",
     "lint": "biome check",
     "format": "biome format --write",
+    "test": "vitest",
+    "test:ui": "vitest --ui",
+    "test:coverage": "vitest --coverage",
+    "test:e2e": "playwright test",
+    "test:e2e:ui": "playwright test --ui",
+    "test:all": "vitest run && playwright test",
     "test:kv": "node scripts/test-kv-storage.js",
     "test:edge": "node scripts/test-edge-config.js",
     "migrate:kv": "node scripts/migrate-to-kv.js",
@@ -46,12 +52,18 @@
     "@biomejs/biome": "2.2.0",
     "@playwright/test": "^1.58.2",
     "@tailwindcss/postcss": "^4",
+    "@testing-library/jest-dom": "^6.9.1",
+    "@testing-library/react": "^16.3.2",
     "@types/dompurify": "^3.0.5",
     "@types/node": "^20",
     "@types/react": "^19",
     "@types/react-dom": "^19",
+    "@vitejs/plugin-react": "^5.1.4",
     "babel-plugin-react-compiler": "1.0.0",
+    "happy-dom": "^20.7.0",
+    "jsdom": "^28.1.0",
     "tailwindcss": "^4",
-    "typescript": "^5"
+    "typescript": "^5",
+    "vitest": "^4.0.18"
   }
 }
