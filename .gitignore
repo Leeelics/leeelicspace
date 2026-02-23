@@ -41,6 +41,6 @@ yarn-error.log*
 next-env.d.ts
 
 # e2e screenshots & test results
-/e2e/screenshots/
-/e2e/ui-review/
+/tests/e2e/screenshots/
+/tests/e2e/ui-review/
 /test-results/
