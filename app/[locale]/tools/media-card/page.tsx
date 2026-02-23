@@ -3,6 +3,7 @@
 import { ArrowLeft, Sparkles } from "lucide-react";
 import dynamic from "next/dynamic";
 import Link from "next/link";
+import { Button } from "@/components/ui/button";
 
 // Dynamically import the MediaCardCreator to avoid SSR issues with html2canvas
 const MediaCardCreator = dynamic(
@@ -11,7 +12,7 @@ const MediaCardCreator = dynamic(
     ssr: false,
     loading: () => (
       <div className="flex items-center justify-center h-screen">
-        <div className="animate-pulse text-purple-600">加载中...</div>
+        <div className="animate-pulse text-primary">加载中...</div>
       </div>
     ),
   },
@@ -19,32 +20,35 @@ const MediaCardCreator = dynamic(
 
 export default function MediaCardPage() {
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-background">
       {/* Header */}
-      <header className="bg-white border-b border-gray-200 px-6 py-4">
+      <header className="bg-card border-b border-border px-6 py-4">
         <div className="max-w-7xl mx-auto flex items-center justify-between">
           <div className="flex items-center gap-4">
-            <Link
-              href="/"
-              className="p-2 hover:bg-gray-100 rounded-lg transition-colors text-gray-600"
-            >
-              <ArrowLeft size={20} />
+            <Link href="/">
+              <Button variant="ghost" size="icon">
+                <ArrowLeft size={20} />
+              </Button>
             </Link>
             <div className="flex items-center gap-2">
-              <Sparkles className="text-purple-600" size={24} />
+              <Sparkles className="text-primary" size={24} />
               <div>
-                <h1 className="text-xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-purple-600 to-pink-600">
+                <h1 className="text-xl font-bold text-foreground">
                   图文排版助手
                 </h1>
-                <p className="text-xs text-gray-500">来自 leelicspace</p>
+                <p className="text-xs text-muted-foreground">
+                  来自 leelicspace
+                </p>
               </div>
             </div>
           </div>
-          <Link
-            href="/dashboard/write"
-            className="text-sm text-purple-600 hover:text-purple-700 font-medium"
-          >
-            去写作中台 →
+          <Link href="/dashboard/write">
+            <Button
+              variant="ghost"
+              className="text-primary hover:text-primary/80"
+            >
+              去写作中台 →
+            </Button>
           </Link>
         </div>
       </header>

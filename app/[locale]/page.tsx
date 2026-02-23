@@ -1,6 +1,9 @@
 import Link from "next/link";
 import { getTranslations } from "next-intl/server";
 import { DataErrorDisplay } from "@/components/DataErrorDisplay";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent } from "@/components/ui/card";
 import { buildApiUrl } from "@/lib/url-helper";
 import type { Post } from "@/types";
 
@@ -93,13 +96,13 @@ export default async function Home({
     return (
       <div className="min-h-screen">
         {/* Hero Section */}
-        <section className="border-b border-[var(--border)]">
-          <div className="container py-12 md:py-16">
-            <div className="max-w-2xl">
-              <h1 className="text-[var(--font-size-hero)] font-semibold text-[var(--text-primary)] leading-tight mb-4">
+        <section className="border-b border-border bg-gradient-to-br from-slate-50/50 to-transparent dark:from-slate-950/50">
+          <div className="container py-20 md:py-28 lg:py-32">
+            <div className="max-w-3xl">
+              <h1 className="text-5xl md:text-6xl lg:text-7xl font-semibold text-foreground leading-[1.1] mb-6">
                 leelicspace
               </h1>
-              <p className="text-[var(--font-size-body)] text-[var(--text-secondary)] leading-relaxed">
+              <p className="text-lg md:text-xl text-muted-foreground leading-relaxed max-w-xl">
                 {isEn
                   ? "Recording Technology, Design & Thoughts"
                   : "记录技术、设计与思考"}
@@ -109,15 +112,15 @@ export default async function Home({
         </section>
 
         {/* Main Content - Two Column Layout */}
-        <section className="py-8 md:py-12">
+        <section className="py-16 md:py-20 lg:py-24">
           <div className="container">
-            <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12">
+            <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-16">
               {/* Left Sidebar */}
               <aside className="lg:col-span-3 order-2 lg:order-1">
-                <div className="lg:sticky lg:top-24 space-y-8">
+                <div className="lg:sticky lg:top-24 space-y-12">
                   {/* Tags */}
                   <div>
-                    <h2 className="text-[var(--font-size-small)] font-semibold text-[var(--text-tertiary)] uppercase tracking-wider mb-3">
+                    <h2 className="text-sm font-semibold text-muted-foreground uppercase tracking-wider mb-4">
                       {isEn ? "Tags" : "标签"}
                     </h2>
                     <div className="flex flex-wrap gap-2">
@@ -125,17 +128,25 @@ export default async function Home({
                         href={
                           search ? `/${locale}?search=${search}` : `/${locale}`
                         }
-                        className={`tag ${!tag ? "active" : ""}`}
                       >
-                        {t("tags.all")}
+                        <Badge
+                          variant={!tag ? "default" : "secondary"}
+                          className="cursor-pointer"
+                        >
+                          {t("tags.all")}
+                        </Badge>
                       </Link>
                       {tags.map((t: string) => (
                         <Link
                           key={t}
                           href={`/${locale}?tag=${t}${search ? `&search=${search}` : ""}`}
-                          className={`tag ${tag === t ? "active" : ""}`}
                         >
-                          {t}
+                          <Badge
+                            variant={tag === t ? "default" : "secondary"}
+                            className="cursor-pointer"
+                          >
+                            {t}
+                          </Badge>
                         </Link>
                       ))}
                     </div>
@@ -143,20 +154,20 @@ export default async function Home({
 
                   {/* Collections */}
                   <div>
-                    <h2 className="text-[var(--font-size-small)] font-semibold text-[var(--text-tertiary)] uppercase tracking-wider mb-3">
+                    <h2 className="text-sm font-semibold text-muted-foreground uppercase tracking-wider mb-4">
                       {isEn ? "Collections" : "专辑"}
                     </h2>
-                    <nav className="space-y-1">
+                    <nav className="space-y-2">
                       {collections.map((collection) => (
                         <Link
                           key={collection.id}
                           href={`/${locale}/collection/${collection.id}`}
-                          className="group flex items-center justify-between py-2 text-[var(--font-size-body)] text-[var(--text-secondary)] hover:text-[var(--text-primary)] transition-colors"
+                          className="group flex items-center justify-between py-2 text-base text-muted-foreground hover:text-foreground transition-colors"
                         >
                           <span className="truncate">
                             {isEn ? collection.titleEn : collection.title}
                           </span>
-                          <span className="text-[var(--font-size-small)] text-[var(--text-muted)] ml-2">
+                          <span className="text-sm text-muted-foreground ml-2">
                             {collection.count}
                           </span>
                         </Link>
@@ -167,15 +178,15 @@ export default async function Home({
                   {/* Popular Posts */}
                   {posts.length > 0 && (
                     <div>
-                      <h2 className="text-[var(--font-size-small)] font-semibold text-[var(--text-tertiary)] uppercase tracking-wider mb-3">
+                      <h2 className="text-sm font-semibold text-muted-foreground uppercase tracking-wider mb-4">
                         {isEn ? "Popular" : "热门"}
                       </h2>
-                      <nav className="space-y-2">
+                      <nav className="space-y-3">
                         {posts.slice(0, 5).map((post: Post) => (
                           <Link
                             key={post.id}
                             href={`/${locale}/posts/${post.id}`}
-                            className="block text-[var(--font-size-body)] text-[var(--text-secondary)] hover:text-[var(--text-primary)] transition-colors line-clamp-2"
+                            className="block text-base text-muted-foreground hover:text-foreground transition-colors line-clamp-2"
                           >
                             {post.title}
                           </Link>
@@ -190,16 +201,18 @@ export default async function Home({
               <div className="lg:col-span-9 order-1 lg:order-2">
                 {/* Filter Indicator */}
                 {(tag || search) && (
-                  <div className="mb-8 p-4 bg-[var(--bg-subtle)] border border-[var(--border)] rounded-lg">
-                    <h2 className="text-[var(--font-size-h3)] font-semibold text-[var(--text-primary)]">
-                      {search
-                        ? `${t("tags.searchResults")}: "${search}"`
-                        : `${t("tags.tag")}: ${tag}`}
-                    </h2>
-                    <p className="text-[var(--font-size-body)] text-[var(--text-tertiary)] mt-1">
-                      {t("tags.articlesCount", { count: pagination.total })}
-                    </p>
-                  </div>
+                  <Card className="mb-8">
+                    <CardContent className="pt-6">
+                      <h2 className="text-base font-semibold text-foreground">
+                        {search
+                          ? `${t("tags.searchResults")}: "${search}"`
+                          : `${t("tags.tag")}: ${tag}`}
+                      </h2>
+                      <p className="text-base text-muted-foreground mt-1">
+                        {t("tags.articlesCount", { count: pagination.total })}
+                      </p>
+                    </CardContent>
+                  </Card>
                 )}
 
                 {posts.length > 0 ? (
@@ -226,12 +239,13 @@ export default async function Home({
                             ...(tag ? { tag } : {}),
                             ...(search ? { search } : {}),
                           })}`}
-                          className={`btn btn-secondary btn-md ${page === 1 ? "opacity-50 pointer-events-none" : ""}`}
                         >
-                          {t("pagination.previous")}
+                          <Button variant="outline" disabled={page === 1}>
+                            {t("pagination.previous")}
+                          </Button>
                         </Link>
 
-                        <span className="px-4 py-2 text-[var(--font-size-body)] text-[var(--text-secondary)] bg-[var(--bg-subtle)] rounded-md">
+                        <span className="px-4 py-2 text-base text-muted-foreground bg-muted rounded-md">
                           {page} / {pagination.total_pages}
                         </span>
 
@@ -241,9 +255,13 @@ export default async function Home({
                             ...(tag ? { tag } : {}),
                             ...(search ? { search } : {}),
                           })}`}
-                          className={`btn btn-secondary btn-md ${page === pagination.total_pages ? "opacity-50 pointer-events-none" : ""}`}
                         >
-                          {t("pagination.next")}
+                          <Button
+                            variant="outline"
+                            disabled={page === pagination.total_pages}
+                          >
+                            {t("pagination.next")}
+                          </Button>
                         </Link>
                       </div>
                     )}
@@ -291,10 +309,10 @@ function ArticleCard({
     >
       <Link
         href={`/${locale}/posts/${post.id}`}
-        className="block py-6 border-b border-[var(--border)] last:border-b-0 transition-colors"
+        className="block py-8 border-b border-border last:border-b-0 transition-colors"
       >
         {/* Title */}
-        <h3 className="text-[var(--font-size-h2)] font-semibold text-[var(--text-primary)] group-hover:text-[var(--accent)] transition-colors leading-snug mb-3">
+        <h3 className="text-2xl md:text-3xl font-semibold text-foreground group-hover:text-primary transition-colors leading-snug mb-4">
           {post.title}
         </h3>
 
@@ -302,15 +320,15 @@ function ArticleCard({
         <div className="flex items-center gap-3 mb-3">
           <time
             dateTime={post.created_at}
-            className="text-[var(--font-size-small)] text-[var(--text-muted)]"
+            className="text-sm text-muted-foreground"
           >
             {formatDate(post.created_at, isEn)}
           </time>
 
           {post.tags.length > 0 && (
             <>
-              <span className="text-[var(--border-strong)]">·</span>
-              <span className="text-[var(--font-size-small)] text-[var(--text-tertiary)]">
+              <span className="text-border">·</span>
+              <span className="text-sm text-muted-foreground">
                 {post.tags.slice(0, 3).join(", ")}
               </span>
             </>
@@ -318,12 +336,12 @@ function ArticleCard({
         </div>
 
         {/* Excerpt - Max 3 lines */}
-        <p className="text-[var(--font-size-body)] text-[var(--text-secondary)] leading-relaxed line-clamp-3">
+        <p className="text-base text-muted-foreground leading-relaxed line-clamp-3">
           {post.content.slice(0, 200).replace(/[#*`[\]]/g, "")}
         </p>
 
         {/* Read More */}
-        <div className="mt-4 flex items-center text-[var(--font-size-body)] text-[var(--accent)]">
+        <div className="mt-4 flex items-center text-base text-primary">
           <span className="font-medium">{t("article.readMore")}</span>
           <svg
             xmlns="http://www.w3.org/2000/svg"
@@ -362,7 +380,7 @@ function EmptyState({
 }) {
   return (
     <div className="text-center py-16">
-      <div className="w-12 h-12 mx-auto mb-4 rounded-full bg-[var(--bg-subtle)] flex items-center justify-center">
+      <div className="w-12 h-12 mx-auto mb-4 rounded-full bg-muted flex items-center justify-center">
         <svg
           xmlns="http://www.w3.org/2000/svg"
           width="20"
@@ -373,7 +391,7 @@ function EmptyState({
           strokeWidth="1.5"
           strokeLinecap="round"
           strokeLinejoin="round"
-          className="text-[var(--text-muted)]"
+          className="text-muted-foreground"
           aria-hidden="true"
         >
           <title>No articles icon</title>
@@ -384,12 +402,12 @@ function EmptyState({
           <polyline points="10 9 9 9 8 9" />
         </svg>
       </div>
-      <p className="text-[var(--font-size-body)] text-[var(--text-tertiary)]">
+      <p className="text-base text-muted-foreground">
         {search ? t("empty.noSearchResults") : t("empty.noArticles")}
       </p>
       {(tag || search) && (
-        <Link href={`/${locale}`} className="btn btn-primary btn-md mt-6">
-          {t("empty.viewAll")}
+        <Link href={`/${locale}`}>
+          <Button className="mt-6">{t("empty.viewAll")}</Button>
         </Link>
       )}
     </div>
